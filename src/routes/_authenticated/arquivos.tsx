@@ -355,6 +355,10 @@ function Arquivos() {
         }
       />
 
+      <ProjectFilter value={projectFilter} onChange={setProjectFilter} />
+
+
+
       <AppCard title="Pastas" subtitle="Clique para entrar; subpastas ficam dentro da pasta atual.">
         <div className="space-y-3">
           <SelectPillGroup>
