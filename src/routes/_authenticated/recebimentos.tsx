@@ -17,7 +17,7 @@ import { RecordList } from "@/components/record-list";
 import { TotalCard } from "@/components/total-card";
 import { PeriodPicker, toISODate, usePeriodPicker } from "@/components/period-picker";
 import { useRecords } from "@/hooks/use-records";
-import { useOrgId, useOrgRole } from "@/hooks/use-org";
+import { useOrgId, useOrgRole, usePermissions } from "@/hooks/use-org";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatMoney } from "@/lib/finance";
 import {
@@ -64,7 +64,7 @@ function Recebimentos() {
 
   const accounts = useRecords<PaymentAccountRow & { id: string }>({
     table: "payment_accounts",
-    columns: "id, name, provider, fee_percent, payout_days, color",
+    columns: "id, name, provider, fee_percent, payout_days, color, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "name" },
     softDelete: false,
@@ -125,11 +125,12 @@ function ReceiptsSection({
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(() => emptyReceiptValues(""));
   const [toDelete, setToDelete] = useState<PaymentReceiptRow | null>(null);
+  const perms = usePermissions();
 
   const receipts = useRecords<PaymentReceiptRow & { id: string }>({
     table: "payment_receipts",
     columns:
-      "id, account_id, date, description, gross, fee_percent, paid_out, external_id, finance_entry_id",
+      "id, account_id, date, description, gross, fee_percent, paid_out, external_id, finance_entry_id, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "date", ascending: false },
     label: "recebimento",
@@ -280,9 +281,11 @@ function ReceiptsSection({
         title="Recebimentos do período"
         subtitle="Cada recebimento salvo cria automaticamente uma entrada no Dinheiro."
         actions={
-          <Button className="text-body" onClick={openNew} disabled={!orgId}>
-            <Plus className="size-4" aria-hidden /> Novo recebimento manual
-          </Button>
+          perms.canWrite ? (
+            <Button className="text-body" onClick={openNew} disabled={!orgId}>
+              <Plus className="size-4" aria-hidden /> Novo recebimento manual
+            </Button>
+          ) : undefined
         }
       >
         <RecordList<PaymentReceiptRow & { id: string }>
@@ -305,11 +308,15 @@ function ReceiptsSection({
             title: "Nenhum recebimento",
             message: "Ainda não há nada aqui neste período.",
             icon: <CreditCard className="size-5" aria-hidden />,
-            action: (
-              <Button className="text-body" onClick={openNew} disabled={!orgId}>
-                Novo recebimento manual
-              </Button>
-            ),
+            ...(perms.canWrite
+              ? {
+                  action: (
+                    <Button className="text-body" onClick={openNew} disabled={!orgId}>
+                      Novo recebimento manual
+                    </Button>
+                  ),
+                }
+              : {}),
           }}
           renderItem={(r) => (
             <>
@@ -335,30 +342,36 @@ function ReceiptsSection({
                 {formatMoney(netAmount(Number(r.gross), Number(r.fee_percent)))}
               </span>
               <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Duplicar recebimento"
-                  onClick={() => fill(r, false)}
-                >
-                  <Copy className="size-4" aria-hidden />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Editar recebimento"
-                  onClick={() => fill(r, true)}
-                >
-                  <Pencil className="size-4" aria-hidden />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Excluir recebimento"
-                  onClick={() => setToDelete(r)}
-                >
-                  <Trash2 className="size-4" aria-hidden />
-                </Button>
+                {perms.canWrite && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Duplicar recebimento"
+                      onClick={() => fill(r, false)}
+                    >
+                      <Copy className="size-4" aria-hidden />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Editar recebimento"
+                      onClick={() => fill(r, true)}
+                    >
+                      <Pencil className="size-4" aria-hidden />
+                    </Button>
+                  </>
+                )}
+                {perms.canDelete(r.created_by) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Excluir recebimento"
+                    onClick={() => setToDelete(r)}
+                  >
+                    <Trash2 className="size-4" aria-hidden />
+                  </Button>
+                )}
               </div>
             </>
           )}
@@ -461,15 +474,19 @@ function AccountsSection({
     setOpen(true);
   }
 
+  const perms = usePermissions();
+
   return (
     <>
       <AppCard
         title="Contas de recebimento"
         subtitle="Onde o dinheiro entra: provedor, taxa e prazo de repasse."
         actions={
-          <Button className="text-body" onClick={openNew}>
-            <Plus className="size-4" aria-hidden /> Nova conta
-          </Button>
+          perms.canWrite ? (
+            <Button className="text-body" onClick={openNew}>
+              <Plus className="size-4" aria-hidden /> Nova conta
+            </Button>
+          ) : undefined
         }
       >
         <RecordList<PaymentAccountRow & { id: string }>
@@ -488,11 +505,15 @@ function AccountsSection({
             title: "Nenhuma conta",
             message: "Cadastre a primeira conta de recebimento.",
             icon: <CreditCard className="size-5" aria-hidden />,
-            action: (
-              <Button className="text-body" onClick={openNew}>
-                Nova conta
-              </Button>
-            ),
+            ...(perms.canWrite
+              ? {
+                  action: (
+                    <Button className="text-body" onClick={openNew}>
+                      Nova conta
+                    </Button>
+                  ),
+                }
+              : {}),
           }}
           renderItem={(a) => (
             <>
@@ -512,6 +533,7 @@ function AccountsSection({
                 </p>
               </div>
               <div className="flex items-center gap-1">
+                {perms.canWrite && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -530,6 +552,8 @@ function AccountsSection({
                 >
                   <Pencil className="size-4" aria-hidden />
                 </Button>
+                )}
+                {perms.canDelete(a.created_by) && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -538,6 +562,7 @@ function AccountsSection({
                 >
                   <Trash2 className="size-4" aria-hidden />
                 </Button>
+                )}
               </div>
             </>
           )}

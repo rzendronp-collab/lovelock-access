@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { usePermissions } from "@/hooks/use-org";
 import { Button } from "@/components/ui/button";
 
 /** Painel lateral ÚNICO de detalhe/edição do sistema. */
@@ -120,6 +121,8 @@ export function RecordPanel({
   idPrefix?: string;
   children?: ReactNode;
 }) {
+  const { canWrite } = usePermissions();
+
   return (
     <DetailPanel
       open={open}
@@ -127,9 +130,15 @@ export function RecordPanel({
       title={title}
       description={description}
       footer={
-        <Button className="text-body w-full" disabled={saving} onClick={onSave}>
-          {saving ? "Salvando..." : saveLabel}
-        </Button>
+        canWrite ? (
+          <Button className="text-body w-full" disabled={saving} onClick={onSave}>
+            {saving ? "Salvando..." : saveLabel}
+          </Button>
+        ) : (
+          <p className="text-label text-center text-muted-foreground">
+            Seu papel permite apenas visualizar.
+          </p>
+        )
       }
     >
       <div className="space-y-4">

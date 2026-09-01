@@ -11,6 +11,7 @@ export type FinanceEntryRow = {
   received: boolean;
   origin: string;
   contact_id: string | null;
+  created_by: string | null;
 };
 
 export type FixedCostRow = {
@@ -22,6 +23,7 @@ export type FixedCostRow = {
   start_month: string;
   end_month: string | null;
   active: boolean;
+  created_by: string | null;
 };
 
 /** Lançamento exibido na lista: real (do banco) ou projetado de uma despesa fixa. */
@@ -38,6 +40,7 @@ export type DisplayEntry = {
   virtual: boolean;
   sourceId: string;
   contact_id: string | null;
+  created_by: string | null;
 };
 
 export function formatMoney(value: number) {
@@ -90,6 +93,7 @@ export function expandFixedCosts(
             virtual: true,
             sourceId: c.id,
             contact_id: null,
+            created_by: c.created_by ?? null,
           });
         }
       }
@@ -113,6 +117,7 @@ export function toDisplay(rows: FinanceEntryRow[]): DisplayEntry[] {
     virtual: false,
     sourceId: r.id,
     contact_id: r.contact_id ?? null,
+    created_by: r.created_by ?? null,
   }));
 }
 

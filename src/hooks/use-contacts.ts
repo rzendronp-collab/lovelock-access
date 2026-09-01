@@ -11,6 +11,7 @@ export type ContactRow = {
   phone: string | null;
   doc: string | null;
   note: string;
+  created_by?: string | null;
 };
 
 export const CONTACT_KINDS = [

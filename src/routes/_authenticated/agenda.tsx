@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRecords } from "@/hooks/use-records";
-import { useOrgId, useUserId } from "@/hooks/use-org";
+import { useOrgId, usePermissions, useUserId } from "@/hooks/use-org";
 import { ITEM_COLORS, colorSwatch } from "@/lib/board";
 import { formatDate, formatMoney } from "@/lib/finance";
 import { cn } from "@/lib/utils";
@@ -60,6 +60,7 @@ type AgendaRow = {
   color: string;
   done: boolean;
   assignee_id: string | null;
+  created_by?: string | null;
 };
 
 type CardRow = { id: string; board_id: string; title: string; due_date: string | null; done: boolean };
@@ -146,6 +147,7 @@ function eachDay(period: Period) {
 function Agenda() {
   const today = toISODate(new Date());
   const { data: orgId, isLoading: loadingOrg } = useOrgId();
+  const perms = usePermissions();
   const { data: userId } = useUserId();
   const [view, setView] = useState<View>("lista");
   const listPeriod = usePeriodPicker("mes");
@@ -165,7 +167,7 @@ function Agenda() {
 
   const agenda = useRecords<AgendaRow>({
     table: "agenda_items",
-    columns: "id, title, date, time, kind, note, color, done, assignee_id",
+    columns: "id, title, date, time, kind, note, color, done, assignee_id, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "date", ascending: true },
     trackCreatedBy: true,
@@ -351,7 +353,8 @@ function Agenda() {
 
   function renderItem(item: AgendaDisplay) {
     const Icon = KIND_ICON[item.kind];
-    const editable = item.origin === "agenda";
+    const own = agenda.rows.find((r) => r.id === item.sourceId);
+    const editable = item.origin === "agenda" && perms.canWrite;
     return (
       <li
         key={item.id}
@@ -376,19 +379,23 @@ function Agenda() {
           </p>
         </div>
         {itemLink(item)}
-        {editable && (
+        {item.origin === "agenda" && (
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" aria-label="Editar item" onClick={() => openEdit(item)}>
-              <Pencil className="size-4" aria-hidden />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Excluir item"
-              onClick={() => setToDelete(item.sourceId)}
-            >
-              <Trash2 className="size-4" aria-hidden />
-            </Button>
+            {perms.canWrite && (
+              <Button variant="ghost" size="icon" aria-label="Editar item" onClick={() => openEdit(item)}>
+                <Pencil className="size-4" aria-hidden />
+              </Button>
+            )}
+            {perms.canDelete(own?.created_by ?? null) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Excluir item"
+                onClick={() => setToDelete(item.sourceId)}
+              >
+                <Trash2 className="size-4" aria-hidden />
+              </Button>
+            )}
           </div>
         )}
       </li>
@@ -403,9 +410,11 @@ function Agenda() {
         title="Agenda"
         subtitle="Tarefas, prazos e recados — junto com os prazos do Trabalho e as saídas do Dinheiro."
         actions={
-          <Button className="text-body" onClick={() => openNew(today)}>
-            <Plus className="size-4" aria-hidden /> Novo item
-          </Button>
+          perms.canWrite ? (
+            <Button className="text-body" onClick={() => openNew(today)}>
+              <Plus className="size-4" aria-hidden /> Novo item
+            </Button>
+          ) : undefined
         }
       />
 
@@ -448,9 +457,11 @@ function Agenda() {
             message="Ainda não há nada aqui neste período. Prazos de cartões e saídas do Dinheiro aparecem automaticamente."
             icon={<CalendarDays className="size-5" aria-hidden />}
             action={
-              <Button className="text-body" onClick={() => openNew(today)}>
-                Novo item
-              </Button>
+              perms.canWrite ? (
+                <Button className="text-body" onClick={() => openNew(today)}>
+                  Novo item
+                </Button>
+              ) : undefined
             }
           />
         ) : view === "mes" ? (
@@ -514,14 +525,16 @@ function Agenda() {
                       {formatDate(day)}
                       {day === today ? " · hoje" : ""}
                     </p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-label"
-                      onClick={() => openNew(day)}
-                    >
-                      <Plus className="size-4" aria-hidden /> Item
-                    </Button>
+                    {perms.canWrite && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-label"
+                        onClick={() => openNew(day)}
+                      >
+                        <Plus className="size-4" aria-hidden /> Item
+                      </Button>
+                    )}
                   </div>
                   <ul className="divide-y divide-border">
                     {(byDay.get(day) ?? []).map((item) => renderItem(item))}

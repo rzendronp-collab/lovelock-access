@@ -1019,6 +1019,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_delete: {
+        Args: { row_creator: string; target_org: string }
+        Returns: boolean
+      }
+      can_delete_card_item: {
+        Args: { row_author: string; target_card: string }
+        Returns: boolean
+      }
+      can_write: { Args: { target_org: string }; Returns: boolean }
       is_admin_or_owner: { Args: { target_org: string }; Returns: boolean }
       is_member: { Args: { org_id: string }; Returns: boolean }
       is_member_via_goal: { Args: { target_goal: string }; Returns: boolean }

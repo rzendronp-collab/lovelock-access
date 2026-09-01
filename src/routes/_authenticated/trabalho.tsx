@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRecords } from "@/hooks/use-records";
 import { useContactField } from "@/hooks/use-contacts";
-import { useOrgId, useUserId } from "@/hooks/use-org";
+import { useOrgId, usePermissions, useUserId } from "@/hooks/use-org";
 import {
   ITEM_COLORS,
   colorSwatch,
@@ -68,6 +68,7 @@ type BoardRow = {
   id: string;
   name: string;
   folder: string;
+  created_by?: string | null;
 };
 
 type ColumnRow = {
@@ -91,6 +92,7 @@ type CardRow = {
   done: boolean;
   archived: boolean;
   contact_id: string | null;
+  created_by?: string | null;
 };
 
 type CardItemRow = {
@@ -100,6 +102,7 @@ type CardItemRow = {
   content: string;
   done: boolean;
   path: string;
+  created_by?: string | null;
 };
 
 type Values = Record<string, FieldValue>;
@@ -130,6 +133,7 @@ function Trabalho() {
   const navigate = useNavigate();
   const handledCardRef = useRef<string | null>(null);
   const { data: orgId, isLoading: loadingOrg } = useOrgId();
+  const perms = usePermissions();
   const { data: userId } = useUserId();
 
 
@@ -154,7 +158,7 @@ function Trabalho() {
 
   const boards = useRecords<BoardRow>({
     table: "boards",
-    columns: "id, name, folder",
+    columns: "id, name, folder, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "name", ascending: true },
     trackCreatedBy: true,
@@ -172,7 +176,7 @@ function Trabalho() {
   const cards = useRecords<CardRow>({
     table: "cards",
     columns:
-      "id, board_id, column_id, title, description, assignee_id, due_date, label, color, position, done, archived, contact_id",
+      "id, board_id, column_id, title, description, assignee_id, due_date, label, color, position, done, archived, contact_id, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "position", ascending: true },
     trackCreatedBy: true,
@@ -181,7 +185,7 @@ function Trabalho() {
 
   const items = useRecords<CardItemRow>({
     table: "card_items",
-    columns: "id, card_id, kind, content, done, path",
+    columns: "id, card_id, kind, content, done, path, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "created_at", ascending: true },
     trackCreatedBy: true,
@@ -396,18 +400,20 @@ function Trabalho() {
         title="Trabalho"
         subtitle="Quadros, colunas e cartões da sua equipe."
         actions={
-          <>
-            <Button variant="outline" className="text-body" onClick={() => setBoardPanel(true)}>
-              <Plus className="size-4" aria-hidden />
-              Novo quadro
-            </Button>
-            {currentBoard && (
-              <Button className="text-body" onClick={() => setColumnPanel(true)}>
+          perms.canWrite ? (
+            <>
+              <Button variant="outline" className="text-body" onClick={() => setBoardPanel(true)}>
                 <Plus className="size-4" aria-hidden />
-                Nova coluna
+                Novo quadro
               </Button>
-            )}
-          </>
+              {currentBoard && (
+                <Button className="text-body" onClick={() => setColumnPanel(true)}>
+                  <Plus className="size-4" aria-hidden />
+                  Nova coluna
+                </Button>
+              )}
+            </>
+          ) : undefined
         }
       />
 
@@ -426,9 +432,11 @@ function Trabalho() {
             message="Crie o primeiro quadro para começar a organizar o trabalho."
             icon={<ListChecks className="size-5" aria-hidden />}
             action={
-              <Button className="text-body" onClick={() => setBoardPanel(true)}>
-                Novo quadro
-              </Button>
+              perms.canWrite ? (
+                <Button className="text-body" onClick={() => setBoardPanel(true)}>
+                  Novo quadro
+                </Button>
+              ) : undefined
             }
           />
         </AppCard>
@@ -501,9 +509,11 @@ function Trabalho() {
                 title="Nenhuma coluna neste quadro"
                 message="Crie a primeira coluna para receber os cartões."
                 action={
-                  <Button className="text-body" onClick={() => setColumnPanel(true)}>
-                    Nova coluna
-                  </Button>
+                  perms.canWrite ? (
+                    <Button className="text-body" onClick={() => setColumnPanel(true)}>
+                      Nova coluna
+                    </Button>
+                  ) : undefined
                 }
               />
             </AppCard>
@@ -531,7 +541,7 @@ function Trabalho() {
                       {colCards.map((card) => (
                         <li
                           key={card.id}
-                          draggable
+                          draggable={perms.canWrite}
                           onDragStart={(e) => e.dataTransfer.setData("text/plain", card.id)}
                           className="rounded-md border border-border bg-background p-3"
                         >
@@ -539,6 +549,7 @@ function Trabalho() {
                             <Checkbox
                               className="mt-0.5"
                               checked={card.done}
+                              disabled={!perms.canWrite}
                               aria-label="Marcar como concluído"
                               onCheckedChange={(v) =>
                                 cards.update.mutate({
@@ -570,6 +581,8 @@ function Trabalho() {
                                 >
                                   Abrir detalhe
                                 </DropdownMenuItem>
+                                {perms.canWrite && (
+                                <>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuLabel className="text-label">
                                   Mover para…
@@ -597,12 +610,16 @@ function Trabalho() {
                                 >
                                   Arquivar
                                 </DropdownMenuItem>
+                                </>
+                                )}
+                                {perms.canDelete(card.created_by) && (
                                 <DropdownMenuItem
                                   className="text-body"
                                   onClick={() => setToDelete(card)}
                                 >
                                   Excluir
                                 </DropdownMenuItem>
+                                )}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
@@ -632,14 +649,16 @@ function Trabalho() {
                         </li>
                       ))}
                     </ul>
-                    <Button
-                      variant="ghost"
-                      className="text-body mt-2 w-full justify-start"
-                      onClick={() => newCard(col.id)}
-                    >
-                      <Plus className="size-4" aria-hidden />
-                      Novo cartão
-                    </Button>
+                    {perms.canWrite && (
+                      <Button
+                        variant="ghost"
+                        className="text-body mt-2 w-full justify-start"
+                        onClick={() => newCard(col.id)}
+                      >
+                        <Plus className="size-4" aria-hidden />
+                        Novo cartão
+                      </Button>
+                    )}
                   </div>
                 );
               })}
@@ -710,14 +729,16 @@ function Trabalho() {
                     >
                       {i.content}
                     </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-label"
-                      onClick={() => items.remove.mutate(i.id)}
-                    >
-                      Remover
-                    </Button>
+                    {perms.canDelete(i.created_by) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-label"
+                        onClick={() => items.remove.mutate(i.id)}
+                      >
+                        Remover
+                      </Button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -753,14 +774,16 @@ function Trabalho() {
                 {comments.map((i) => (
                   <li key={i.id} className="rounded-md border border-border p-2">
                     <p className="text-body">{i.content}</p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-label"
-                      onClick={() => items.remove.mutate(i.id)}
-                    >
-                      Remover
-                    </Button>
+                    {perms.canDelete(i.created_by) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-label"
+                        onClick={() => items.remove.mutate(i.id)}
+                      >
+                        Remover
+                      </Button>
+                    )}
                   </li>
                 ))}
               </ul>

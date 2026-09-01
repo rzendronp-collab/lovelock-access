@@ -23,7 +23,7 @@ export function useFinanceTotals(period: Period) {
   const entries = useRecords<FinanceEntryRow & { id: string }>({
     table: "finance_entries",
     columns:
-      "id, entry_date, description, category, account, kind, amount, received, origin, contact_id",
+      "id, entry_date, description, category, account, kind, amount, received, origin, contact_id, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "entry_date", ascending: false },
     trackCreatedBy: true,
@@ -32,7 +32,7 @@ export function useFinanceTotals(period: Period) {
 
   const fixed = useRecords<FixedCostRow & { id: string }>({
     table: "fixed_costs",
-    columns: "id, label, category, amount, day_of_month, start_month, end_month, active",
+    columns: "id, label, category, amount, day_of_month, start_month, end_month, active, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "label", ascending: true },
     softDelete: false,
