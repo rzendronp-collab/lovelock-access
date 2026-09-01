@@ -10,9 +10,9 @@ export function EmptyState({
   action,
 }: {
   title: string;
-  message?: string;
-  icon?: ReactNode;
-  action?: ReactNode;
+  message?: string | undefined;
+  icon?: ReactNode | undefined;
+  action?: ReactNode | undefined;
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-6 py-14 text-center">
@@ -45,9 +45,9 @@ export function ErrorState({
   message = "Não foi possível carregar estas informações.",
   onRetry,
 }: {
-  title?: string;
-  message?: string;
-  onRetry?: () => void;
+  title?: string | undefined;
+  message?: string | undefined;
+  onRetry?: (() => void) | undefined;
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-6 py-14 text-center">
