@@ -16,10 +16,13 @@ export function TotalCard({
   label,
   value,
   delta,
+  sub,
 }: {
   label: string;
   value: string;
   delta?: Delta | undefined;
+  /** Linha pequena e discreta abaixo do número (ex.: equivalente aproximado em real). */
+  sub?: string | undefined;
 }) {
   const dir = delta ? (delta.value > 0 ? "up" : delta.value < 0 ? "down" : "flat") : null;
   const Icon = dir === "up" ? ArrowUpRight : dir === "down" ? ArrowDownRight : Minus;
