@@ -48,6 +48,8 @@ import {
 import { useRecords } from "@/hooks/use-records";
 import { useContactField } from "@/hooks/use-contacts";
 import { useOrgId, usePermissions } from "@/hooks/use-org";
+import { ProjectFilter } from "@/components/project-select";
+
 import { ITEM_COLORS, colorSwatch } from "@/lib/board";
 import { cn } from "@/lib/utils";
 
