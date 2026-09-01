@@ -36,8 +36,8 @@ export function DetailPanel({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  description?: string;
-  footer?: ReactNode;
+  description?: string | undefined;
+  footer?: ReactNode | undefined;
   children: ReactNode;
 }) {
   return (
