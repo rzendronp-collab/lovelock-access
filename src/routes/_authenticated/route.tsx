@@ -1,6 +1,15 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarCheck, FolderClosed, ListChecks, Moon, Settings, Sun, Wallet } from "lucide-react";
+import {
+  CalendarCheck,
+  CreditCard,
+  FolderClosed,
+  ListChecks,
+  Moon,
+  Settings,
+  Sun,
+  Wallet,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -20,6 +29,7 @@ const NAV = [
   { to: "/painel", label: "Painel de hoje", icon: CalendarCheck },
   { to: "/trabalho", label: "Trabalho", icon: ListChecks },
   { to: "/dinheiro", label: "Dinheiro", icon: Wallet },
+  { to: "/recebimentos", label: "Recebimentos", icon: CreditCard },
   { to: "/arquivos", label: "Arquivos", icon: FolderClosed },
 ] as const;
 
