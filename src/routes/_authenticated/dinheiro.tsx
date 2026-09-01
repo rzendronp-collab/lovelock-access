@@ -16,22 +16,25 @@ import {
   type FieldValue,
 } from "@/components/detail-panel";
 import { RecordList } from "@/components/record-list";
-import { PeriodPicker, toISODate, usePeriodPicker } from "@/components/period-picker";
+import { TotalCard } from "@/components/total-card";
+import {
+  PeriodPicker,
+  toISODate,
+  usePeriodPicker,
+  type PeriodKey,
+} from "@/components/period-picker";
 import { useRecords } from "@/hooks/use-records";
-import { useOrgId } from "@/hooks/use-org";
+import { entriesInRange, useFinanceTotals } from "@/hooks/use-finance-totals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
-  expandFixedCosts,
   formatDate,
   formatMoney,
-  toDisplay,
   totals,
   type DisplayEntry,
   type EntryKind,
-  type FinanceEntryRow,
   type FixedCostRow,
 } from "@/lib/finance";
 
