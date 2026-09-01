@@ -1,0 +1,1 @@
+alter table public.organizations add column if not exists eur_to_brl numeric(10,4) not null default 6.0000;

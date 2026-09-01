@@ -9,7 +9,9 @@ import { ErrorState, LoadingState } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useOrgId } from "@/hooks/use-org";
+import { Input } from "@/components/ui/input";
+import { useOrgId, usePermissions } from "@/hooks/use-org";
+import { useEurRate } from "@/hooks/use-eur-rate";
 import {
   downloadBackup,
   exportOrgData,
@@ -49,6 +51,10 @@ function Ajustes() {
   const [lastExport, setLastExport] = useState(() => getLastExportAt());
   const [busy, setBusy] = useState<"export" | "import" | null>(null);
   const [onlyMissing, setOnlyMissing] = useState(true);
+  const perms = usePermissions();
+  const { rate, isLoading: loadingRate, save: saveRate } = useEurRate();
+  const [rateText, setRateText] = useState<string | null>(null);
+  const rateValue = rateText ?? String(rate).replace(".", ",");
 
   async function handleExport() {
     if (!orgId) return;
@@ -90,6 +96,50 @@ function Ajustes() {
   return (
     <>
       <PageHeader title="Ajustes" subtitle="Preferências da empresa e cópia de segurança." />
+
+      <AppCard
+        title="Cotação do euro (R$)"
+        subtitle="Usada para mostrar o equivalente em real ao lado dos valores em euro da Stripe. Atualize quando o câmbio mudar."
+      >
+        {loadingRate ? (
+          <LoadingState />
+        ) : (
+          <div className="flex flex-wrap items-end gap-2">
+            <div className="space-y-1">
+              <Label htmlFor="eur-rate" className="text-label">
+                1 € equivale a
+              </Label>
+              <Input
+                id="eur-rate"
+                inputMode="decimal"
+                className="text-body w-40"
+                value={rateValue}
+                disabled={!perms.isAdmin}
+                onChange={(e) => setRateText(e.target.value)}
+              />
+            </div>
+            <Button
+              className="text-body"
+              disabled={!perms.isAdmin || saveRate.isPending}
+              onClick={() => {
+                const parsed = Number(rateValue.replace(",", "."));
+                if (!Number.isFinite(parsed) || parsed <= 0) {
+                  toast.error("Informe uma cotação válida (ex.: 6,20).");
+                  return;
+                }
+                saveRate.mutate(Number(parsed.toFixed(4)));
+              }}
+            >
+              Salvar cotação
+            </Button>
+            {!perms.isAdmin && (
+              <p className="text-label text-muted-foreground">
+                Só dono ou admin pode alterar a cotação.
+              </p>
+            )}
+          </div>
+        )}
+      </AppCard>
 
       <AppCard
         title="Cópia de segurança"
