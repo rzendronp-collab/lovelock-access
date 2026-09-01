@@ -1041,6 +1041,63 @@ export type Database = {
           },
         ]
       }
+      mindmaps: {
+        Row: {
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          edges: Json
+          id: string
+          nodes: Json
+          org_id: string
+          project_id: string | null
+          title: string
+          updated_at: string
+          viewport: Json | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          edges?: Json
+          id?: string
+          nodes?: Json
+          org_id: string
+          project_id?: string | null
+          title?: string
+          updated_at?: string
+          viewport?: Json | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          edges?: Json
+          id?: string
+          nodes?: Json
+          org_id?: string
+          project_id?: string | null
+          title?: string
+          updated_at?: string
+          viewport?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mindmaps_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mindmaps_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notes: {
         Row: {
           color: string
