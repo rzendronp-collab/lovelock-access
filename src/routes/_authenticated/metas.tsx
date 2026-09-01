@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRecords } from "@/hooks/use-records";
-import { useOrgId } from "@/hooks/use-org";
+import { useOrgId, usePermissions } from "@/hooks/use-org";
 import { ITEM_COLORS, colorSwatch, formatDateBR } from "@/lib/board";
 import { formatMoney } from "@/lib/finance";
 import { cn } from "@/lib/utils";
@@ -61,6 +61,7 @@ type GoalRow = {
   period_start: string;
   color: string;
   note: string;
+  created_by?: string | null;
 };
 
 type GoalTaskRow = { id: string; goal_id: string; text: string; done: boolean; card_id: string | null };
