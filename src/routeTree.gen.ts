@@ -25,6 +25,7 @@ import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPessoasRouteImport } from './routes/_authenticated/pessoas'
 import { Route as AuthenticatedProjetosRouteImport } from './routes/_authenticated/projetos'
 import { Route as AuthenticatedRecebimentosRouteImport } from './routes/_authenticated/recebimentos'
+import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedTrabalhoRouteImport } from './routes/_authenticated/trabalho'
 import { Route as AuthenticatedMapasIndexRouteImport } from './routes/_authenticated/mapas.index'
 import { Route as AuthenticatedMapasIdRouteImport } from './routes/_authenticated/mapas.$id'
@@ -109,6 +110,11 @@ const AuthenticatedRecebimentosRoute =
     path: '/recebimentos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTrabalhoRoute = AuthenticatedTrabalhoRouteImport.update({
   id: '/trabalho',
   path: '/trabalho',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/projetos': typeof AuthenticatedProjetosRoute
   '/recebimentos': typeof AuthenticatedRecebimentosRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/trabalho': typeof AuthenticatedTrabalhoRoute
   '/mapas/$id': typeof AuthenticatedMapasIdRoute
   '/mapas/': typeof AuthenticatedMapasIndexRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/projetos': typeof AuthenticatedProjetosRoute
   '/recebimentos': typeof AuthenticatedRecebimentosRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/trabalho': typeof AuthenticatedTrabalhoRoute
   '/mapas/$id': typeof AuthenticatedMapasIdRoute
   '/mapas': typeof AuthenticatedMapasIndexRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/_authenticated/pessoas': typeof AuthenticatedPessoasRoute
   '/_authenticated/projetos': typeof AuthenticatedProjetosRoute
   '/_authenticated/recebimentos': typeof AuthenticatedRecebimentosRoute
+  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/trabalho': typeof AuthenticatedTrabalhoRoute
   '/_authenticated/mapas/$id': typeof AuthenticatedMapasIdRoute
   '/_authenticated/mapas/': typeof AuthenticatedMapasIndexRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/pessoas'
     | '/projetos'
     | '/recebimentos'
+    | '/relatorios'
     | '/trabalho'
     | '/mapas/$id'
     | '/mapas/'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/pessoas'
     | '/projetos'
     | '/recebimentos'
+    | '/relatorios'
     | '/trabalho'
     | '/mapas/$id'
     | '/mapas'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pessoas'
     | '/_authenticated/projetos'
     | '/_authenticated/recebimentos'
+    | '/_authenticated/relatorios'
     | '/_authenticated/trabalho'
     | '/_authenticated/mapas/$id'
     | '/_authenticated/mapas/'
@@ -372,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRecebimentosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/trabalho': {
       id: '/_authenticated/trabalho'
       path: '/trabalho'
@@ -409,6 +428,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPessoasRoute: typeof AuthenticatedPessoasRoute
   AuthenticatedProjetosRoute: typeof AuthenticatedProjetosRoute
   AuthenticatedRecebimentosRoute: typeof AuthenticatedRecebimentosRoute
+  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedTrabalhoRoute: typeof AuthenticatedTrabalhoRoute
   AuthenticatedMapasIdRoute: typeof AuthenticatedMapasIdRoute
   AuthenticatedMapasIndexRoute: typeof AuthenticatedMapasIndexRoute
@@ -427,6 +447,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPessoasRoute: AuthenticatedPessoasRoute,
   AuthenticatedProjetosRoute: AuthenticatedProjetosRoute,
   AuthenticatedRecebimentosRoute: AuthenticatedRecebimentosRoute,
+  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedTrabalhoRoute: AuthenticatedTrabalhoRoute,
   AuthenticatedMapasIdRoute: AuthenticatedMapasIdRoute,
   AuthenticatedMapasIndexRoute: AuthenticatedMapasIndexRoute,

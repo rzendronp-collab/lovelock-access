@@ -12,6 +12,7 @@ export type FinanceEntryRow = {
   origin: string;
   contact_id: string | null;
   created_by: string | null;
+  project_id?: string | null;
 };
 
 export type FixedCostRow = {
@@ -24,6 +25,7 @@ export type FixedCostRow = {
   end_month: string | null;
   active: boolean;
   created_by: string | null;
+  project_id?: string | null;
 };
 
 /** Lançamento exibido na lista: real (do banco) ou projetado de uma despesa fixa. */
@@ -41,6 +43,7 @@ export type DisplayEntry = {
   sourceId: string;
   contact_id: string | null;
   created_by: string | null;
+  project_id: string | null;
 };
 
 export function formatMoney(value: number) {
@@ -94,6 +97,7 @@ export function expandFixedCosts(
             sourceId: c.id,
             contact_id: null,
             created_by: c.created_by ?? null,
+            project_id: c.project_id ?? null,
           });
         }
       }
@@ -118,6 +122,7 @@ export function toDisplay(rows: FinanceEntryRow[]): DisplayEntry[] {
     sourceId: r.id,
     contact_id: r.contact_id ?? null,
     created_by: r.created_by ?? null,
+    project_id: r.project_id ?? null,
   }));
 }
 
@@ -129,4 +134,45 @@ export function totals(entries: DisplayEntry[]) {
   const sobrou = entrou - saiu;
   const margem = entrou > 0 ? (sobrou / entrou) * 100 : 0;
   return { entrou, saiu, sobrou, margem };
+}
+
+/** Últimos `count` meses (inclusive o atual) no formato "YYYY-MM". */
+export function lastMonths(count = 12): string[] {
+  const now = new Date();
+  const out: string[] = [];
+  for (let i = count - 1; i >= 0; i -= 1) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  }
+  return out;
+}
+
+const MONTH_NAMES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+/** "2026-09" -> "set/26" */
+export function monthLabel(ym: string) {
+  const [y = "", m = "1"] = ym.split("-");
+  return `${MONTH_NAMES[Number(m) - 1]}/${y.slice(2)}`;
+}
+
+/** Primeiro e último dia do mês "YYYY-MM". */
+export function monthBounds(ym: string) {
+  const [y = 0, m = 1] = ym.split("-").map(Number);
+  const end = new Date(y, m, 0).getDate();
+  return { from: `${ym}-01`, to: `${ym}-${String(end).padStart(2, "0")}` };
+}
+
+/** Série mensal (entradas, saídas, líquido) — usada pelo gráfico de 12 meses. */
+export function monthlySeries(entries: DisplayEntry[], months: string[]) {
+  const base = new Map(months.map((m) => [m, { entradas: 0, saidas: 0 }]));
+  for (const e of entries) {
+    const bucket = base.get(e.entry_date.slice(0, 7));
+    if (!bucket) continue;
+    if (e.kind === "entrada") bucket.entradas += e.amount;
+    else bucket.saidas += e.amount;
+  }
+  return months.map((m) => {
+    const b = base.get(m)!;
+    return { month: m, label: monthLabel(m), ...b, liquido: b.entradas - b.saidas };
+  });
 }
