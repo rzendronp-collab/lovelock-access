@@ -162,7 +162,14 @@ function Arquivos() {
     name: "",
     url: "",
     content: "",
+    contact_id: "",
   });
+  const { field: contactField } = useContactField();
+  const itemFields = useMemo<FieldDef[]>(
+    () => [...ITEM_FIELDS_BASE, contactField],
+    [contactField],
+  );
+
   const [toDelete, setToDelete] = useState<FileRow | null>(null);
   const [folderToDelete, setFolderToDelete] = useState<FolderRow | null>(null);
   const [preview, setPreview] = useState<{ name: string; url: string; mime: string } | null>(null);
