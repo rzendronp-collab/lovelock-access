@@ -68,6 +68,7 @@ type BoardRow = {
   id: string;
   name: string;
   folder: string;
+  created_by?: string | null;
 };
 
 type ColumnRow = {
@@ -91,6 +92,7 @@ type CardRow = {
   done: boolean;
   archived: boolean;
   contact_id: string | null;
+  created_by?: string | null;
 };
 
 type CardItemRow = {
@@ -100,6 +102,7 @@ type CardItemRow = {
   content: string;
   done: boolean;
   path: string;
+  created_by?: string | null;
 };
 
 type Values = Record<string, FieldValue>;
