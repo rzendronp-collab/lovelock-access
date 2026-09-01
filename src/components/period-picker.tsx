@@ -29,8 +29,8 @@ function computeRange(key: PeriodKey, custom: Period): Period {
   return custom;
 }
 
-/** Seletor de período reutilizável — usado pelo Dinheiro e pelos próximos módulos. */
-export function usePeriodFilter(initial: PeriodKey = "mes") {
+/** Estado do seletor de período — genérico, sem regra de nenhum módulo. */
+export function usePeriodPicker(initial: PeriodKey = "mes") {
   const [key, setKey] = useState<PeriodKey>(initial);
   const [custom, setCustom] = useState<Period>(() => computeRange("mes", { from: "", to: "" }));
   const period = useMemo(() => computeRange(key, custom), [key, custom]);
@@ -44,7 +44,7 @@ const OPTIONS: { key: PeriodKey; label: string }[] = [
   { key: "custom", label: "Personalizado" },
 ];
 
-export function PeriodFilter({
+export function PeriodPicker({
   value,
   onChange,
   custom,
