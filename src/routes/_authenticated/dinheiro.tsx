@@ -38,7 +38,18 @@ import {
   type FixedCostRow,
 } from "@/lib/finance";
 
+const PERIOD_KEYS: PeriodKey[] = ["7d", "mes", "trimestre", "custom"];
+
 export const Route = createFileRoute("/_authenticated/dinheiro")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const periodo = String(search['periodo'] ?? "");
+    return {
+      periodo: PERIOD_KEYS.includes(periodo as PeriodKey) ? (periodo as PeriodKey) : undefined,
+      de: search['de'] ? String(search['de']) : undefined,
+      ate: search['ate'] ? String(search['ate']) : undefined,
+      busca: search['busca'] ? String(search['busca']) : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Dinheiro | EuroHub" },
