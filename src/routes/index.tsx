@@ -11,12 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Entrar | Plataforma interna" },
+      { title: "Entrar | EuroHub" },
       {
         name: "description",
         content: "Acesse a plataforma interna da sua empresa com e-mail e senha.",
       },
-      { property: "og:title", content: "Entrar | Plataforma interna" },
+      { property: "og:title", content: "Entrar | EuroHub" },
       {
         property: "og:description",
         content: "Acesse a plataforma interna da sua empresa com e-mail e senha.",
@@ -91,7 +91,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted px-4 py-12">
       <div className="w-full max-w-md">
         <h1 className="font-display mb-6 text-center text-2xl font-semibold tracking-tight">
-          Plataforma interna
+          EuroHub
         </h1>
         <Card>
           <CardHeader>

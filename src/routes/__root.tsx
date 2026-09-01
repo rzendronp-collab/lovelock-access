@@ -79,15 +79,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Plataforma interna" },
+      { title: "EuroHub" },
       {
         name: "description",
-        content: "Plataforma interna da empresa: acesso, contas e permissões.",
+        content: "EuroHub da empresa: acesso, contas e permissões.",
       },
-      { property: "og:title", content: "Plataforma interna" },
+      { property: "og:title", content: "EuroHub" },
       {
         property: "og:description",
-        content: "Plataforma interna da empresa: acesso, contas e permissões.",
+        content: "EuroHub da empresa: acesso, contas e permissões.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -10,12 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export const Route = createFileRoute("/recuperar-senha")({
   head: () => ({
     meta: [
-      { title: "Recuperar senha | Plataforma interna" },
+      { title: "Recuperar senha | EuroHub" },
       {
         name: "description",
         content: "Receba um link por e-mail para redefinir a senha da plataforma interna.",
       },
-      { property: "og:title", content: "Recuperar senha | Plataforma interna" },
+      { property: "og:title", content: "Recuperar senha | EuroHub" },
       {
         property: "og:description",
         content: "Receba um link por e-mail para redefinir a senha da plataforma interna.",

@@ -14,9 +14,9 @@ import { AppCard } from "@/components/app-card";
 export const Route = createFileRoute("/_authenticated/minha-conta")({
   head: () => ({
     meta: [
-      { title: "Minha conta | Plataforma interna" },
+      { title: "Minha conta | EuroHub" },
       { name: "description", content: "Edite seu nome, troque sua senha e saia da plataforma." },
-      { property: "og:title", content: "Minha conta | Plataforma interna" },
+      { property: "og:title", content: "Minha conta | EuroHub" },
       {
         property: "og:description",
         content: "Edite seu nome, troque sua senha e saia da plataforma.",

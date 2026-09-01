@@ -11,12 +11,12 @@ export const Route = createFileRoute("/redefinir-senha")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Definir nova senha | Plataforma interna" },
+      { title: "Definir nova senha | EuroHub" },
       {
         name: "description",
         content: "Defina uma nova senha para sua conta na plataforma interna.",
       },
-      { property: "og:title", content: "Definir nova senha | Plataforma interna" },
+      { property: "og:title", content: "Definir nova senha | EuroHub" },
       {
         property: "og:description",
         content: "Defina uma nova senha para sua conta na plataforma interna.",
