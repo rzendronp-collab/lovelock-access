@@ -18,6 +18,7 @@ import {
 import { RecordList } from "@/components/record-list";
 import { PeriodPicker, toISODate, usePeriodPicker } from "@/components/period-picker";
 import { useRecords } from "@/hooks/use-records";
+import { useOrgId } from "@/hooks/use-org";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -95,25 +96,6 @@ const ENTRY_FIELDS: FieldDef[] = [
   },
 ];
 
-function useOrgId() {
-  return useQuery({
-    queryKey: ["org-id"],
-    queryFn: async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const uid = userData.user?.id;
-      if (!uid) return null;
-      const { data, error } = await supabase
-        .from("memberships")
-        .select("org_id")
-        .eq("user_id", uid)
-        .order("created_at", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data?.org_id ?? null;
-    },
-  });
-}
 
 function toNumber(value: FieldValue | undefined) {
   return Number(String(value ?? "").replace(",", ".")) || 0;
