@@ -24,6 +24,9 @@ import {
 } from "@/components/ui/select";
 import { useRecords } from "@/hooks/use-records";
 import { useOrgId, usePermissions } from "@/hooks/use-org";
+import { useCurrentProject } from "@/hooks/use-projects";
+import { NoProjectState } from "@/components/project-select";
+
 import { ITEM_COLORS, colorSwatch, formatDateBR } from "@/lib/board";
 import { formatMoney } from "@/lib/finance";
 import { cn } from "@/lib/utils";
@@ -163,6 +166,7 @@ function formatValue(value: number, unit: string) {
 
 function Metas() {
   const { data: orgId, isLoading: loadingOrg } = useOrgId();
+  const { projectId } = useCurrentProject();
   const perms = usePermissions();
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
@@ -174,6 +178,8 @@ function Metas() {
     columns:
       "id, title, group_name, target, current_source, unit, due_date, period_start, color, note, created_by",
     orgId: orgId ?? null,
+    projectId,
+    projectRequired: true,
     orderBy: { column: "created_at", ascending: false },
     trackCreatedBy: true,
     label: "meta",
@@ -199,9 +205,12 @@ function Metas() {
     table: "finance_entries",
     columns: "id, entry_date, kind, amount, received",
     orgId: orgId ?? null,
+    projectId,
+    projectRequired: true,
     orderBy: { column: "entry_date", ascending: false },
     label: "lançamento",
   });
+
 
   /** Progresso puxado do financeiro: entradas recebidas dentro do período da meta. */
   function financeProgress(goal: GoalRow) {
@@ -282,8 +291,20 @@ function Metas() {
 
   const loading = loadingOrg || goals.isLoading;
 
+  if (!projectId) {
+    return (
+      <>
+        <PageHeader title="Metas" subtitle="Metas do projeto, com progresso e tarefas." />
+        <AppCard>
+          <NoProjectState />
+        </AppCard>
+      </>
+    );
+  }
+
   return (
     <>
+
       <PageHeader
         title="Metas"
         subtitle="Metas por trimestre ou frente, com progresso e tarefas."

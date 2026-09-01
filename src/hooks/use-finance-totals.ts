@@ -17,14 +17,21 @@ export type FinanceTotals = ReturnType<typeof totals>;
  * Fonte ÚNICA dos quatro números (entrou, saiu, sobrou, margem) e da lista do período.
  * Usada pelo módulo Dinheiro e pelo Painel de hoje — o cálculo não é duplicado.
  */
-export function useFinanceTotals(period: Period) {
+export function useFinanceTotals(
+  period: Period,
+  options?: { projectId?: string | null; projectRequired?: boolean },
+) {
   const { data: orgId, isLoading: loadingOrg } = useOrgId();
+  const projectId = options?.projectId ?? null;
+  const projectRequired = options?.projectRequired ?? false;
 
   const entries = useRecords<FinanceEntryRow & { id: string }>({
     table: "finance_entries",
     columns:
       "id, entry_date, description, category, account, kind, amount, received, origin, contact_id, created_by",
     orgId: orgId ?? null,
+    projectId,
+    projectRequired,
     orderBy: { column: "entry_date", ascending: false },
     trackCreatedBy: true,
     label: "lançamento",
@@ -34,10 +41,13 @@ export function useFinanceTotals(period: Period) {
     table: "fixed_costs",
     columns: "id, label, category, amount, day_of_month, start_month, end_month, active, created_by",
     orgId: orgId ?? null,
+    projectId,
+    projectRequired,
     orderBy: { column: "label", ascending: true },
     softDelete: false,
     label: "despesa fixa",
   });
+
 
   const allEntries = useMemo(() => toDisplay(entries.rows), [entries.rows]);
   const fixedRows = fixed.rows;

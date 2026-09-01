@@ -72,11 +72,13 @@ export type ReceiptInput = {
  */
 export async function saveReceipt({
   orgId,
+  projectId = null,
   id,
   input,
   accountName,
 }: {
   orgId: string;
+  projectId?: string | null;
   id?: string | undefined;
   input: ReceiptInput;
   accountName: string;
@@ -89,6 +91,7 @@ export async function saveReceipt({
       .select("id, finance_entry_id")
       .eq("org_id", orgId)
       .eq("external_id", input.external_id);
+    if (projectId) q = q.eq("project_id", projectId);
     q = input.account_id ? q.eq("account_id", input.account_id) : q.is("account_id", null);
     const { data, error } = await q.maybeSingle();
     if (error) throw error;
@@ -98,6 +101,7 @@ export async function saveReceipt({
   const net = netAmount(input.gross, input.fee_percent);
   const entryValues = {
     org_id: orgId,
+    project_id: projectId,
     entry_date: input.date,
     description: input.description || "Recebimento",
     category: "Recebimento",
@@ -107,6 +111,7 @@ export async function saveReceipt({
     received: input.paid_out,
     origin: "manual",
   };
+
 
   if (receiptId) {
     const { data: current, error: readError } = await db
@@ -137,7 +142,7 @@ export async function saveReceipt({
   const entryId = await insertEntry(entryValues);
   const { error } = await db
     .from("payment_receipts")
-    .insert({ ...input, org_id: orgId, finance_entry_id: entryId });
+    .insert({ ...input, org_id: orgId, project_id: projectId, finance_entry_id: entryId });
   if (error) throw error;
   return { updated: false };
 }

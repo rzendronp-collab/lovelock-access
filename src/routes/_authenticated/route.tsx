@@ -6,6 +6,7 @@ import {
   ChevronDown,
   CreditCard,
   FolderClosed,
+  FolderKanban,
   ListChecks,
   Moon,
   Settings,
@@ -24,6 +25,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/use-theme";
+import { CurrentProjectProvider } from "@/hooks/use-projects";
+import { ProjectSwitcher } from "@/components/project-select";
+
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -48,6 +52,8 @@ const MORE = [
   { to: "/agenda", label: "Agenda", icon: CalendarDays },
   { to: "/metas", label: "Metas", icon: Target },
   { to: "/pessoas", label: "Pessoas", icon: Users },
+  { to: "/projetos", label: "Projetos", icon: FolderKanban },
+
 ] as const;
 
 function AuthenticatedLayout() {
@@ -86,6 +92,7 @@ function AuthenticatedLayout() {
     .toUpperCase();
 
   return (
+    <CurrentProjectProvider>
     <div className="flex min-h-screen bg-background">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar md:flex">
         <div className="flex h-16 items-center gap-2 px-5">
@@ -94,6 +101,10 @@ function AuthenticatedLayout() {
           </span>
           <span className="text-highlight font-semibold text-sidebar-foreground">EuroHub</span>
         </div>
+        <div className="px-3 pb-2">
+          <ProjectSwitcher />
+        </div>
+
         <nav className="flex flex-1 flex-col gap-1 px-3 py-2">
           {NAV.map(({ to, label, icon: Icon }) => (
             <Link
@@ -145,7 +156,9 @@ function AuthenticatedLayout() {
               EH
             </span>
             <span className="text-highlight font-semibold">EuroHub</span>
+            <ProjectSwitcher />
           </div>
+
           <nav className="hidden items-center gap-1 md:flex">
             {NAV.map(({ to, label }) => (
               <Link
@@ -219,5 +232,7 @@ function AuthenticatedLayout() {
         </nav>
       </div>
     </div>
+    </CurrentProjectProvider>
   );
+
 }

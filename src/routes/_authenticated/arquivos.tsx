@@ -181,6 +181,7 @@ function Arquivos() {
     table: "folders",
     columns: "id, parent_id, name, color, created_by",
     orgId: orgId ?? null,
+    projectId: projectFilter,
     orderBy: { column: "name", ascending: true },
     trackCreatedBy: true,
     label: "pasta",
@@ -191,10 +192,12 @@ function Arquivos() {
     columns:
       "id, folder_id, kind, name, path, url, content, mime_type, size_bytes, contact_id, created_by",
     orgId: orgId ?? null,
+    projectId: projectFilter,
     orderBy: { column: "created_at", ascending: false },
     trackCreatedBy: true,
     label: "item",
   });
+
 
   const currentFolder = useMemo(
     () => folders.rows.find((f) => f.id === folderId) ?? null,
