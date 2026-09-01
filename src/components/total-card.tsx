@@ -31,6 +31,7 @@ export function TotalCard({
     <AppCard>
       <p className="text-label text-muted-foreground">{label}</p>
       <p className="text-title font-semibold">{value}</p>
+      {sub && <p className="text-label text-muted-foreground">{sub}</p>}
       {delta && (
         <p
           className={cn(
