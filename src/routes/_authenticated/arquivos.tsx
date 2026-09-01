@@ -47,7 +47,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRecords } from "@/hooks/use-records";
 import { useContactField } from "@/hooks/use-contacts";
-import { useOrgId } from "@/hooks/use-org";
+import { useOrgId, usePermissions } from "@/hooks/use-org";
 import { ITEM_COLORS, colorSwatch } from "@/lib/board";
 import { cn } from "@/lib/utils";
 
@@ -147,6 +147,7 @@ const KIND_LABEL: Record<string, string> = {
 
 function Arquivos() {
   const { data: orgId, isLoading: loadingOrg } = useOrgId();
+  const perms = usePermissions();
 
   const [folderId, setFolderId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -176,7 +177,7 @@ function Arquivos() {
 
   const folders = useRecords<FolderRow>({
     table: "folders",
-    columns: "id, parent_id, name, color",
+    columns: "id, parent_id, name, color, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "name", ascending: true },
     trackCreatedBy: true,
@@ -186,7 +187,7 @@ function Arquivos() {
   const files = useRecords<FileRow>({
     table: "files",
     columns:
-      "id, folder_id, kind, name, path, url, content, mime_type, size_bytes, contact_id",
+      "id, folder_id, kind, name, path, url, content, mime_type, size_bytes, contact_id, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "created_at", ascending: false },
     trackCreatedBy: true,
@@ -331,16 +332,18 @@ function Arquivos() {
         title="Arquivos"
         subtitle="Pastas, arquivos, links, notas e imagens da empresa."
         actions={
-          <>
-            <Button variant="outline" className="text-body" onClick={() => setFolderPanel(true)}>
-              <FolderPlus className="size-4" aria-hidden />
-              Nova pasta
-            </Button>
-            <Button className="text-body" onClick={openNewItem}>
-              <Plus className="size-4" aria-hidden />
-              Novo item
-            </Button>
-          </>
+          perms.canWrite ? (
+            <>
+              <Button variant="outline" className="text-body" onClick={() => setFolderPanel(true)}>
+                <FolderPlus className="size-4" aria-hidden />
+                Nova pasta
+              </Button>
+              <Button className="text-body" onClick={openNewItem}>
+                <Plus className="size-4" aria-hidden />
+                Novo item
+              </Button>
+            </>
+          ) : undefined
         }
       />
 
@@ -375,14 +378,16 @@ function Arquivos() {
                     <FolderClosed className="size-4 text-muted-foreground" aria-hidden />
                     {f.name}
                   </button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-label"
-                    onClick={() => setFolderToDelete(f)}
-                  >
-                    Excluir
-                  </Button>
+                  {perms.canDelete(f.created_by) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-label"
+                      onClick={() => setFolderToDelete(f)}
+                    >
+                      Excluir
+                    </Button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -395,6 +400,7 @@ function Arquivos() {
         subtitle="Arquivos, links, notas e imagens juntos na mesma lista."
       >
         <div className="space-y-4">
+          {perms.canWrite && (
           <Attachments
             orgId={orgId ?? null}
             folder={`arquivos/${folderId ?? "raiz"}`}
