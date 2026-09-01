@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRecords } from "@/hooks/use-records";
-import { useOrgId, useUserId } from "@/hooks/use-org";
+import { useOrgId, usePermissions, useUserId } from "@/hooks/use-org";
 import { ITEM_COLORS, colorSwatch } from "@/lib/board";
 import { formatDate, formatMoney } from "@/lib/finance";
 import { cn } from "@/lib/utils";
