@@ -419,6 +419,7 @@ function Arquivos() {
               }
             }}
           />
+          )}
 
           <RecordList<FileRow>
             items={folderFiles}
@@ -468,6 +469,7 @@ function Arquivos() {
                   >
                     <Eye className="size-4" aria-hidden />
                   </Button>
+                  {(perms.canWrite || perms.canDelete(row.created_by)) && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" aria-label="Ações do item">
@@ -475,6 +477,8 @@ function Arquivos() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      {perms.canWrite && (
+                      <>
                       <DropdownMenuItem className="text-body" onClick={() => openEditItem(row)}>
                         Renomear / editar
                       </DropdownMenuItem>
@@ -507,12 +511,19 @@ function Arquivos() {
                           {f.name}
                         </DropdownMenuItem>
                       ))}
+                      </>
+                      )}
+                      {perms.canDelete(row.created_by) && (
+                      <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-body" onClick={() => setToDelete(row)}>
                         Excluir
                       </DropdownMenuItem>
+                      </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  )}
                 </>
               );
             }}
