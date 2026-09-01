@@ -237,6 +237,7 @@ function Canvas({
         }}
         proOptions={{ hideAttribution: true }}
         fitView={!initial.viewport}
+        fitViewOptions={{ maxZoom: 1, padding: 0.3 }}
       >
         <Background />
         <Controls />
