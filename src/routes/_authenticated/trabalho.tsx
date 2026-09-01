@@ -39,10 +39,11 @@ import {
 } from "@/lib/board";
 import { cn } from "@/lib/utils";
 
+type TrabalhoSearch = { cartao?: string };
+
 export const Route = createFileRoute("/_authenticated/trabalho")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    cartao: search['cartao'] ? String(search['cartao']) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): TrabalhoSearch =>
+    search['cartao'] ? { cartao: String(search['cartao']) } : {},
   head: () => ({
     meta: [
       { title: "Trabalho | EuroHub" },
