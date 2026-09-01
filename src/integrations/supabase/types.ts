@@ -283,6 +283,56 @@ export type Database = {
           },
         ]
       }
+      connections: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          key_mask: string | null
+          label: string
+          last_sync_at: string | null
+          org_id: string
+          provider: string
+          secret_ref: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          key_mask?: string | null
+          label?: string
+          last_sync_at?: string | null
+          org_id: string
+          provider: string
+          secret_ref?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          key_mask?: string | null
+          label?: string
+          last_sync_at?: string | null
+          org_id?: string
+          provider?: string
+          secret_ref?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connections_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       files: {
         Row: {
           content: string
@@ -568,6 +618,126 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_accounts: {
+        Row: {
+          color: string
+          created_at: string
+          created_by: string
+          fee_percent: number
+          id: string
+          name: string
+          org_id: string
+          payout_days: number
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          created_by?: string
+          fee_percent?: number
+          id?: string
+          name: string
+          org_id: string
+          payout_days?: number
+          provider?: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          created_by?: string
+          fee_percent?: number
+          id?: string
+          name?: string
+          org_id?: string
+          payout_days?: number
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_accounts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_receipts: {
+        Row: {
+          account_id: string | null
+          created_at: string
+          created_by: string
+          date: string
+          deleted_at: string | null
+          description: string
+          external_id: string | null
+          fee_percent: number
+          finance_entry_id: string | null
+          gross: number
+          id: string
+          org_id: string
+          paid_out: boolean
+          updated_at: string
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string
+          created_by?: string
+          date?: string
+          deleted_at?: string | null
+          description?: string
+          external_id?: string | null
+          fee_percent?: number
+          finance_entry_id?: string | null
+          gross?: number
+          id?: string
+          org_id: string
+          paid_out?: boolean
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string
+          created_by?: string
+          date?: string
+          deleted_at?: string | null
+          description?: string
+          external_id?: string | null
+          fee_percent?: number
+          finance_entry_id?: string | null
+          gross?: number
+          id?: string
+          org_id?: string
+          paid_out?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_receipts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "payment_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_receipts_finance_entry_id_fkey"
+            columns: ["finance_entry_id"]
+            isOneToOne: false
+            referencedRelation: "finance_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_receipts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -597,6 +767,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_admin_or_owner: { Args: { target_org: string }; Returns: boolean }
       is_member: { Args: { org_id: string }; Returns: boolean }
     }
     Enums: {
