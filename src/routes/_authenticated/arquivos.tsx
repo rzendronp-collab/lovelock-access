@@ -78,6 +78,7 @@ type FolderRow = {
   parent_id: string | null;
   name: string;
   color: string;
+  created_by?: string | null;
 };
 
 type FileRow = {
@@ -91,6 +92,7 @@ type FileRow = {
   mime_type: string;
   size_bytes: number;
   contact_id: string | null;
+  created_by?: string | null;
 };
 
 type Values = Record<string, FieldValue>;
