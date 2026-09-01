@@ -1455,6 +1455,11 @@ export type Database = {
         Args: { target_project: string }
         Returns: boolean
       }
+      vault_read_secret: { Args: { p_name: string }; Returns: string }
+      vault_store_secret: {
+        Args: { p_name: string; p_secret: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
