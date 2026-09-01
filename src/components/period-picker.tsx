@@ -30,9 +30,12 @@ function computeRange(key: PeriodKey, custom: Period): Period {
 }
 
 /** Estado do seletor de período — genérico, sem regra de nenhum módulo. */
-export function usePeriodPicker(initial: PeriodKey = "mes") {
+export function usePeriodPicker(initial: PeriodKey = "mes", initialCustom?: Partial<Period>) {
   const [key, setKey] = useState<PeriodKey>(initial);
-  const [custom, setCustom] = useState<Period>(() => computeRange("mes", { from: "", to: "" }));
+  const [custom, setCustom] = useState<Period>(() => ({
+    ...computeRange("mes", { from: "", to: "" }),
+    ...initialCustom,
+  }));
   const period = useMemo(() => computeRange(key, custom), [key, custom]);
   return { key, setKey, custom, setCustom, period };
 }
