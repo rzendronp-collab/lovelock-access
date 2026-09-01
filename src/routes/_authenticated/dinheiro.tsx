@@ -449,6 +449,7 @@ function FixedCostsSection({
 }: {
   records: ReturnType<typeof useRecords<FixedCostRow & { id: string }>>;
 }) {
+  const perms = usePermissions();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(emptyFixedValues);
