@@ -1,6 +1,15 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarCheck, FolderClosed, ListChecks, Moon, Settings, Sun, Wallet } from "lucide-react";
+import {
+  CalendarCheck,
+  CreditCard,
+  FolderClosed,
+  ListChecks,
+  Moon,
+  Settings,
+  Sun,
+  Wallet,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";

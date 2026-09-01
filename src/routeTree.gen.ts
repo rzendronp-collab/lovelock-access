@@ -18,6 +18,7 @@ import { Route as AuthenticatedArquivosRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDinheiroRouteImport } from './routes/_authenticated/dinheiro'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated/minha-conta'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedRecebimentosRouteImport } from './routes/_authenticated/recebimentos'
 import { Route as AuthenticatedTrabalhoRouteImport } from './routes/_authenticated/trabalho'
 
 const IndexRoute = IndexRouteImport.update({
@@ -64,6 +65,12 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRecebimentosRoute =
+  AuthenticatedRecebimentosRouteImport.update({
+    id: '/recebimentos',
+    path: '/recebimentos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTrabalhoRoute = AuthenticatedTrabalhoRouteImport.update({
   id: '/trabalho',
   path: '/trabalho',
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/dinheiro': typeof AuthenticatedDinheiroRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/recebimentos': typeof AuthenticatedRecebimentosRoute
   '/trabalho': typeof AuthenticatedTrabalhoRoute
 }
 export interface FileRoutesByTo {
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
   '/dinheiro': typeof AuthenticatedDinheiroRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/recebimentos': typeof AuthenticatedRecebimentosRoute
   '/trabalho': typeof AuthenticatedTrabalhoRoute
 }
 export interface FileRoutesById {
@@ -103,6 +112,7 @@ export interface FileRoutesById {
   '/_authenticated/dinheiro': typeof AuthenticatedDinheiroRoute
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/recebimentos': typeof AuthenticatedRecebimentosRoute
   '/_authenticated/trabalho': typeof AuthenticatedTrabalhoRoute
 }
 export interface FileRouteTypes {
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/dinheiro'
     | '/minha-conta'
     | '/painel'
+    | '/recebimentos'
     | '/trabalho'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/dinheiro'
     | '/minha-conta'
     | '/painel'
+    | '/recebimentos'
     | '/trabalho'
   id:
     | '__root__'
@@ -139,6 +151,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dinheiro'
     | '/_authenticated/minha-conta'
     | '/_authenticated/painel'
+    | '/_authenticated/recebimentos'
     | '/_authenticated/trabalho'
   fileRoutesById: FileRoutesById
 }
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/recebimentos': {
+      id: '/_authenticated/recebimentos'
+      path: '/recebimentos'
+      fullPath: '/recebimentos'
+      preLoaderRoute: typeof AuthenticatedRecebimentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/trabalho': {
       id: '/_authenticated/trabalho'
       path: '/trabalho'
@@ -230,6 +250,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDinheiroRoute: typeof AuthenticatedDinheiroRoute
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedRecebimentosRoute: typeof AuthenticatedRecebimentosRoute
   AuthenticatedTrabalhoRoute: typeof AuthenticatedTrabalhoRoute
 }
 
@@ -239,6 +260,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDinheiroRoute: AuthenticatedDinheiroRoute,
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedRecebimentosRoute: AuthenticatedRecebimentosRoute,
   AuthenticatedTrabalhoRoute: AuthenticatedTrabalhoRoute,
 }
 
