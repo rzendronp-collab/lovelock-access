@@ -46,6 +46,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRecords } from "@/hooks/use-records";
+import { useContactField } from "@/hooks/use-contacts";
 import { useOrgId } from "@/hooks/use-org";
 import { ITEM_COLORS, colorSwatch } from "@/lib/board";
 import { cn } from "@/lib/utils";
@@ -89,6 +90,7 @@ type FileRow = {
   content: string;
   mime_type: string;
   size_bytes: number;
+  contact_id: string | null;
 };
 
 type Values = Record<string, FieldValue>;
@@ -103,7 +105,7 @@ const FOLDER_FIELDS: FieldDef[] = [
   },
 ];
 
-const ITEM_FIELDS: FieldDef[] = [
+const ITEM_FIELDS_BASE: FieldDef[] = [
   {
     name: "kind",
     label: "Tipo",
@@ -160,7 +162,14 @@ function Arquivos() {
     name: "",
     url: "",
     content: "",
+    contact_id: "",
   });
+  const { field: contactField } = useContactField();
+  const itemFields = useMemo<FieldDef[]>(
+    () => [...ITEM_FIELDS_BASE, contactField],
+    [contactField],
+  );
+
   const [toDelete, setToDelete] = useState<FileRow | null>(null);
   const [folderToDelete, setFolderToDelete] = useState<FolderRow | null>(null);
   const [preview, setPreview] = useState<{ name: string; url: string; mime: string } | null>(null);
@@ -176,7 +185,8 @@ function Arquivos() {
 
   const files = useRecords<FileRow>({
     table: "files",
-    columns: "id, folder_id, kind, name, path, url, content, mime_type, size_bytes",
+    columns:
+      "id, folder_id, kind, name, path, url, content, mime_type, size_bytes, contact_id",
     orgId: orgId ?? null,
     orderBy: { column: "created_at", ascending: false },
     trackCreatedBy: true,
@@ -230,7 +240,7 @@ function Arquivos() {
 
   function openNewItem() {
     setItemId(undefined);
-    setItemValues({ kind: "link", name: "", url: "", content: "" });
+    setItemValues({ kind: "link", name: "", url: "", content: "", contact_id: "" });
     setItemPanel(true);
   }
 
@@ -241,6 +251,7 @@ function Arquivos() {
       name: row.name,
       url: row.url,
       content: row.content,
+      contact_id: row.contact_id ?? "",
     });
     setItemPanel(true);
   }
@@ -260,6 +271,7 @@ function Arquivos() {
           name,
           url: String(itemValues['url'] ?? ""),
           content: String(itemValues['content'] ?? ""),
+          contact_id: String(itemValues['contact_id'] ?? "") || null,
         },
       },
       { onSuccess: () => setItemPanel(false) },
@@ -522,7 +534,7 @@ function Arquivos() {
         onOpenChange={setItemPanel}
         title={itemId ? "Editar item" : "Novo item"}
         description="Link e texto rico são criados aqui; arquivos e imagens entram pelo envio."
-        fields={ITEM_FIELDS}
+        fields={itemFields}
         values={itemValues}
         onChange={(name, value) => setItemValues((p) => ({ ...p, [name]: value }))}
         onSave={saveItem}

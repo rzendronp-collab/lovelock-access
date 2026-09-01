@@ -24,6 +24,7 @@ import {
   type PeriodKey,
 } from "@/components/period-picker";
 import { useRecords } from "@/hooks/use-records";
+import { useContactField } from "@/hooks/use-contacts";
 import { entriesInRange, useFinanceTotals } from "@/hooks/use-finance-totals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,10 +93,11 @@ function emptyEntryValues(): Values {
     kind: "saida",
     amount: "",
     received: true,
+    contact_id: "",
   };
 }
 
-const ENTRY_FIELDS: FieldDef[] = [
+const ENTRY_FIELDS_BASE: FieldDef[] = [
   {
     name: "kind",
     label: "Tipo",
@@ -131,6 +133,11 @@ function Dinheiro() {
   });
   const [search, setSearch] = useState(urlSearch.busca ?? "");
   const [category, setCategory] = useState("");
+  const { field: contactField } = useContactField();
+  const entryFields = useMemo<FieldDef[]>(
+    () => [...ENTRY_FIELDS_BASE, contactField],
+    [contactField],
+  );
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(emptyEntryValues);
@@ -191,6 +198,7 @@ function Dinheiro() {
       kind: entry.kind,
       amount: String(entry.amount),
       received: entry.received,
+      contact_id: entry.contact_id ?? "",
     });
     setPanelOpen(true);
   }
@@ -205,6 +213,7 @@ function Dinheiro() {
       kind: entry.kind,
       amount: String(entry.amount),
       received: entry.received,
+      contact_id: entry.contact_id ?? "",
     });
     setPanelOpen(true);
   }
@@ -222,6 +231,7 @@ function Dinheiro() {
           kind,
           amount: toNumber(values['amount']),
           received: kind === "saida" ? true : Boolean(values['received']),
+          contact_id: String(values['contact_id'] ?? "") || null,
           origin: "manual",
         },
       },
@@ -379,7 +389,7 @@ function Dinheiro() {
         onOpenChange={setPanelOpen}
         title={editingId ? "Editar lançamento" : "Novo lançamento"}
         description="Registre uma entrada ou saída de dinheiro."
-        fields={ENTRY_FIELDS}
+        fields={entryFields}
         values={values}
         onChange={setValue}
         onSave={saveEntry}

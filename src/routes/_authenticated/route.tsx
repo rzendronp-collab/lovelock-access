@@ -2,17 +2,27 @@ import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarCheck,
+  CalendarDays,
+  ChevronDown,
   CreditCard,
   FolderClosed,
   ListChecks,
   Moon,
   Settings,
   Sun,
+  Target,
+  Users,
   Wallet,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/use-theme";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -31,6 +41,13 @@ const NAV = [
   { to: "/dinheiro", label: "Dinheiro", icon: Wallet },
   { to: "/recebimentos", label: "Recebimentos", icon: CreditCard },
   { to: "/arquivos", label: "Arquivos", icon: FolderClosed },
+] as const;
+
+/** Segundo nível: módulos de apoio, fora dos 5 itens principais. */
+const MORE = [
+  { to: "/agenda", label: "Agenda", icon: CalendarDays },
+  { to: "/metas", label: "Metas", icon: Target },
+  { to: "/pessoas", label: "Pessoas", icon: Users },
 ] as const;
 
 function AuthenticatedLayout() {
@@ -92,6 +109,21 @@ function AuthenticatedLayout() {
               {label}
             </Link>
           ))}
+          <p className="text-label mt-4 px-3 pb-1 text-sidebar-foreground/60">Mais</p>
+          {MORE.map(({ to, label, icon: Icon }) => (
+            <Link
+              key={to}
+              to={to}
+              className="text-body flex items-center gap-2.5 rounded-md px-3 py-2 text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              activeProps={{
+                className:
+                  "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent",
+              }}
+            >
+              <Icon className="size-4" aria-hidden />
+              {label}
+            </Link>
+          ))}
         </nav>
         <div className="border-t border-sidebar-border p-3">
           <Link
@@ -127,6 +159,24 @@ function AuthenticatedLayout() {
             ))}
           </nav>
           <div className="flex items-center gap-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-label">
+                  Mais
+                  <ChevronDown className="size-4" aria-hidden />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {MORE.map(({ to, label, icon: Icon }) => (
+                  <DropdownMenuItem key={to} asChild className="text-body">
+                    <Link to={to}>
+                      <Icon className="size-4" aria-hidden />
+                      {label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost"
               size="icon"

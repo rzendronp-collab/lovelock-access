@@ -10,6 +10,7 @@ export type FinanceEntryRow = {
   amount: number;
   received: boolean;
   origin: string;
+  contact_id: string | null;
 };
 
 export type FixedCostRow = {
@@ -36,6 +37,7 @@ export type DisplayEntry = {
   origin: string;
   virtual: boolean;
   sourceId: string;
+  contact_id: string | null;
 };
 
 export function formatMoney(value: number) {
@@ -87,6 +89,7 @@ export function expandFixedCosts(
             origin: "fixo",
             virtual: true,
             sourceId: c.id,
+            contact_id: null,
           });
         }
       }
@@ -109,6 +112,7 @@ export function toDisplay(rows: FinanceEntryRow[]): DisplayEntry[] {
     origin: r.origin,
     virtual: false,
     sourceId: r.id,
+    contact_id: r.contact_id ?? null,
   }));
 }
 

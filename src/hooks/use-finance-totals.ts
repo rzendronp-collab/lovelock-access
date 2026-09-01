@@ -22,7 +22,8 @@ export function useFinanceTotals(period: Period) {
 
   const entries = useRecords<FinanceEntryRow & { id: string }>({
     table: "finance_entries",
-    columns: "id, entry_date, description, category, account, kind, amount, received, origin",
+    columns:
+      "id, entry_date, description, category, account, kind, amount, received, origin, contact_id",
     orgId: orgId ?? null,
     orderBy: { column: "entry_date", ascending: false },
     trackCreatedBy: true,
