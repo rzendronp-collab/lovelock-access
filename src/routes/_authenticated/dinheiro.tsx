@@ -16,26 +16,48 @@ import {
   type FieldValue,
 } from "@/components/detail-panel";
 import { RecordList } from "@/components/record-list";
-import { PeriodPicker, toISODate, usePeriodPicker } from "@/components/period-picker";
+import { TotalCard } from "@/components/total-card";
+import {
+  PeriodPicker,
+  toISODate,
+  usePeriodPicker,
+  type PeriodKey,
+} from "@/components/period-picker";
 import { useRecords } from "@/hooks/use-records";
-import { useOrgId } from "@/hooks/use-org";
+import { entriesInRange, useFinanceTotals } from "@/hooks/use-finance-totals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
-  expandFixedCosts,
   formatDate,
   formatMoney,
-  toDisplay,
   totals,
   type DisplayEntry,
   type EntryKind,
-  type FinanceEntryRow,
   type FixedCostRow,
 } from "@/lib/finance";
 
+const PERIOD_KEYS: PeriodKey[] = ["7d", "mes", "trimestre", "custom"];
+
+/** Filtros que podem chegar por link (ex.: do Painel de hoje). */
+type DinheiroSearch = {
+  periodo?: PeriodKey;
+  de?: string;
+  ate?: string;
+  busca?: string;
+};
+
 export const Route = createFileRoute("/_authenticated/dinheiro")({
+  validateSearch: (search: Record<string, unknown>): DinheiroSearch => {
+    const periodo = String(search['periodo'] ?? "");
+    const out: DinheiroSearch = {};
+    if (PERIOD_KEYS.includes(periodo as PeriodKey)) out.periodo = periodo as PeriodKey;
+    if (search['de']) out.de = String(search['de']);
+    if (search['ate']) out.ate = String(search['ate']);
+    if (search['busca']) out.busca = String(search['busca']);
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "Dinheiro | EuroHub" },
@@ -102,34 +124,26 @@ function toNumber(value: FieldValue | undefined) {
 }
 
 function Dinheiro() {
+  const urlSearch = Route.useSearch();
   const [tab, setTab] = useState<Tab>("lancamentos");
-  const { key, setKey, custom, setCustom, period } = usePeriodPicker("mes");
-  const [search, setSearch] = useState("");
+  const { key, setKey, custom, setCustom, period } = usePeriodPicker(urlSearch.periodo ?? "mes", {
+    ...(urlSearch.de && urlSearch.ate ? { from: urlSearch.de, to: urlSearch.ate } : {}),
+  });
+  const [search, setSearch] = useState(urlSearch.busca ?? "");
   const [category, setCategory] = useState("");
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(emptyEntryValues);
   const [toDelete, setToDelete] = useState<string | null>(null);
 
-  const { data: orgId, isLoading: loadingOrg } = useOrgId();
-
-  const entries = useRecords<FinanceEntryRow & { id: string }>({
-    table: "finance_entries",
-    columns: "id, entry_date, description, category, account, kind, amount, received, origin",
-    orgId: orgId ?? null,
-    orderBy: { column: "entry_date", ascending: false },
-    trackCreatedBy: true,
-    label: "lançamento",
-  });
-
-  const fixed = useRecords<FixedCostRow & { id: string }>({
-    table: "fixed_costs",
-    columns: "id, label, category, amount, day_of_month, start_month, end_month, active",
-    orgId: orgId ?? null,
-    orderBy: { column: "label", ascending: true },
-    softDelete: false,
-    label: "despesa fixa",
-  });
+  const finance = useFinanceTotals(period);
+  const orgId = finance.orgId;
+  const entries = finance.entries;
+  const fixed = finance.fixed;
+  const allEntries = finance.allEntries;
+  const fixedRows = finance.fixedRows;
+  const periodEntries = finance.periodEntries;
+  const periodTotals = finance.totals;
 
   const openingQuery = useQuery({
     queryKey: ["cash-opening", orgId],
@@ -145,27 +159,13 @@ function Dinheiro() {
     },
   });
 
-  const allEntries = useMemo(() => toDisplay(entries.rows), [entries.rows]);
-  const fixedRows = fixed.rows;
-
-  const periodEntries = useMemo(() => {
-    const real = allEntries.filter(
-      (e) => e.entry_date >= period.from && e.entry_date <= period.to,
-    );
-    const projected = expandFixedCosts(fixedRows, period.from, period.to);
-    return [...real, ...projected].sort((a, b) => b.entry_date.localeCompare(a.entry_date));
-  }, [allEntries, fixedRows, period]);
-
-  const periodTotals = useMemo(() => totals(periodEntries), [periodEntries]);
-
   const accumulated = useMemo(() => {
     const opening = openingQuery.data;
     const start = opening?.opening_date ?? "1900-01-01";
-    const real = allEntries.filter((e) => e.entry_date >= start && e.entry_date <= period.to);
-    const projected = expandFixedCosts(fixedRows, start, period.to);
-    const t = totals([...real, ...projected]);
+    const t = totals(entriesInRange(allEntries, fixedRows, start, period.to));
     return Number(opening?.amount ?? 0) + t.sobrou;
   }, [allEntries, fixedRows, openingQuery.data, period.to]);
+
 
   function setValue(name: string, value: FieldValue) {
     setValues((prev) => {
@@ -229,8 +229,8 @@ function Dinheiro() {
     );
   }
 
-  const loading = loadingOrg || entries.isLoading || fixed.isLoading;
-  const failed = entries.error || fixed.error || openingQuery.error;
+  const loading = finance.isLoading;
+  const failed = finance.error || openingQuery.error;
 
   return (
     <>
@@ -402,14 +402,7 @@ function Dinheiro() {
   );
 }
 
-function TotalCard({ label, value }: { label: string; value: string }) {
-  return (
-    <AppCard>
-      <p className="text-label text-muted-foreground">{label}</p>
-      <p className="text-title font-semibold">{value}</p>
-    </AppCard>
-  );
-}
+
 
 const FIXED_FIELDS: FieldDef[] = [
   { name: "label", label: "Rótulo", type: "text" },

@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ListChecks, MoreVertical, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
@@ -39,7 +39,11 @@ import {
 } from "@/lib/board";
 import { cn } from "@/lib/utils";
 
+type TrabalhoSearch = { cartao?: string };
+
 export const Route = createFileRoute("/_authenticated/trabalho")({
+  validateSearch: (search: Record<string, unknown>): TrabalhoSearch =>
+    search['cartao'] ? { cartao: String(search['cartao']) } : {},
   head: () => ({
     meta: [
       { title: "Trabalho | EuroHub" },
@@ -120,8 +124,12 @@ function cardStoragePrefix(cardId: string) {
 }
 
 function Trabalho() {
+  const urlSearch = Route.useSearch();
+  const navigate = useNavigate();
+  const handledCardRef = useRef<string | null>(null);
   const { data: orgId, isLoading: loadingOrg } = useOrgId();
   const { data: userId } = useUserId();
+
 
   const [boardId, setBoardId] = useState<string>("");
   const [folder, setFolder] = useState("");
@@ -255,6 +263,22 @@ function Trabalho() {
     setCommentText("");
     setCardPanelOpen(true);
   }
+
+  // Abre direto o cartão indicado no link (ex.: vindo do Painel de hoje).
+  const requestedCard = urlSearch.cartao;
+  useEffect(() => {
+    if (!requestedCard || handledCardRef.current === requestedCard) return;
+    const card = cards.rows.find((c) => c.id === requestedCard);
+    if (!card) return;
+    handledCardRef.current = requestedCard;
+    setBoardId(card.board_id);
+    setFolder("");
+    openCardPanel(card);
+    void navigate({ to: "/trabalho", search: {}, replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedCard, cards.rows]);
+
+
 
   function saveCard() {
     if (!cardPanelId) return;
