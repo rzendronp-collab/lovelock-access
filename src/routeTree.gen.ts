@@ -16,9 +16,11 @@ import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
 import { Route as AuthenticatedArquivosRouteImport } from './routes/_authenticated/arquivos'
+import { Route as AuthenticatedBaseRouteImport } from './routes/_authenticated/base'
 import { Route as AuthenticatedDinheiroRouteImport } from './routes/_authenticated/dinheiro'
 import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated/minha-conta'
+import { Route as AuthenticatedNotasRouteImport } from './routes/_authenticated/notas'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPessoasRouteImport } from './routes/_authenticated/pessoas'
 import { Route as AuthenticatedProjetosRouteImport } from './routes/_authenticated/projetos'
@@ -59,6 +61,11 @@ const AuthenticatedArquivosRoute = AuthenticatedArquivosRouteImport.update({
   path: '/arquivos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBaseRoute = AuthenticatedBaseRouteImport.update({
+  id: '/base',
+  path: '/base',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDinheiroRoute = AuthenticatedDinheiroRouteImport.update({
   id: '/dinheiro',
   path: '/dinheiro',
@@ -72,6 +79,11 @@ const AuthenticatedMetasRoute = AuthenticatedMetasRouteImport.update({
 const AuthenticatedMinhaContaRoute = AuthenticatedMinhaContaRouteImport.update({
   id: '/minha-conta',
   path: '/minha-conta',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNotasRoute = AuthenticatedNotasRouteImport.update({
+  id: '/notas',
+  path: '/notas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
@@ -108,9 +120,11 @@ export interface FileRoutesByFullPath {
   '/agenda': typeof AuthenticatedAgendaRoute
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/arquivos': typeof AuthenticatedArquivosRoute
+  '/base': typeof AuthenticatedBaseRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/notas': typeof AuthenticatedNotasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/projetos': typeof AuthenticatedProjetosRoute
@@ -124,9 +138,11 @@ export interface FileRoutesByTo {
   '/agenda': typeof AuthenticatedAgendaRoute
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/arquivos': typeof AuthenticatedArquivosRoute
+  '/base': typeof AuthenticatedBaseRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/notas': typeof AuthenticatedNotasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/projetos': typeof AuthenticatedProjetosRoute
@@ -142,9 +158,11 @@ export interface FileRoutesById {
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/ajustes': typeof AuthenticatedAjustesRoute
   '/_authenticated/arquivos': typeof AuthenticatedArquivosRoute
+  '/_authenticated/base': typeof AuthenticatedBaseRoute
   '/_authenticated/dinheiro': typeof AuthenticatedDinheiroRoute
   '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/_authenticated/notas': typeof AuthenticatedNotasRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/pessoas': typeof AuthenticatedPessoasRoute
   '/_authenticated/projetos': typeof AuthenticatedProjetosRoute
@@ -160,9 +178,11 @@ export interface FileRouteTypes {
     | '/agenda'
     | '/ajustes'
     | '/arquivos'
+    | '/base'
     | '/dinheiro'
     | '/metas'
     | '/minha-conta'
+    | '/notas'
     | '/painel'
     | '/pessoas'
     | '/projetos'
@@ -176,9 +196,11 @@ export interface FileRouteTypes {
     | '/agenda'
     | '/ajustes'
     | '/arquivos'
+    | '/base'
     | '/dinheiro'
     | '/metas'
     | '/minha-conta'
+    | '/notas'
     | '/painel'
     | '/pessoas'
     | '/projetos'
@@ -193,9 +215,11 @@ export interface FileRouteTypes {
     | '/_authenticated/agenda'
     | '/_authenticated/ajustes'
     | '/_authenticated/arquivos'
+    | '/_authenticated/base'
     | '/_authenticated/dinheiro'
     | '/_authenticated/metas'
     | '/_authenticated/minha-conta'
+    | '/_authenticated/notas'
     | '/_authenticated/painel'
     | '/_authenticated/pessoas'
     | '/_authenticated/projetos'
@@ -261,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedArquivosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/base': {
+      id: '/_authenticated/base'
+      path: '/base'
+      fullPath: '/base'
+      preLoaderRoute: typeof AuthenticatedBaseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dinheiro': {
       id: '/_authenticated/dinheiro'
       path: '/dinheiro'
@@ -280,6 +311,13 @@ declare module '@tanstack/react-router' {
       path: '/minha-conta'
       fullPath: '/minha-conta'
       preLoaderRoute: typeof AuthenticatedMinhaContaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notas': {
+      id: '/_authenticated/notas'
+      path: '/notas'
+      fullPath: '/notas'
+      preLoaderRoute: typeof AuthenticatedNotasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/painel': {
@@ -324,9 +362,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedAjustesRoute: typeof AuthenticatedAjustesRoute
   AuthenticatedArquivosRoute: typeof AuthenticatedArquivosRoute
+  AuthenticatedBaseRoute: typeof AuthenticatedBaseRoute
   AuthenticatedDinheiroRoute: typeof AuthenticatedDinheiroRoute
   AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
+  AuthenticatedNotasRoute: typeof AuthenticatedNotasRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPessoasRoute: typeof AuthenticatedPessoasRoute
   AuthenticatedProjetosRoute: typeof AuthenticatedProjetosRoute
@@ -338,9 +378,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedAjustesRoute: AuthenticatedAjustesRoute,
   AuthenticatedArquivosRoute: AuthenticatedArquivosRoute,
+  AuthenticatedBaseRoute: AuthenticatedBaseRoute,
   AuthenticatedDinheiroRoute: AuthenticatedDinheiroRoute,
   AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
+  AuthenticatedNotasRoute: AuthenticatedNotasRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPessoasRoute: AuthenticatedPessoasRoute,
   AuthenticatedProjetosRoute: AuthenticatedProjetosRoute,

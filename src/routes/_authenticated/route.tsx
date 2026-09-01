@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  BookOpen,
   CalendarCheck,
   CalendarDays,
   ChevronDown,
@@ -10,11 +11,13 @@ import {
   ListChecks,
   Moon,
   Settings,
+  StickyNote,
   Sun,
   Target,
   Users,
   Wallet,
 } from "lucide-react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -51,10 +54,13 @@ const NAV = [
 const MORE = [
   { to: "/agenda", label: "Agenda", icon: CalendarDays },
   { to: "/metas", label: "Metas", icon: Target },
+  { to: "/notas", label: "Notas", icon: StickyNote },
+  { to: "/base", label: "Base de conhecimento", icon: BookOpen },
   { to: "/pessoas", label: "Pessoas", icon: Users },
   { to: "/projetos", label: "Projetos", icon: FolderKanban },
 
 ] as const;
+
 
 function AuthenticatedLayout() {
   const navigate = useNavigate();
