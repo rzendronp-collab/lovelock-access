@@ -588,7 +588,7 @@ function FixedCostsSection({
   query,
 }: {
   orgId: string | null;
-  query: { data?: FixedCostRow[]; isLoading: boolean; error: unknown; refetch: () => unknown };
+  query: { data: FixedCostRow[] | undefined; isLoading: boolean; error: unknown; refetch: () => unknown };
 }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -789,7 +789,7 @@ function OpeningSection({
 }: {
   orgId: string | null;
   query: {
-    data?: { id: string; amount: number; opening_date: string; note: string } | null;
+    data: { id: string; amount: number; opening_date: string; note: string } | null | undefined;
     isLoading: boolean;
     error: unknown;
     refetch: () => unknown;
