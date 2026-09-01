@@ -218,9 +218,7 @@ function Canvas({
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
-        onNodesChange={editable ? onNodesChange : undefined}
-        onEdgesChange={editable ? onEdgesChange : undefined}
-        onConnect={editable ? onConnect : undefined}
+        {...(editable ? { onNodesChange, onEdgesChange, onConnect } : {})}
         nodesDraggable={editable}
         nodesConnectable={editable}
         elementsSelectable={editable}

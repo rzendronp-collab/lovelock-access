@@ -84,7 +84,12 @@ function MapaEditor() {
     timer.current = setTimeout(() => void persist(), 1000);
   }, [perms.canWrite, persist]);
 
-  useEffect(() => () => timer.current && clearTimeout(timer.current), []);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
 
   const onChange = useCallback(
     (state: MapState) => {

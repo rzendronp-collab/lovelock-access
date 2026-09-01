@@ -101,7 +101,7 @@ function MapasLista() {
         org_id: orgId,
         project_id: currentProjectId ?? null,
         title: "Novo mapa",
-        created_by: userData.user?.id ?? undefined,
+        ...(userData.user?.id ? { created_by: userData.user.id } : {}),
       })
       .select("id")
       .single();
