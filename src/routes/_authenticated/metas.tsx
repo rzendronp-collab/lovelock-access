@@ -58,6 +58,7 @@ type GoalRow = {
   current_source: string;
   unit: string;
   due_date: string | null;
+  period_start: string;
   color: string;
   note: string;
 };
@@ -99,6 +100,7 @@ const GOAL_FIELDS: FieldDef[] = [
     type: "decimal",
     showWhen: (v) => v['current_source'] === "manual",
   },
+  { name: "period_start", label: "Início do período", type: "date" },
   { name: "due_date", label: "Prazo", type: "date" },
   {
     name: "color",
@@ -110,6 +112,7 @@ const GOAL_FIELDS: FieldDef[] = [
 ];
 
 function emptyValues(): Values {
+  const today = new Date().toISOString().slice(0, 10);
   return {
     title: "",
     group_name: "",
@@ -117,6 +120,7 @@ function emptyValues(): Values {
     unit: "R$",
     current_source: "manual",
     manual_current: "0",
+    period_start: today,
     due_date: "",
     color: "principal",
     note: "",
@@ -165,7 +169,7 @@ function Metas() {
 
   const goals = useRecords<GoalRow>({
     table: "goals",
-    columns: "id, title, group_name, target, current_source, unit, due_date, color, note",
+    columns: "id, title, group_name, target, current_source, unit, due_date, period_start, color, note",
     orgId: orgId ?? null,
     orderBy: { column: "created_at", ascending: false },
     trackCreatedBy: true,
@@ -196,10 +200,11 @@ function Metas() {
     label: "lançamento",
   });
 
-  /** Progresso puxado do financeiro: entradas recebidas até o prazo da meta. */
+  /** Progresso puxado do financeiro: entradas recebidas dentro do período da meta. */
   function financeProgress(goal: GoalRow) {
     return entries.rows
       .filter((e) => e.kind === "entrada" && e.received)
+      .filter((e) => e.entry_date >= goal.period_start)
       .filter((e) => !goal.due_date || e.entry_date <= goal.due_date)
       .reduce((sum, e) => sum + Number(e.amount), 0);
   }
@@ -232,6 +237,7 @@ function Metas() {
       unit: goal.unit,
       current_source: goal.current_source,
       manual_current: String(readManual(goal.note)),
+      period_start: goal.period_start ?? "",
       due_date: goal.due_date ?? "",
       color: goal.color,
       note: readNote(goal.note),
@@ -256,6 +262,7 @@ function Metas() {
           target: toNumber(values['target']),
           unit: String(values['unit'] ?? "R$"),
           current_source: source,
+          period_start: String(values['period_start'] ?? "") || null,
           due_date: String(values['due_date'] ?? "") || null,
           color: String(values['color'] ?? "principal"),
           note:
