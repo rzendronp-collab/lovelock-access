@@ -116,34 +116,26 @@ function toNumber(value: FieldValue | undefined) {
 }
 
 function Dinheiro() {
+  const urlSearch = Route.useSearch();
   const [tab, setTab] = useState<Tab>("lancamentos");
-  const { key, setKey, custom, setCustom, period } = usePeriodPicker("mes");
-  const [search, setSearch] = useState("");
+  const { key, setKey, custom, setCustom, period } = usePeriodPicker(urlSearch.periodo ?? "mes", {
+    ...(urlSearch.de && urlSearch.ate ? { from: urlSearch.de, to: urlSearch.ate } : {}),
+  });
+  const [search, setSearch] = useState(urlSearch.busca ?? "");
   const [category, setCategory] = useState("");
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(emptyEntryValues);
   const [toDelete, setToDelete] = useState<string | null>(null);
 
-  const { data: orgId, isLoading: loadingOrg } = useOrgId();
-
-  const entries = useRecords<FinanceEntryRow & { id: string }>({
-    table: "finance_entries",
-    columns: "id, entry_date, description, category, account, kind, amount, received, origin",
-    orgId: orgId ?? null,
-    orderBy: { column: "entry_date", ascending: false },
-    trackCreatedBy: true,
-    label: "lançamento",
-  });
-
-  const fixed = useRecords<FixedCostRow & { id: string }>({
-    table: "fixed_costs",
-    columns: "id, label, category, amount, day_of_month, start_month, end_month, active",
-    orgId: orgId ?? null,
-    orderBy: { column: "label", ascending: true },
-    softDelete: false,
-    label: "despesa fixa",
-  });
+  const finance = useFinanceTotals(period);
+  const orgId = finance.orgId;
+  const entries = finance.entries;
+  const fixed = finance.fixed;
+  const allEntries = finance.allEntries;
+  const fixedRows = finance.fixedRows;
+  const periodEntries = finance.periodEntries;
+  const periodTotals = finance.totals;
 
   const openingQuery = useQuery({
     queryKey: ["cash-opening", orgId],
@@ -159,27 +151,13 @@ function Dinheiro() {
     },
   });
 
-  const allEntries = useMemo(() => toDisplay(entries.rows), [entries.rows]);
-  const fixedRows = fixed.rows;
-
-  const periodEntries = useMemo(() => {
-    const real = allEntries.filter(
-      (e) => e.entry_date >= period.from && e.entry_date <= period.to,
-    );
-    const projected = expandFixedCosts(fixedRows, period.from, period.to);
-    return [...real, ...projected].sort((a, b) => b.entry_date.localeCompare(a.entry_date));
-  }, [allEntries, fixedRows, period]);
-
-  const periodTotals = useMemo(() => totals(periodEntries), [periodEntries]);
-
   const accumulated = useMemo(() => {
     const opening = openingQuery.data;
     const start = opening?.opening_date ?? "1900-01-01";
-    const real = allEntries.filter((e) => e.entry_date >= start && e.entry_date <= period.to);
-    const projected = expandFixedCosts(fixedRows, start, period.to);
-    const t = totals([...real, ...projected]);
+    const t = totals(entriesInRange(allEntries, fixedRows, start, period.to));
     return Number(opening?.amount ?? 0) + t.sobrou;
   }, [allEntries, fixedRows, openingQuery.data, period.to]);
+
 
   function setValue(name: string, value: FieldValue) {
     setValues((prev) => {
