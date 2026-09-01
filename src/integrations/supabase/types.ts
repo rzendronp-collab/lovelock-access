@@ -14,6 +14,156 @@ export type Database = {
   }
   public: {
     Tables: {
+      cash_opening: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          note: string
+          opening_date: string
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          note?: string
+          opening_date?: string
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          note?: string
+          opening_date?: string
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_opening_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_entries: {
+        Row: {
+          account: string
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string
+          entry_date: string
+          id: string
+          kind: string
+          org_id: string
+          origin: string
+          received: boolean
+          updated_at: string
+        }
+        Insert: {
+          account?: string
+          amount: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description: string
+          entry_date?: string
+          id?: string
+          kind?: string
+          org_id: string
+          origin?: string
+          received?: boolean
+          updated_at?: string
+        }
+        Update: {
+          account?: string
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string
+          entry_date?: string
+          id?: string
+          kind?: string
+          org_id?: string
+          origin?: string
+          received?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_entries_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fixed_costs: {
+        Row: {
+          active: boolean
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          day_of_month: number
+          end_month: string | null
+          id: string
+          label: string
+          org_id: string
+          start_month: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          day_of_month?: number
+          end_month?: string | null
+          id?: string
+          label: string
+          org_id: string
+          start_month?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          day_of_month?: number
+          end_month?: string | null
+          id?: string
+          label?: string
+          org_id?: string
+          start_month?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fixed_costs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           created_at: string
