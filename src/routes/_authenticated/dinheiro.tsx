@@ -651,9 +651,11 @@ function OpeningSection({
               onChange={(e) => setNote(e.target.value)}
             />
           </Field>
-          <Button className="text-body" disabled={save.isPending} onClick={() => save.mutate()}>
-            {save.isPending ? "Salvando..." : "Salvar saldo inicial"}
-          </Button>
+          {perms.canWrite && (
+            <Button className="text-body" disabled={save.isPending} onClick={() => save.mutate()}>
+              {save.isPending ? "Salvando..." : "Salvar saldo inicial"}
+            </Button>
+          )}
         </div>
       )}
     </AppCard>
