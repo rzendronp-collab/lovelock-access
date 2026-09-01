@@ -69,7 +69,7 @@ function ResetPassword() {
         </CardHeader>
         <CardContent>
           {!ready ? (
-            <div className="space-y-4 text-sm text-muted-foreground">
+            <div className="space-y-4 text-body text-muted-foreground">
               <p>
                 Este link de redefinição é inválido ou expirou. Solicite um novo link para
                 continuar.

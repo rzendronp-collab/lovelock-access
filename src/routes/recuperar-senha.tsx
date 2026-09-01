@@ -55,7 +55,7 @@ function ForgotPassword() {
         </CardHeader>
         <CardContent>
           {sent ? (
-            <div className="space-y-4 text-sm">
+            <div className="space-y-4 text-body">
               <p>
                 Se existir uma conta com <strong>{email}</strong>, o link de redefinição chegará em
                 instantes.
@@ -80,7 +80,7 @@ function ForgotPassword() {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Enviando..." : "Enviar link"}
               </Button>
-              <p className="text-center text-sm text-muted-foreground">
+              <p className="text-center text-body text-muted-foreground">
                 <Link to="/" className="underline">
                   Voltar ao login
                 </Link>
