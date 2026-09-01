@@ -11,6 +11,7 @@ export type PaymentAccountRow = {
   fee_percent: number;
   payout_days: number;
   color: string;
+  created_by?: string | null;
 };
 
 export type ConnectionRow = {
@@ -33,6 +34,7 @@ export type PaymentReceiptRow = {
   paid_out: boolean;
   external_id: string | null;
   finance_entry_id: string | null;
+  created_by?: string | null;
 };
 
 /** Líquido = bruto menos a taxa (em %). */
