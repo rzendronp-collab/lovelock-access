@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRecords } from "@/hooks/use-records";
+import { useContactField } from "@/hooks/use-contacts";
 import { useOrgId, useUserId } from "@/hooks/use-org";
 import {
   ITEM_COLORS,
@@ -89,6 +90,7 @@ type CardRow = {
   position: number;
   done: boolean;
   archived: boolean;
+  contact_id: string | null;
 };
 
 type CardItemRow = {
@@ -144,6 +146,7 @@ function Trabalho() {
   const [cardPanelId, setCardPanelId] = useState<string | undefined>(undefined);
   const [cardPanelOpen, setCardPanelOpen] = useState(false);
   const [cardValues, setCardValues] = useState<Values>({});
+  const { field: contactField } = useContactField();
   const [checklistText, setChecklistText] = useState("");
   const [commentText, setCommentText] = useState("");
   const [toDelete, setToDelete] = useState<CardRow | null>(null);
@@ -169,7 +172,7 @@ function Trabalho() {
   const cards = useRecords<CardRow>({
     table: "cards",
     columns:
-      "id, board_id, column_id, title, description, assignee_id, due_date, label, color, position, done, archived",
+      "id, board_id, column_id, title, description, assignee_id, due_date, label, color, position, done, archived, contact_id",
     orgId: orgId ?? null,
     orderBy: { column: "position", ascending: true },
     trackCreatedBy: true,
@@ -244,8 +247,9 @@ function Trabalho() {
         options: ITEM_COLORS.map((c) => ({ value: c.value, label: c.label })),
       },
       { name: "done", label: "Concluído", type: "switch" },
+      contactField,
     ],
-    [userId],
+    [userId, contactField],
   );
 
   function openCardPanel(card: CardRow) {
@@ -258,6 +262,7 @@ function Trabalho() {
       label: card.label,
       color: card.color,
       done: card.done,
+      contact_id: card.contact_id ?? "",
     });
     setChecklistText("");
     setCommentText("");
@@ -298,6 +303,7 @@ function Trabalho() {
           label: String(cardValues['label'] ?? ""),
           color: String(cardValues['color'] ?? ""),
           done: Boolean(cardValues['done']),
+          contact_id: String(cardValues['contact_id'] ?? "") || null,
         },
       },
       { onSuccess: () => setCardPanelOpen(false) },
