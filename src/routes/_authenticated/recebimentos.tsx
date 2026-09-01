@@ -104,14 +104,22 @@ function Recebimentos() {
         </SelectPill>
       </SelectPillGroup>
 
+      <StripeSummary orgId={orgId ?? null} projectId={projectId} />
+
       {tab === "recebimentos" && (
         <ReceiptsSection orgId={orgId ?? null} projectId={projectId} accounts={accounts.rows} />
       )}
       {tab === "contas" && <AccountsSection records={accounts} />}
-      {tab === "conexoes" && <ConnectionsSection orgId={orgId ?? null} isAdmin={isAdmin} />}
+      {tab === "conexoes" && (
+        <>
+          <StripeSection orgId={orgId ?? null} projectId={projectId} isAdmin={isAdmin} />
+          <ConnectionsSection orgId={orgId ?? null} isAdmin={isAdmin} />
+        </>
+      )}
     </>
   );
 }
+
 
 
 /* ------------------------------- Recebimentos ------------------------------ */
