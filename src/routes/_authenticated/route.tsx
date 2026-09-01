@@ -10,6 +10,8 @@ import {
   FolderKanban,
   ListChecks,
   Moon,
+  Network,
+
   Settings,
   StickyNote,
   Sun,
