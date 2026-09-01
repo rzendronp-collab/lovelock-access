@@ -20,6 +20,8 @@ import { useRecords } from "@/hooks/use-records";
 import { useOrgId, useOrgRole, usePermissions } from "@/hooks/use-org";
 import { useCurrentProject } from "@/hooks/use-projects";
 import { NoProjectState } from "@/components/project-select";
+import { StripeSection, StripeSummary } from "@/components/stripe-accounts";
+
 
 import { Button } from "@/components/ui/button";
 import { formatDate, formatMoney } from "@/lib/finance";
@@ -104,14 +106,22 @@ function Recebimentos() {
         </SelectPill>
       </SelectPillGroup>
 
+      <StripeSummary orgId={orgId ?? null} projectId={projectId} />
+
       {tab === "recebimentos" && (
         <ReceiptsSection orgId={orgId ?? null} projectId={projectId} accounts={accounts.rows} />
       )}
       {tab === "contas" && <AccountsSection records={accounts} />}
-      {tab === "conexoes" && <ConnectionsSection orgId={orgId ?? null} isAdmin={isAdmin} />}
+      {tab === "conexoes" && (
+        <>
+          <StripeSection orgId={orgId ?? null} projectId={projectId} isAdmin={isAdmin} />
+          <ConnectionsSection orgId={orgId ?? null} isAdmin={isAdmin} />
+        </>
+      )}
     </>
   );
 }
+
 
 
 /* ------------------------------- Recebimentos ------------------------------ */

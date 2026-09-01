@@ -397,6 +397,7 @@ export type Database = {
           label: string
           last_sync_at: string | null
           org_id: string
+          project_id: string | null
           provider: string
           secret_ref: string | null
           status: string
@@ -410,6 +411,7 @@ export type Database = {
           label?: string
           last_sync_at?: string | null
           org_id: string
+          project_id?: string | null
           provider: string
           secret_ref?: string | null
           status?: string
@@ -423,6 +425,7 @@ export type Database = {
           label?: string
           last_sync_at?: string | null
           org_id?: string
+          project_id?: string | null
           provider?: string
           secret_ref?: string | null
           status?: string
@@ -434,6 +437,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -1181,42 +1191,72 @@ export type Database = {
       }
       payment_accounts: {
         Row: {
+          balance_available: number
+          balance_pending: number
+          balance_reserved: number
           color: string
           created_at: string
           created_by: string
           fee_percent: number
+          fees_total: number
+          gross_volume: number
           id: string
+          last_synced_at: string | null
           name: string
           org_id: string
           payout_days: number
+          payouts_total: number
           project_id: string | null
           provider: string
+          refunds_total: number
+          stripe_connection_id: string | null
+          sync_error: string | null
           updated_at: string
         }
         Insert: {
+          balance_available?: number
+          balance_pending?: number
+          balance_reserved?: number
           color?: string
           created_at?: string
           created_by?: string
           fee_percent?: number
+          fees_total?: number
+          gross_volume?: number
           id?: string
+          last_synced_at?: string | null
           name: string
           org_id: string
           payout_days?: number
+          payouts_total?: number
           project_id?: string | null
           provider?: string
+          refunds_total?: number
+          stripe_connection_id?: string | null
+          sync_error?: string | null
           updated_at?: string
         }
         Update: {
+          balance_available?: number
+          balance_pending?: number
+          balance_reserved?: number
           color?: string
           created_at?: string
           created_by?: string
           fee_percent?: number
+          fees_total?: number
+          gross_volume?: number
           id?: string
+          last_synced_at?: string | null
           name?: string
           org_id?: string
           payout_days?: number
+          payouts_total?: number
           project_id?: string | null
           provider?: string
+          refunds_total?: number
+          stripe_connection_id?: string | null
+          sync_error?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1232,6 +1272,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_accounts_stripe_connection_id_fkey"
+            columns: ["stripe_connection_id"]
+            isOneToOne: false
+            referencedRelation: "connections"
             referencedColumns: ["id"]
           },
         ]
@@ -1407,6 +1454,11 @@ export type Database = {
       is_member_via_project: {
         Args: { target_project: string }
         Returns: boolean
+      }
+      vault_read_secret: { Args: { p_name: string }; Returns: string }
+      vault_store_secret: {
+        Args: { p_name: string; p_secret: string }
+        Returns: string
       }
     }
     Enums: {
