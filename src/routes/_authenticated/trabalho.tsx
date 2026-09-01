@@ -40,6 +40,9 @@ import {
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/trabalho")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    cartao: search['cartao'] ? String(search['cartao']) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Trabalho | EuroHub" },
