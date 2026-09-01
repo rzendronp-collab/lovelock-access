@@ -6,8 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { PageHeader } from "@/components/page-header";
+import { AppCard } from "@/components/app-card";
+
 
 export const Route = createFileRoute("/_authenticated/minha-conta")({
   head: () => ({
