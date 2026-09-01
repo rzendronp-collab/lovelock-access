@@ -3,7 +3,7 @@ import { SelectPill, SelectPillGroup } from "@/components/select-pill";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export type PeriodKey = "7d" | "mes" | "trimestre" | "custom";
+export type PeriodKey = "7d" | "mes" | "trimestre" | "ano" | "custom";
 
 export type Period = { from: string; to: string };
 
@@ -21,6 +21,9 @@ function computeRange(key: PeriodKey, custom: Period): Period {
   }
   if (key === "mes") {
     return { from: toISODate(new Date(today.getFullYear(), today.getMonth(), 1)), to };
+  }
+  if (key === "ano") {
+    return { from: toISODate(new Date(today.getFullYear(), today.getMonth() - 11, 1)), to };
   }
   if (key === "trimestre") {
     const from = new Date(today.getFullYear(), today.getMonth() - 2, 1);
@@ -44,6 +47,7 @@ const OPTIONS: { key: PeriodKey; label: string }[] = [
   { key: "7d", label: "7 dias" },
   { key: "mes", label: "Mês" },
   { key: "trimestre", label: "Trimestre" },
+  { key: "ano", label: "Ano" },
   { key: "custom", label: "Personalizado" },
 ];
 
@@ -52,16 +56,22 @@ export function PeriodPicker({
   onChange,
   custom,
   onCustomChange,
+  options,
 }: {
   value: PeriodKey;
   onChange: (key: PeriodKey) => void;
   custom: Period;
   onCustomChange: (period: Period) => void;
+  /** Quais atalhos aparecem (padrão: 7 dias, mês, trimestre, personalizado). */
+  options?: PeriodKey[];
 }) {
+  const shown = OPTIONS.filter((o) =>
+    options ? options.includes(o.key) : o.key !== "ano",
+  );
   return (
     <div className="space-y-3">
       <SelectPillGroup>
-        {OPTIONS.map((o) => (
+        {shown.map((o) => (
           <SelectPill key={o.key} active={value === o.key} onClick={() => onChange(o.key)}>
             {o.label}
           </SelectPill>

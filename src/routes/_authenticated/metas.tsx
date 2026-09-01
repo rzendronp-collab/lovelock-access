@@ -28,7 +28,7 @@ import { useCurrentProject } from "@/hooks/use-projects";
 import { NoProjectState } from "@/components/project-select";
 
 import { ITEM_COLORS, colorSwatch, formatDateBR } from "@/lib/board";
-import { formatMoney } from "@/lib/finance";
+import { formatValue, readManual, readNote, writeManual } from "@/lib/goals";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/metas")({
@@ -133,35 +133,6 @@ function emptyValues(): Values {
 
 function toNumber(value: FieldValue | undefined) {
   return Number(String(value ?? "").replace(",", ".")) || 0;
-}
-
-/** O progresso manual mora na observação em uma linha própria, para não exigir coluna nova. */
-const MANUAL_TAG = "progresso:";
-
-function readManual(note: string) {
-  const line = note.split("\n").find((l) => l.startsWith(MANUAL_TAG));
-  return line ? Number(line.slice(MANUAL_TAG.length)) || 0 : 0;
-}
-
-function writeManual(note: string, current: number) {
-  const rest = note
-    .split("\n")
-    .filter((l) => !l.startsWith(MANUAL_TAG))
-    .join("\n");
-  return `${MANUAL_TAG}${current}${rest ? `\n${rest}` : ""}`;
-}
-
-function readNote(note: string) {
-  return note
-    .split("\n")
-    .filter((l) => !l.startsWith(MANUAL_TAG))
-    .join("\n");
-}
-
-function formatValue(value: number, unit: string) {
-  if (unit === "R$") return formatMoney(value);
-  if (unit === "%") return `${value.toFixed(1)}%`;
-  return String(value);
 }
 
 function Metas() {

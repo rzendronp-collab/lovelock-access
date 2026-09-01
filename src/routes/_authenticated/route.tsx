@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  BarChart3,
   BookOpen,
   CalendarCheck,
   CalendarDays,
@@ -59,6 +60,7 @@ const MORE = [
   { to: "/notas", label: "Notas", icon: StickyNote },
   { to: "/base", label: "Base de conhecimento", icon: BookOpen },
   { to: "/mapas", label: "Mapas mentais", icon: Network },
+  { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/pessoas", label: "Pessoas", icon: Users },
   { to: "/projetos", label: "Projetos", icon: FolderKanban },
 
