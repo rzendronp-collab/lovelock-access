@@ -40,15 +40,23 @@ import {
 
 const PERIOD_KEYS: PeriodKey[] = ["7d", "mes", "trimestre", "custom"];
 
+/** Filtros que podem chegar por link (ex.: do Painel de hoje). */
+type DinheiroSearch = {
+  periodo?: PeriodKey;
+  de?: string;
+  ate?: string;
+  busca?: string;
+};
+
 export const Route = createFileRoute("/_authenticated/dinheiro")({
-  validateSearch: (search: Record<string, unknown>) => {
+  validateSearch: (search: Record<string, unknown>): DinheiroSearch => {
     const periodo = String(search['periodo'] ?? "");
-    return {
-      periodo: PERIOD_KEYS.includes(periodo as PeriodKey) ? (periodo as PeriodKey) : undefined,
-      de: search['de'] ? String(search['de']) : undefined,
-      ate: search['ate'] ? String(search['ate']) : undefined,
-      busca: search['busca'] ? String(search['busca']) : undefined,
-    };
+    const out: DinheiroSearch = {};
+    if (PERIOD_KEYS.includes(periodo as PeriodKey)) out.periodo = periodo as PeriodKey;
+    if (search['de']) out.de = String(search['de']);
+    if (search['ate']) out.ate = String(search['ate']);
+    if (search['busca']) out.busca = String(search['busca']);
+    return out;
   },
   head: () => ({
     meta: [
