@@ -27,6 +27,7 @@ import { Route as AuthenticatedProjetosRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedRecebimentosRouteImport } from './routes/_authenticated/recebimentos'
 import { Route as AuthenticatedTrabalhoRouteImport } from './routes/_authenticated/trabalho'
 import { Route as AuthenticatedMapasIndexRouteImport } from './routes/_authenticated/mapas.index'
+import { Route as AuthenticatedMapasIdRouteImport } from './routes/_authenticated/mapas.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -118,6 +119,11 @@ const AuthenticatedMapasIndexRoute = AuthenticatedMapasIndexRouteImport.update({
   path: '/mapas/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMapasIdRoute = AuthenticatedMapasIdRouteImport.update({
+  id: '/mapas/$id',
+  path: '/mapas/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/projetos': typeof AuthenticatedProjetosRoute
   '/recebimentos': typeof AuthenticatedRecebimentosRoute
   '/trabalho': typeof AuthenticatedTrabalhoRoute
+  '/mapas/$id': typeof AuthenticatedMapasIdRoute
   '/mapas/': typeof AuthenticatedMapasIndexRoute
 }
 export interface FileRoutesByTo {
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/projetos': typeof AuthenticatedProjetosRoute
   '/recebimentos': typeof AuthenticatedRecebimentosRoute
   '/trabalho': typeof AuthenticatedTrabalhoRoute
+  '/mapas/$id': typeof AuthenticatedMapasIdRoute
   '/mapas': typeof AuthenticatedMapasIndexRoute
 }
 export interface FileRoutesById {
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/_authenticated/projetos': typeof AuthenticatedProjetosRoute
   '/_authenticated/recebimentos': typeof AuthenticatedRecebimentosRoute
   '/_authenticated/trabalho': typeof AuthenticatedTrabalhoRoute
+  '/_authenticated/mapas/$id': typeof AuthenticatedMapasIdRoute
   '/_authenticated/mapas/': typeof AuthenticatedMapasIndexRoute
 }
 export interface FileRouteTypes {
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/projetos'
     | '/recebimentos'
     | '/trabalho'
+    | '/mapas/$id'
     | '/mapas/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/projetos'
     | '/recebimentos'
     | '/trabalho'
+    | '/mapas/$id'
     | '/mapas'
   id:
     | '__root__'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/_authenticated/projetos'
     | '/_authenticated/recebimentos'
     | '/_authenticated/trabalho'
+    | '/_authenticated/mapas/$id'
     | '/_authenticated/mapas/'
   fileRoutesById: FileRoutesById
 }
@@ -374,6 +386,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMapasIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mapas/$id': {
+      id: '/_authenticated/mapas/$id'
+      path: '/mapas/$id'
+      fullPath: '/mapas/$id'
+      preLoaderRoute: typeof AuthenticatedMapasIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -391,6 +410,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProjetosRoute: typeof AuthenticatedProjetosRoute
   AuthenticatedRecebimentosRoute: typeof AuthenticatedRecebimentosRoute
   AuthenticatedTrabalhoRoute: typeof AuthenticatedTrabalhoRoute
+  AuthenticatedMapasIdRoute: typeof AuthenticatedMapasIdRoute
   AuthenticatedMapasIndexRoute: typeof AuthenticatedMapasIndexRoute
 }
 
@@ -408,6 +428,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProjetosRoute: AuthenticatedProjetosRoute,
   AuthenticatedRecebimentosRoute: AuthenticatedRecebimentosRoute,
   AuthenticatedTrabalhoRoute: AuthenticatedTrabalhoRoute,
+  AuthenticatedMapasIdRoute: AuthenticatedMapasIdRoute,
   AuthenticatedMapasIndexRoute: AuthenticatedMapasIndexRoute,
 }
 
