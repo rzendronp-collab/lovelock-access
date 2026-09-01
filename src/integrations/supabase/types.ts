@@ -894,6 +894,121 @@ export type Database = {
           },
         ]
       }
+      kb_articles: {
+        Row: {
+          collection_id: string | null
+          content: string
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          id: string
+          org_id: string
+          pinned: boolean
+          project_id: string | null
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          collection_id?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          id?: string
+          org_id: string
+          pinned?: boolean
+          project_id?: string | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          collection_id?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          id?: string
+          org_id?: string
+          pinned?: boolean
+          project_id?: string | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_articles_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "kb_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_articles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_articles_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_collections: {
+        Row: {
+          color: string
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          org_id: string
+          position: number
+          project_id: string | null
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name: string
+          org_id: string
+          position?: number
+          project_id?: string | null
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          org_id?: string
+          position?: number
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_collections_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_collections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           created_at: string
@@ -922,6 +1037,63 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notes: {
+        Row: {
+          color: string
+          content: string
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          id: string
+          org_id: string
+          pinned: boolean
+          project_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          id?: string
+          org_id: string
+          pinned?: boolean
+          project_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          id?: string
+          org_id?: string
+          pinned?: boolean
+          project_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
