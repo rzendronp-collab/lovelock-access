@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/minha-conta")({
       },
     ],
   }),
-  component: MinhaConta;
+  component: MinhaConta,
 });
 
 function MinhaConta() {
