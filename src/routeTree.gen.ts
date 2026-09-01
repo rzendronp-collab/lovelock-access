@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as AuthenticatedArquivosRouteImport } from './routes/_authenticated/arquivos'
 import { Route as AuthenticatedDinheiroRouteImport } from './routes/_authenticated/dinheiro'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated/minha-conta'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
@@ -36,6 +37,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   id: '/redefinir-senha',
   path: '/redefinir-senha',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedArquivosRoute = AuthenticatedArquivosRouteImport.update({
+  id: '/arquivos',
+  path: '/arquivos',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDinheiroRoute = AuthenticatedDinheiroRouteImport.update({
   id: '/dinheiro',
@@ -62,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/arquivos': typeof AuthenticatedArquivosRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/painel': typeof AuthenticatedPainelRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/arquivos': typeof AuthenticatedArquivosRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/painel': typeof AuthenticatedPainelRoute
@@ -82,6 +90,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/_authenticated/arquivos': typeof AuthenticatedArquivosRoute
   '/_authenticated/dinheiro': typeof AuthenticatedDinheiroRoute
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
@@ -93,6 +102,7 @@ export interface FileRouteTypes {
     | '/'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/arquivos'
     | '/dinheiro'
     | '/minha-conta'
     | '/painel'
@@ -102,6 +112,7 @@ export interface FileRouteTypes {
     | '/'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/arquivos'
     | '/dinheiro'
     | '/minha-conta'
     | '/painel'
@@ -112,6 +123,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/_authenticated/arquivos'
     | '/_authenticated/dinheiro'
     | '/_authenticated/minha-conta'
     | '/_authenticated/painel'
@@ -155,6 +167,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/arquivos': {
+      id: '/_authenticated/arquivos'
+      path: '/arquivos'
+      fullPath: '/arquivos'
+      preLoaderRoute: typeof AuthenticatedArquivosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dinheiro': {
       id: '/_authenticated/dinheiro'
       path: '/dinheiro'
@@ -187,6 +206,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedArquivosRoute: typeof AuthenticatedArquivosRoute
   AuthenticatedDinheiroRoute: typeof AuthenticatedDinheiroRoute
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
@@ -194,6 +214,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedArquivosRoute: AuthenticatedArquivosRoute,
   AuthenticatedDinheiroRoute: AuthenticatedDinheiroRoute,
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
