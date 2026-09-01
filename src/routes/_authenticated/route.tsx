@@ -10,6 +10,8 @@ import {
   FolderKanban,
   ListChecks,
   Moon,
+  Network,
+
   Settings,
   StickyNote,
   Sun,
@@ -56,10 +58,12 @@ const MORE = [
   { to: "/metas", label: "Metas", icon: Target },
   { to: "/notas", label: "Notas", icon: StickyNote },
   { to: "/base", label: "Base de conhecimento", icon: BookOpen },
+  { to: "/mapas", label: "Mapas mentais", icon: Network },
   { to: "/pessoas", label: "Pessoas", icon: Users },
   { to: "/projetos", label: "Projetos", icon: FolderKanban },
 
 ] as const;
+
 
 
 function AuthenticatedLayout() {
