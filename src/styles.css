@@ -150,3 +150,30 @@
   font-family: var(--font-display-app);
   letter-spacing: -0.01em;
 }
+
+/*
+ * Escala tipográfica do sistema — SOMENTE estes quatro tamanhos.
+ * text-label (12px) | text-body (14px) | text-highlight (16px) | text-title (24px)
+ */
+@utility text-label {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+}
+
+@utility text-body {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+@utility text-highlight {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+@utility text-title {
+  font-family: var(--font-display-app);
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.02em;
+}
