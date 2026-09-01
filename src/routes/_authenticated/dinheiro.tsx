@@ -221,8 +221,8 @@ function Dinheiro() {
     );
   }
 
-  const loading = loadingOrg || entries.isLoading || fixed.isLoading;
-  const failed = entries.error || fixed.error || openingQuery.error;
+  const loading = finance.isLoading;
+  const failed = finance.error || openingQuery.error;
 
   return (
     <>
