@@ -1,19 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/page-header";
+import { AppCard } from "@/components/app-card";
+import { SelectPill, SelectPillGroup } from "@/components/select-pill";
+import { EmptyState, ErrorState, LoadingState } from "@/components/states";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
     meta: [
-      { title: "Painel | Plataforma interna" },
-      { name: "description", content: "Área autenticada com a empresa e o papel do usuário." },
-      { property: "og:title", content: "Painel | Plataforma interna" },
+      { title: "Painel de hoje | EuroHub" },
+      { name: "description", content: "Resumo do dia no EuroHub: sua empresa, seu papel e o que está em aberto." },
+      { property: "og:title", content: "Painel de hoje | EuroHub" },
       {
         property: "og:description",
-        content: "Área autenticada com a empresa e o papel do usuário.",
+        content: "Resumo do dia no EuroHub: sua empresa, seu papel e o que está em aberto.",
       },
     ],
   }),
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/painel")({
 });
 
 function Painel() {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["membership"],
     queryFn: async () => {
       const { data: userData } = await supabase.auth.getUser();
@@ -40,36 +41,44 @@ function Painel() {
   });
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Painel</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          A base de acesso está pronta. Os módulos entram depois.
-        </p>
-      </div>
+    <>
+      <PageHeader
+        title="Painel de hoje"
+        subtitle="Visão geral do dia. Os módulos entram em seguida."
+        actions={
+          <SelectPillGroup>
+            <SelectPill active>Hoje</SelectPill>
+            <SelectPill>Semana</SelectPill>
+          </SelectPillGroup>
+        }
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Sua empresa</CardTitle>
-          <CardDescription>Dados do seu vínculo atual</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <Skeleton className="h-6 w-48" />
-          ) : error ? (
-            <p className="text-sm text-destructive">Não foi possível carregar sua empresa.</p>
-          ) : data ? (
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-lg font-medium">{data.organizations?.name}</span>
-              <Badge variant="secondary">{data.role}</Badge>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Nenhuma empresa vinculada à sua conta ainda.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+      <AppCard title="Sua empresa" subtitle="Dados do seu vínculo atual">
+        {isLoading ? (
+          <LoadingState />
+        ) : error ? (
+          <ErrorState
+            message="Não foi possível carregar sua empresa."
+            onRetry={() => void refetch()}
+          />
+        ) : data ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-highlight font-semibold">{data.organizations?.name}</span>
+            <span className="text-label rounded-full bg-secondary px-2.5 py-1 font-medium text-secondary-foreground">
+              {data.role}
+            </span>
+          </div>
+        ) : (
+          <EmptyState
+            title="Sem empresa vinculada"
+            message="Ainda não há nada aqui. Nenhuma empresa está ligada à sua conta."
+          />
+        )}
+      </AppCard>
+
+      <AppCard title="Seu dia" subtitle="Itens em aberto dos módulos">
+        <EmptyState title="Nada por aqui" message="Ainda não há nada aqui." />
+      </AppCard>
+    </>
   );
 }

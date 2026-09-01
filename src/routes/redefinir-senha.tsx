@@ -11,12 +11,12 @@ export const Route = createFileRoute("/redefinir-senha")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Definir nova senha | Plataforma interna" },
+      { title: "Definir nova senha | EuroHub" },
       {
         name: "description",
         content: "Defina uma nova senha para sua conta na plataforma interna.",
       },
-      { property: "og:title", content: "Definir nova senha | Plataforma interna" },
+      { property: "og:title", content: "Definir nova senha | EuroHub" },
       {
         property: "og:description",
         content: "Defina uma nova senha para sua conta na plataforma interna.",
@@ -69,7 +69,7 @@ function ResetPassword() {
         </CardHeader>
         <CardContent>
           {!ready ? (
-            <div className="space-y-4 text-sm text-muted-foreground">
+            <div className="space-y-4 text-body text-muted-foreground">
               <p>
                 Este link de redefinição é inválido ou expirou. Solicite um novo link para
                 continuar.

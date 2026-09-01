@@ -11,12 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Entrar | Plataforma interna" },
+      { title: "Entrar | EuroHub" },
       {
         name: "description",
         content: "Acesse a plataforma interna da sua empresa com e-mail e senha.",
       },
-      { property: "og:title", content: "Entrar | Plataforma interna" },
+      { property: "og:title", content: "Entrar | EuroHub" },
       {
         property: "og:description",
         content: "Acesse a plataforma interna da sua empresa com e-mail e senha.",
@@ -90,8 +90,8 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted px-4 py-12">
       <div className="w-full max-w-md">
-        <h1 className="font-display mb-6 text-center text-2xl font-semibold tracking-tight">
-          Plataforma interna
+        <h1 className="font-display mb-6 text-center text-title font-semibold tracking-tight">
+          EuroHub
         </h1>
         <Card>
           <CardHeader>
@@ -100,7 +100,7 @@ function AuthPage() {
           </CardHeader>
           <CardContent>
             {pendingConfirm ? (
-              <div className="space-y-4 text-sm">
+              <div className="space-y-4 text-body">
                 <p>
                   Enviamos um link de confirmação para <strong>{signupEmail}</strong>. Abra o link
                   para ativar sua conta e depois volte para entrar.
@@ -147,7 +147,7 @@ function AuthPage() {
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Entrando..." : "Entrar"}
                     </Button>
-                    <p className="text-center text-sm text-muted-foreground">
+                    <p className="text-center text-body text-muted-foreground">
                       <Link to="/recuperar-senha" className="underline">
                         Esqueci minha senha
                       </Link>

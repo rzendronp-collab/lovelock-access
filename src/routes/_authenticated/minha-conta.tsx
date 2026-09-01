@@ -6,15 +6,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { PageHeader } from "@/components/page-header";
+import { AppCard } from "@/components/app-card";
+
 
 export const Route = createFileRoute("/_authenticated/minha-conta")({
   head: () => ({
     meta: [
-      { title: "Minha conta | Plataforma interna" },
+      { title: "Minha conta | EuroHub" },
       { name: "description", content: "Edite seu nome, troque sua senha e saia da plataforma." },
-      { property: "og:title", content: "Minha conta | Plataforma interna" },
+      { property: "og:title", content: "Minha conta | EuroHub" },
       {
         property: "og:description",
         content: "Edite seu nome, troque sua senha e saia da plataforma.",
@@ -105,92 +107,90 @@ function MinhaConta() {
     .join("");
 
   return (
-    <div className="space-y-6">
-      <h1 className="font-display text-3xl font-semibold tracking-tight">Minha conta</h1>
+    <>
+      <PageHeader title="Minha conta" subtitle="Seus dados de acesso no EuroHub." />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Perfil</CardTitle>
-          <CardDescription>Seu nome aparece para as pessoas da sua empresa.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-4" onSubmit={saveName}>
-            <div className="flex items-center gap-4">
-              <Avatar className="size-16">
-                <AvatarFallback>{initials}</AvatarFallback>
-              </Avatar>
-              <div className="text-sm text-muted-foreground">
-                Foto de perfil em breve.
-                <div>
-                  <Button type="button" variant="outline" size="sm" className="mt-2" disabled>
-                    Enviar foto
-                  </Button>
-                </div>
+      <AppCard title="Perfil" subtitle="Seu nome aparece para as pessoas da sua empresa.">
+        <form className="space-y-4" onSubmit={saveName}>
+          <div className="flex items-center gap-4">
+            <Avatar className="size-16">
+              <AvatarFallback className="text-highlight">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="text-body text-muted-foreground">
+              Foto de perfil em breve.
+              <div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-label mt-2"
+                  disabled
+                >
+                  Enviar foto
+                </Button>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="full-name">Nome completo</Label>
-              <Input
-                id="full-name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" disabled={savingName}>
-              {savingName ? "Salvando..." : "Salvar nome"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Senha</CardTitle>
-          <CardDescription>Defina uma nova senha de acesso.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-4" onSubmit={savePassword}>
-            <div className="space-y-2">
-              <Label htmlFor="current-password">Senha atual</Label>
-              <Input
-                id="current-password"
-                type="password"
-                autoComplete="current-password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-password">Nova senha</Label>
-              <Input
-                id="new-password"
-                type="password"
-                autoComplete="new-password"
-                minLength={6}
-                required
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-            </div>
-            <Button type="submit" disabled={savingPassword}>
-              {savingPassword ? "Salvando..." : "Trocar senha"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Sessão</CardTitle>
-          <CardDescription>Encerrar o acesso neste dispositivo.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button variant="outline" onClick={handleSignOut}>
-            Sair da conta
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="full-name" className="text-label">
+              Nome completo
+            </Label>
+            <Input
+              id="full-name"
+              className="text-body"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit" className="text-body" disabled={savingName}>
+            {savingName ? "Salvando..." : "Salvar nome"}
           </Button>
-        </CardContent>
-      </Card>
-    </div>
+        </form>
+      </AppCard>
+
+      <AppCard title="Senha" subtitle="Defina uma nova senha de acesso.">
+        <form className="space-y-4" onSubmit={savePassword}>
+          <div className="space-y-2">
+            <Label htmlFor="current-password" className="text-label">
+              Senha atual
+            </Label>
+            <Input
+              id="current-password"
+              type="password"
+              className="text-body"
+              autoComplete="current-password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="new-password" className="text-label">
+              Nova senha
+            </Label>
+            <Input
+              id="new-password"
+              type="password"
+              className="text-body"
+              autoComplete="new-password"
+              minLength={6}
+              required
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+          </div>
+          <Button type="submit" className="text-body" disabled={savingPassword}>
+            {savingPassword ? "Salvando..." : "Trocar senha"}
+          </Button>
+        </form>
+      </AppCard>
+
+      <AppCard title="Sessão" subtitle="Encerrar o acesso neste dispositivo.">
+        <Button variant="outline" className="text-body" onClick={handleSignOut}>
+          Sair da conta
+        </Button>
+      </AppCard>
+    </>
   );
 }
+
