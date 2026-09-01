@@ -15,7 +15,7 @@ import {
 } from "@/components/detail-panel";
 import { Button } from "@/components/ui/button";
 import { useRecords } from "@/hooks/use-records";
-import { useOrgId } from "@/hooks/use-org";
+import { useOrgId, usePermissions } from "@/hooks/use-org";
 import { CONTACT_KINDS, contactKindLabel, type ContactRow } from "@/hooks/use-contacts";
 import { formatDateBR } from "@/lib/board";
 import { formatMoney } from "@/lib/finance";
@@ -88,6 +88,7 @@ function emptyValues(): Values {
 
 function Pessoas() {
   const { data: orgId } = useOrgId();
+  const perms = usePermissions();
   const [search, setSearch] = useState("");
   const [group, setGroup] = useState("");
   const [panelOpen, setPanelOpen] = useState(false);
@@ -98,7 +99,7 @@ function Pessoas() {
 
   const contacts = useRecords<ContactRow>({
     table: "contacts",
-    columns: "id, kind, name, email, phone, doc, note",
+    columns: "id, kind, name, email, phone, doc, note, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "name", ascending: true },
     trackCreatedBy: true,
@@ -229,9 +230,11 @@ function Pessoas() {
         title="Pessoas"
         subtitle="Clientes, fornecedores, parceiros e equipe em um cadastro só."
         actions={
-          <Button className="text-body" onClick={openNew}>
-            <Plus className="size-4" aria-hidden /> Nova pessoa
-          </Button>
+          perms.canWrite ? (
+            <Button className="text-body" onClick={openNew}>
+              <Plus className="size-4" aria-hidden /> Nova pessoa
+            </Button>
+          ) : undefined
         }
       />
 
@@ -256,11 +259,15 @@ function Pessoas() {
             title: "Nenhuma pessoa",
             message: "Ainda não há nada aqui. Cadastre um cliente, fornecedor, parceiro ou alguém da equipe.",
             icon: <Users className="size-5" aria-hidden />,
-            action: (
-              <Button className="text-body" onClick={openNew}>
-                Nova pessoa
-              </Button>
-            ),
+            ...(perms.canWrite
+              ? {
+                  action: (
+                    <Button className="text-body" onClick={openNew}>
+                      Nova pessoa
+                    </Button>
+                  ),
+                }
+              : {}),
           }}
           renderItem={(c) => (
             <>
@@ -277,17 +284,26 @@ function Pessoas() {
                 </p>
               </button>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" aria-label="Editar pessoa" onClick={() => openEdit(c)}>
-                  <Pencil className="size-4" aria-hidden />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Excluir pessoa"
-                  onClick={() => setToDelete(c.id)}
-                >
-                  <Trash2 className="size-4" aria-hidden />
-                </Button>
+                {perms.canWrite && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Editar pessoa"
+                    onClick={() => openEdit(c)}
+                  >
+                    <Pencil className="size-4" aria-hidden />
+                  </Button>
+                )}
+                {perms.canDelete(c.created_by) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Excluir pessoa"
+                    onClick={() => setToDelete(c.id)}
+                  >
+                    <Trash2 className="size-4" aria-hidden />
+                  </Button>
+                )}
               </div>
             </>
           )}
