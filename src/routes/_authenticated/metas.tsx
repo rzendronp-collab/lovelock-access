@@ -169,7 +169,8 @@ function Metas() {
 
   const goals = useRecords<GoalRow>({
     table: "goals",
-    columns: "id, title, group_name, target, current_source, unit, due_date, period_start, color, note",
+    columns:
+      "id, title, group_name, target, current_source, unit, due_date, period_start, color, note, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "created_at", ascending: false },
     trackCreatedBy: true,
@@ -285,9 +286,11 @@ function Metas() {
         title="Metas"
         subtitle="Metas por trimestre ou frente, com progresso e tarefas."
         actions={
-          <Button className="text-body" onClick={openNew}>
-            <Plus className="size-4" aria-hidden /> Nova meta
-          </Button>
+          perms.canWrite ? (
+            <Button className="text-body" onClick={openNew}>
+              <Plus className="size-4" aria-hidden /> Nova meta
+            </Button>
+          ) : undefined
         }
       />
 
@@ -302,9 +305,11 @@ function Metas() {
             message="Ainda não há nada aqui. Crie uma meta e acompanhe o progresso."
             icon={<Target className="size-5" aria-hidden />}
             action={
-              <Button className="text-body" onClick={openNew}>
-                Nova meta
-              </Button>
+              perms.canWrite ? (
+                <Button className="text-body" onClick={openNew}>
+                  Nova meta
+                </Button>
+              ) : undefined
             }
           />
         </AppCard>
@@ -343,22 +348,26 @@ function Metas() {
                         </p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Editar meta"
-                          onClick={() => openEdit(goal)}
-                        >
-                          <Pencil className="size-4" aria-hidden />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Excluir meta"
-                          onClick={() => setToDelete(goal.id)}
-                        >
-                          <Trash2 className="size-4" aria-hidden />
-                        </Button>
+                        {perms.canWrite && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Editar meta"
+                            onClick={() => openEdit(goal)}
+                          >
+                            <Pencil className="size-4" aria-hidden />
+                          </Button>
+                        )}
+                        {perms.canDelete(goal.created_by) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Excluir meta"
+                            onClick={() => setToDelete(goal.id)}
+                          >
+                            <Trash2 className="size-4" aria-hidden />
+                          </Button>
+                        )}
                       </div>
                     </div>
 
@@ -448,6 +457,7 @@ function GoalTasks({
   onToggle: (id: string, done: boolean) => void;
   onRemove: (id: string) => void;
 }) {
+  const perms = usePermissions();
   const [text, setText] = useState("");
   const [cardId, setCardId] = useState("");
 
@@ -477,17 +487,20 @@ function GoalTasks({
                 </span>
               )}
             </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Excluir tarefa"
-              onClick={() => onRemove(t.id)}
-            >
-              <Trash2 className="size-4" aria-hidden />
-            </Button>
+            {perms.canWrite && (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Excluir tarefa"
+                onClick={() => onRemove(t.id)}
+              >
+                <Trash2 className="size-4" aria-hidden />
+              </Button>
+            )}
           </li>
         ))}
       </ul>
+      {perms.canWrite && (
       <div className="flex flex-wrap items-center gap-2">
         <Input
           className="text-body min-w-40 flex-1"
@@ -513,6 +526,7 @@ function GoalTasks({
           Adicionar
         </Button>
       </div>
+      )}
     </div>
   );
 }
