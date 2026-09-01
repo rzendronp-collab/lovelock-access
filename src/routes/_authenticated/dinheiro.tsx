@@ -394,14 +394,7 @@ function Dinheiro() {
   );
 }
 
-function TotalCard({ label, value }: { label: string; value: string }) {
-  return (
-    <AppCard>
-      <p className="text-label text-muted-foreground">{label}</p>
-      <p className="text-title font-semibold">{value}</p>
-    </AppCard>
-  );
-}
+
 
 const FIXED_FIELDS: FieldDef[] = [
   { name: "label", label: "Rótulo", type: "text" },
