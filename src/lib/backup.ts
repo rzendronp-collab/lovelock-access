@@ -96,15 +96,33 @@ export function parseBackup(text: string): BackupFile {
  * Recria os registros do backup na empresa atual, gerando ids novos e
  * remapeando os vínculos entre as tabelas. Devolve a contagem por tabela.
  */
-export async function importBackup(orgId: string, backup: BackupFile) {
+export async function importBackup(
+  orgId: string,
+  backup: BackupFile,
+  options: { skipExisting?: boolean } = {},
+) {
+  const skipExisting = options.skipExisting ?? true;
   /** id antigo -> id novo, por tabela. */
   const idMap: Record<string, Map<string, string>> = {};
   const counts: Record<string, number> = {};
+  const skippedCounts: Record<string, number> = {};
 
   for (const table of BACKUP_TABLES) {
-    const rows = backup.tables[table] ?? [];
+    const allRows = backup.tables[table] ?? [];
     idMap[table] = new Map();
     counts[table] = 0;
+    skippedCounts[table] = 0;
+
+    let rows = allRows;
+    if (skipExisting && allRows.length) {
+      const { data, error } = await db.from(table).select("id").eq("org_id", orgId);
+      if (error) throw error;
+      const existing = new Set(((data ?? []) as { id: string }[]).map((r) => r.id));
+      rows = allRows.filter((r) => !existing.has(r.id));
+      // Registros que já estão no banco mantêm o mesmo id nos vínculos.
+      for (const r of allRows) if (existing.has(r.id)) idMap[table]!.set(r.id, r.id);
+      skippedCounts[table] = allRows.length - rows.length;
+    }
     if (!rows.length) continue;
 
     // folders pode apontar para si mesma: insere em ondas conforme os pais existirem.
