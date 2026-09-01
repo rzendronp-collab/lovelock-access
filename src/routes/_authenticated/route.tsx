@@ -51,10 +51,13 @@ const NAV = [
 const MORE = [
   { to: "/agenda", label: "Agenda", icon: CalendarDays },
   { to: "/metas", label: "Metas", icon: Target },
+  { to: "/notas", label: "Notas", icon: StickyNote },
+  { to: "/base", label: "Base de conhecimento", icon: BookOpen },
   { to: "/pessoas", label: "Pessoas", icon: Users },
   { to: "/projetos", label: "Projetos", icon: FolderKanban },
 
 ] as const;
+
 
 function AuthenticatedLayout() {
   const navigate = useNavigate();

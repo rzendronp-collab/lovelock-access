@@ -16,6 +16,7 @@ import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
 import { Route as AuthenticatedArquivosRouteImport } from './routes/_authenticated/arquivos'
+import { Route as AuthenticatedBaseRouteImport } from './routes/_authenticated/base'
 import { Route as AuthenticatedDinheiroRouteImport } from './routes/_authenticated/dinheiro'
 import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated/minha-conta'
@@ -58,6 +59,11 @@ const AuthenticatedAjustesRoute = AuthenticatedAjustesRouteImport.update({
 const AuthenticatedArquivosRoute = AuthenticatedArquivosRouteImport.update({
   id: '/arquivos',
   path: '/arquivos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBaseRoute = AuthenticatedBaseRouteImport.update({
+  id: '/base',
+  path: '/base',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDinheiroRoute = AuthenticatedDinheiroRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/agenda': typeof AuthenticatedAgendaRoute
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/arquivos': typeof AuthenticatedArquivosRoute
+  '/base': typeof AuthenticatedBaseRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/agenda': typeof AuthenticatedAgendaRoute
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/arquivos': typeof AuthenticatedArquivosRoute
+  '/base': typeof AuthenticatedBaseRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/ajustes': typeof AuthenticatedAjustesRoute
   '/_authenticated/arquivos': typeof AuthenticatedArquivosRoute
+  '/_authenticated/base': typeof AuthenticatedBaseRoute
   '/_authenticated/dinheiro': typeof AuthenticatedDinheiroRoute
   '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/agenda'
     | '/ajustes'
     | '/arquivos'
+    | '/base'
     | '/dinheiro'
     | '/metas'
     | '/minha-conta'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/agenda'
     | '/ajustes'
     | '/arquivos'
+    | '/base'
     | '/dinheiro'
     | '/metas'
     | '/minha-conta'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/_authenticated/agenda'
     | '/_authenticated/ajustes'
     | '/_authenticated/arquivos'
+    | '/_authenticated/base'
     | '/_authenticated/dinheiro'
     | '/_authenticated/metas'
     | '/_authenticated/minha-conta'
@@ -271,6 +283,13 @@ declare module '@tanstack/react-router' {
       path: '/arquivos'
       fullPath: '/arquivos'
       preLoaderRoute: typeof AuthenticatedArquivosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/base': {
+      id: '/_authenticated/base'
+      path: '/base'
+      fullPath: '/base'
+      preLoaderRoute: typeof AuthenticatedBaseRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dinheiro': {
@@ -343,6 +362,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedAjustesRoute: typeof AuthenticatedAjustesRoute
   AuthenticatedArquivosRoute: typeof AuthenticatedArquivosRoute
+  AuthenticatedBaseRoute: typeof AuthenticatedBaseRoute
   AuthenticatedDinheiroRoute: typeof AuthenticatedDinheiroRoute
   AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
@@ -358,6 +378,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedAjustesRoute: AuthenticatedAjustesRoute,
   AuthenticatedArquivosRoute: AuthenticatedArquivosRoute,
+  AuthenticatedBaseRoute: AuthenticatedBaseRoute,
   AuthenticatedDinheiroRoute: AuthenticatedDinheiroRoute,
   AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
