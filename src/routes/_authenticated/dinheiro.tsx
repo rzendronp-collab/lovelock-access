@@ -24,6 +24,7 @@ import {
   type PeriodKey,
 } from "@/components/period-picker";
 import { useRecords } from "@/hooks/use-records";
+import { usePermissions } from "@/hooks/use-org";
 import { useContactField } from "@/hooks/use-contacts";
 import { entriesInRange, useFinanceTotals } from "@/hooks/use-finance-totals";
 import { Button } from "@/components/ui/button";
@@ -126,6 +127,7 @@ function toNumber(value: FieldValue | undefined) {
 }
 
 function Dinheiro() {
+  const perms = usePermissions();
   const urlSearch = Route.useSearch();
   const [tab, setTab] = useState<Tab>("lancamentos");
   const { key, setKey, custom, setCustom, period } = usePeriodPicker(urlSearch.periodo ?? "mes", {
@@ -248,9 +250,11 @@ function Dinheiro() {
         title="Dinheiro"
         subtitle="Entradas, saídas, despesas fixas e saldo da empresa."
         actions={
-          <Button className="text-body" onClick={openNew}>
-            <Plus className="size-4" aria-hidden /> Novo lançamento
-          </Button>
+          perms.canWrite ? (
+            <Button className="text-body" onClick={openNew}>
+              <Plus className="size-4" aria-hidden /> Novo lançamento
+            </Button>
+          ) : undefined
         }
       />
 
@@ -347,32 +351,37 @@ function Dinheiro() {
                     {e.kind === "entrada" ? "+" : "−"} {formatMoney(e.amount)}
                   </span>
                   <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="Duplicar lançamento"
-                      onClick={() => duplicate(e)}
-                    >
-                      <Copy className="size-4" aria-hidden />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="Editar lançamento"
-                      disabled={e.virtual}
-                      onClick={() => openEdit(e)}
-                    >
-                      <Pencil className="size-4" aria-hidden />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="Excluir lançamento"
-                      disabled={e.virtual}
-                      onClick={() => setToDelete(e.id)}
-                    >
-                      <Trash2 className="size-4" aria-hidden />
-                    </Button>
+                    {perms.canWrite && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Duplicar lançamento"
+                          onClick={() => duplicate(e)}
+                        >
+                          <Copy className="size-4" aria-hidden />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Editar lançamento"
+                          disabled={e.virtual}
+                          onClick={() => openEdit(e)}
+                        >
+                          <Pencil className="size-4" aria-hidden />
+                        </Button>
+                      </>
+                    )}
+                    {!e.virtual && perms.canDelete(e.created_by) && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Excluir lançamento"
+                        onClick={() => setToDelete(e.id)}
+                      >
+                        <Trash2 className="size-4" aria-hidden />
+                      </Button>
+                    )}
                   </div>
                 </>
               )}
@@ -469,16 +478,18 @@ function FixedCostsSection({
         title="Despesas fixas"
         subtitle="Cadastre uma vez e ela entra automaticamente em cada mês do período."
         actions={
-          <Button
-            className="text-body"
-            onClick={() => {
-              setEditingId(undefined);
-              setValues(emptyFixedValues());
-              setOpen(true);
-            }}
-          >
-            <Plus className="size-4" aria-hidden /> Nova despesa fixa
-          </Button>
+          perms.canWrite ? (
+            <Button
+              className="text-body"
+              onClick={() => {
+                setEditingId(undefined);
+                setValues(emptyFixedValues());
+                setOpen(true);
+              }}
+            >
+              <Plus className="size-4" aria-hidden /> Nova despesa fixa
+            </Button>
+          ) : undefined
         }
       >
         {records.isLoading ? (
@@ -510,10 +521,12 @@ function FixedCostsSection({
                   <Switch
                     id={`ativa-${c.id}`}
                     checked={c.active}
+                    disabled={!perms.canWrite}
                     onCheckedChange={(v) =>
                       records.update.mutate({ id: c.id, values: { active: v } })
                     }
                   />
+                  {perms.canWrite && (
                   <Button
                     variant="ghost"
                     size="icon"
@@ -533,6 +546,7 @@ function FixedCostsSection({
                   >
                     <Pencil className="size-4" aria-hidden />
                   </Button>
+                  )}
                 </div>
               </li>
             ))}
