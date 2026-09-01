@@ -29,6 +29,7 @@ const NAV = [
   { to: "/painel", label: "Painel de hoje", icon: CalendarCheck },
   { to: "/trabalho", label: "Trabalho", icon: ListChecks },
   { to: "/dinheiro", label: "Dinheiro", icon: Wallet },
+  { to: "/recebimentos", label: "Recebimentos", icon: CreditCard },
   { to: "/arquivos", label: "Arquivos", icon: FolderClosed },
 ] as const;
 
