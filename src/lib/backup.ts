@@ -197,5 +197,6 @@ export async function importBackup(
   }
 
   const total = Object.values(counts).reduce((s, n) => s + n, 0);
-  return { counts, total };
+  const skipped = Object.values(skippedCounts).reduce((s, n) => s + n, 0);
+  return { counts, total, skipped };
 }
