@@ -18,6 +18,9 @@ import { TotalCard } from "@/components/total-card";
 import { PeriodPicker, toISODate, usePeriodPicker } from "@/components/period-picker";
 import { useRecords } from "@/hooks/use-records";
 import { useOrgId, useOrgRole, usePermissions } from "@/hooks/use-org";
+import { useCurrentProject } from "@/hooks/use-projects";
+import { NoProjectState } from "@/components/project-select";
+
 import { Button } from "@/components/ui/button";
 import { formatDate, formatMoney } from "@/lib/finance";
 import {
