@@ -123,8 +123,12 @@ function cardStoragePrefix(cardId: string) {
 }
 
 function Trabalho() {
+  const urlSearch = Route.useSearch();
+  const navigate = useNavigate();
+  const handledCardRef = useRef<string | null>(null);
   const { data: orgId, isLoading: loadingOrg } = useOrgId();
   const { data: userId } = useUserId();
+
 
   const [boardId, setBoardId] = useState<string>("");
   const [folder, setFolder] = useState("");
