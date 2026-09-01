@@ -22,6 +22,27 @@ export function useOrgId() {
   });
 }
 
+/** Papel da pessoa na empresa ('dono' | 'admin' | 'membro'). */
+export function useOrgRole() {
+  return useQuery({
+    queryKey: ["org-role"],
+    queryFn: async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      if (!uid) return null;
+      const { data, error } = await supabase
+        .from("memberships")
+        .select("role")
+        .eq("user_id", uid)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data?.role ?? null;
+    },
+  });
+}
+
 /** Id da pessoa autenticada. */
 export function useUserId() {
   return useQuery({
