@@ -13,11 +13,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
 import { Route as AuthenticatedArquivosRouteImport } from './routes/_authenticated/arquivos'
 import { Route as AuthenticatedDinheiroRouteImport } from './routes/_authenticated/dinheiro'
+import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated/minha-conta'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedPessoasRouteImport } from './routes/_authenticated/pessoas'
 import { Route as AuthenticatedRecebimentosRouteImport } from './routes/_authenticated/recebimentos'
 import { Route as AuthenticatedTrabalhoRouteImport } from './routes/_authenticated/trabalho'
 
@@ -40,6 +43,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   path: '/redefinir-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAjustesRoute = AuthenticatedAjustesRouteImport.update({
   id: '/ajustes',
   path: '/ajustes',
@@ -55,6 +63,11 @@ const AuthenticatedDinheiroRoute = AuthenticatedDinheiroRouteImport.update({
   path: '/dinheiro',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMetasRoute = AuthenticatedMetasRouteImport.update({
+  id: '/metas',
+  path: '/metas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMinhaContaRoute = AuthenticatedMinhaContaRouteImport.update({
   id: '/minha-conta',
   path: '/minha-conta',
@@ -63,6 +76,11 @@ const AuthenticatedMinhaContaRoute = AuthenticatedMinhaContaRouteImport.update({
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPessoasRoute = AuthenticatedPessoasRouteImport.update({
+  id: '/pessoas',
+  path: '/pessoas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRecebimentosRoute =
@@ -81,11 +99,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/arquivos': typeof AuthenticatedArquivosRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
+  '/metas': typeof AuthenticatedMetasRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/pessoas': typeof AuthenticatedPessoasRoute
   '/recebimentos': typeof AuthenticatedRecebimentosRoute
   '/trabalho': typeof AuthenticatedTrabalhoRoute
 }
@@ -93,11 +114,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/arquivos': typeof AuthenticatedArquivosRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
+  '/metas': typeof AuthenticatedMetasRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/pessoas': typeof AuthenticatedPessoasRoute
   '/recebimentos': typeof AuthenticatedRecebimentosRoute
   '/trabalho': typeof AuthenticatedTrabalhoRoute
 }
@@ -107,11 +131,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/ajustes': typeof AuthenticatedAjustesRoute
   '/_authenticated/arquivos': typeof AuthenticatedArquivosRoute
   '/_authenticated/dinheiro': typeof AuthenticatedDinheiroRoute
+  '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/pessoas': typeof AuthenticatedPessoasRoute
   '/_authenticated/recebimentos': typeof AuthenticatedRecebimentosRoute
   '/_authenticated/trabalho': typeof AuthenticatedTrabalhoRoute
 }
@@ -121,11 +148,14 @@ export interface FileRouteTypes {
     | '/'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/agenda'
     | '/ajustes'
     | '/arquivos'
     | '/dinheiro'
+    | '/metas'
     | '/minha-conta'
     | '/painel'
+    | '/pessoas'
     | '/recebimentos'
     | '/trabalho'
   fileRoutesByTo: FileRoutesByTo
@@ -133,11 +163,14 @@ export interface FileRouteTypes {
     | '/'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/agenda'
     | '/ajustes'
     | '/arquivos'
     | '/dinheiro'
+    | '/metas'
     | '/minha-conta'
     | '/painel'
+    | '/pessoas'
     | '/recebimentos'
     | '/trabalho'
   id:
@@ -146,11 +179,14 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/_authenticated/agenda'
     | '/_authenticated/ajustes'
     | '/_authenticated/arquivos'
     | '/_authenticated/dinheiro'
+    | '/_authenticated/metas'
     | '/_authenticated/minha-conta'
     | '/_authenticated/painel'
+    | '/_authenticated/pessoas'
     | '/_authenticated/recebimentos'
     | '/_authenticated/trabalho'
   fileRoutesById: FileRoutesById
@@ -192,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/agenda': {
+      id: '/_authenticated/agenda'
+      path: '/agenda'
+      fullPath: '/agenda'
+      preLoaderRoute: typeof AuthenticatedAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ajustes': {
       id: '/_authenticated/ajustes'
       path: '/ajustes'
@@ -213,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDinheiroRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/metas': {
+      id: '/_authenticated/metas'
+      path: '/metas'
+      fullPath: '/metas'
+      preLoaderRoute: typeof AuthenticatedMetasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/minha-conta': {
       id: '/_authenticated/minha-conta'
       path: '/minha-conta'
@@ -225,6 +275,13 @@ declare module '@tanstack/react-router' {
       path: '/painel'
       fullPath: '/painel'
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pessoas': {
+      id: '/_authenticated/pessoas'
+      path: '/pessoas'
+      fullPath: '/pessoas'
+      preLoaderRoute: typeof AuthenticatedPessoasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/recebimentos': {
@@ -245,21 +302,27 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedAjustesRoute: typeof AuthenticatedAjustesRoute
   AuthenticatedArquivosRoute: typeof AuthenticatedArquivosRoute
   AuthenticatedDinheiroRoute: typeof AuthenticatedDinheiroRoute
+  AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedPessoasRoute: typeof AuthenticatedPessoasRoute
   AuthenticatedRecebimentosRoute: typeof AuthenticatedRecebimentosRoute
   AuthenticatedTrabalhoRoute: typeof AuthenticatedTrabalhoRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedAjustesRoute: AuthenticatedAjustesRoute,
   AuthenticatedArquivosRoute: AuthenticatedArquivosRoute,
   AuthenticatedDinheiroRoute: AuthenticatedDinheiroRoute,
+  AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedPessoasRoute: AuthenticatedPessoasRoute,
   AuthenticatedRecebimentosRoute: AuthenticatedRecebimentosRoute,
   AuthenticatedTrabalhoRoute: AuthenticatedTrabalhoRoute,
 }

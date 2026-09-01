@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      agenda_items: {
+        Row: {
+          assignee_id: string | null
+          color: string
+          created_at: string
+          created_by: string
+          date: string
+          deleted_at: string | null
+          done: boolean
+          id: string
+          kind: string
+          note: string
+          org_id: string
+          source_id: string | null
+          source_type: string | null
+          time: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          color?: string
+          created_at?: string
+          created_by?: string
+          date: string
+          deleted_at?: string | null
+          done?: boolean
+          id?: string
+          kind?: string
+          note?: string
+          org_id: string
+          source_id?: string | null
+          source_type?: string | null
+          time?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          color?: string
+          created_at?: string
+          created_by?: string
+          date?: string
+          deleted_at?: string | null
+          done?: boolean
+          id?: string
+          kind?: string
+          note?: string
+          org_id?: string
+          source_id?: string | null
+          source_type?: string | null
+          time?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_items_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       board_columns: {
         Row: {
           board_id: string
@@ -170,6 +235,7 @@ export type Database = {
           board_id: string
           color: string
           column_id: string | null
+          contact_id: string | null
           created_at: string
           created_by: string | null
           deleted_at: string | null
@@ -189,6 +255,7 @@ export type Database = {
           board_id: string
           color?: string
           column_id?: string | null
+          contact_id?: string | null
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -208,6 +275,7 @@ export type Database = {
           board_id?: string
           color?: string
           column_id?: string | null
+          contact_id?: string | null
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -234,6 +302,13 @@ export type Database = {
             columns: ["column_id"]
             isOneToOne: false
             referencedRelation: "board_columns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cards_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
           {
@@ -333,8 +408,62 @@ export type Database = {
           },
         ]
       }
+      contacts: {
+        Row: {
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          doc: string | null
+          email: string | null
+          id: string
+          kind: string
+          name: string
+          note: string
+          org_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          doc?: string | null
+          email?: string | null
+          id?: string
+          kind?: string
+          name: string
+          note?: string
+          org_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          doc?: string | null
+          email?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          note?: string
+          org_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       files: {
         Row: {
+          contact_id: string | null
           content: string
           created_at: string
           created_by: string | null
@@ -351,6 +480,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          contact_id?: string | null
           content?: string
           created_at?: string
           created_by?: string | null
@@ -367,6 +497,7 @@ export type Database = {
           url?: string
         }
         Update: {
+          contact_id?: string | null
           content?: string
           created_at?: string
           created_by?: string | null
@@ -383,6 +514,13 @@ export type Database = {
           url?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "files_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "files_folder_id_fkey"
             columns: ["folder_id"]
@@ -404,6 +542,7 @@ export type Database = {
           account: string
           amount: number
           category: string
+          contact_id: string | null
           created_at: string
           created_by: string | null
           deleted_at: string | null
@@ -420,6 +559,7 @@ export type Database = {
           account?: string
           amount: number
           category?: string
+          contact_id?: string | null
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -436,6 +576,7 @@ export type Database = {
           account?: string
           amount?: number
           category?: string
+          contact_id?: string | null
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -449,6 +590,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "finance_entries_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "finance_entries_org_id_fkey"
             columns: ["org_id"]
@@ -558,6 +706,107 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_tasks: {
+        Row: {
+          card_id: string | null
+          created_at: string
+          done: boolean
+          goal_id: string
+          id: string
+          text: string
+        }
+        Insert: {
+          card_id?: string | null
+          created_at?: string
+          done?: boolean
+          goal_id: string
+          id?: string
+          text: string
+        }
+        Update: {
+          card_id?: string | null
+          created_at?: string
+          done?: boolean
+          goal_id?: string
+          id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_tasks_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_tasks_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          color: string
+          created_at: string
+          created_by: string
+          current_source: string
+          deleted_at: string | null
+          due_date: string | null
+          group_name: string
+          id: string
+          note: string
+          org_id: string
+          target: number
+          title: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          created_by?: string
+          current_source?: string
+          deleted_at?: string | null
+          due_date?: string | null
+          group_name?: string
+          id?: string
+          note?: string
+          org_id: string
+          target?: number
+          title: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          created_by?: string
+          current_source?: string
+          deleted_at?: string | null
+          due_date?: string | null
+          group_name?: string
+          id?: string
+          note?: string
+          org_id?: string
+          target?: number
+          title?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -769,6 +1018,7 @@ export type Database = {
     Functions: {
       is_admin_or_owner: { Args: { target_org: string }; Returns: boolean }
       is_member: { Args: { org_id: string }; Returns: boolean }
+      is_member_via_goal: { Args: { target_goal: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
