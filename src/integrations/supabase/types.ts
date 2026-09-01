@@ -14,6 +14,237 @@ export type Database = {
   }
   public: {
     Tables: {
+      board_columns: {
+        Row: {
+          board_id: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          name: string
+          org_id: string
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          board_id: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name: string
+          org_id: string
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          board_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          org_id?: string
+          position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "board_columns_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "board_columns_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      boards: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          folder: string
+          id: string
+          name: string
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          folder?: string
+          id?: string
+          name: string
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          folder?: string
+          id?: string
+          name?: string
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boards_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      card_items: {
+        Row: {
+          card_id: string
+          content: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          done: boolean
+          id: string
+          kind: string
+          org_id: string
+          path: string
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          card_id: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          done?: boolean
+          id?: string
+          kind?: string
+          org_id: string
+          path?: string
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          card_id?: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          done?: boolean
+          id?: string
+          kind?: string
+          org_id?: string
+          path?: string
+          position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_items_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_items_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cards: {
+        Row: {
+          archived: boolean
+          assignee_id: string | null
+          board_id: string
+          color: string
+          column_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string
+          done: boolean
+          due_date: string | null
+          id: string
+          label: string
+          org_id: string
+          position: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          assignee_id?: string | null
+          board_id: string
+          color?: string
+          column_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string
+          done?: boolean
+          due_date?: string | null
+          id?: string
+          label?: string
+          org_id: string
+          position?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          assignee_id?: string | null
+          board_id?: string
+          color?: string
+          column_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string
+          done?: boolean
+          due_date?: string | null
+          id?: string
+          label?: string
+          org_id?: string
+          position?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cards_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cards_column_id_fkey"
+            columns: ["column_id"]
+            isOneToOne: false
+            referencedRelation: "board_columns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cards_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cash_opening: {
         Row: {
           amount: number
@@ -47,6 +278,72 @@ export type Database = {
             foreignKeyName: "cash_opening_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      files: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          folder_id: string | null
+          id: string
+          kind: string
+          mime_type: string
+          name: string
+          org_id: string
+          path: string
+          size_bytes: number
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          folder_id?: string | null
+          id?: string
+          kind?: string
+          mime_type?: string
+          name: string
+          org_id: string
+          path?: string
+          size_bytes?: number
+          updated_at?: string
+          url?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          folder_id?: string | null
+          id?: string
+          kind?: string
+          mime_type?: string
+          name?: string
+          org_id?: string
+          path?: string
+          size_bytes?: number
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "files_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -160,6 +457,57 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      folders: {
+        Row: {
+          color: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          name: string
+          org_id: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          name: string
+          org_id: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          org_id?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folders_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
             referencedColumns: ["id"]
           },
         ]
