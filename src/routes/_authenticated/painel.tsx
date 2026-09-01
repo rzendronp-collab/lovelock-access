@@ -73,9 +73,10 @@ function ppDelta(current: number, previous: number, hint: string): Delta {
 function Painel() {
   const thisMonth = useMemo(() => monthRange(0), []);
   const lastMonth = useMemo(() => monthRange(-1), []);
+  const [projectFilter, setProjectFilter] = useState<string | null>(null);
 
-  const current = useFinanceTotals(thisMonth);
-  const previous = useFinanceTotals(lastMonth);
+  const current = useFinanceTotals(thisMonth, { projectId: projectFilter });
+  const previous = useFinanceTotals(lastMonth, { projectId: projectFilter });
 
   const { data: orgId } = useOrgId();
 
@@ -101,6 +102,7 @@ function Painel() {
     table: "boards",
     columns: "id, name, folder",
     orgId: orgId ?? null,
+    projectId: projectFilter,
     orderBy: { column: "name", ascending: true },
     label: "quadro",
   });
@@ -112,6 +114,16 @@ function Painel() {
     orderBy: { column: "due_date", ascending: true },
     label: "cartão",
   });
+
+  /** Com filtro de projeto, só valem cartões dos quadros desse projeto. */
+  const visibleCards = useMemo(
+    () =>
+      projectFilter
+        ? cards.rows.filter((c) => boards.rows.some((b) => b.id === c.board_id))
+        : cards.rows,
+    [cards.rows, boards.rows, projectFilter],
+  );
+
 
   const boardName = (id: string) => boards.rows.find((b) => b.id === id)?.name ?? "sem quadro";
 
