@@ -15,6 +15,7 @@ import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated/minha-conta'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedTrabalhoRouteImport } from './routes/_authenticated/trabalho'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,6 +46,11 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTrabalhoRoute = AuthenticatedTrabalhoRouteImport.update({
+  id: '/trabalho',
+  path: '/trabalho',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/trabalho': typeof AuthenticatedTrabalhoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/trabalho': typeof AuthenticatedTrabalhoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,13 +76,25 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/trabalho': typeof AuthenticatedTrabalhoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/recuperar-senha' | '/redefinir-senha' | '/minha-conta' | '/painel'
+    | '/'
+    | '/recuperar-senha'
+    | '/redefinir-senha'
+    | '/minha-conta'
+    | '/painel'
+    | '/trabalho'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/recuperar-senha' | '/redefinir-senha' | '/minha-conta' | '/painel'
+  to:
+    | '/'
+    | '/recuperar-senha'
+    | '/redefinir-senha'
+    | '/minha-conta'
+    | '/painel'
+    | '/trabalho'
   id:
     | '__root__'
     | '/'
@@ -83,6 +103,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/_authenticated/minha-conta'
     | '/_authenticated/painel'
+    | '/_authenticated/trabalho'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -136,17 +157,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/trabalho': {
+      id: '/_authenticated/trabalho'
+      path: '/trabalho'
+      fullPath: '/trabalho'
+      preLoaderRoute: typeof AuthenticatedTrabalhoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedTrabalhoRoute: typeof AuthenticatedTrabalhoRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedTrabalhoRoute: AuthenticatedTrabalhoRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
