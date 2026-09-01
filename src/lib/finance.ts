@@ -46,8 +46,23 @@ export type DisplayEntry = {
   project_id: string | null;
 };
 
+/** Dinheiro digitado no sistema (gastos, metas, relatórios) — sempre em real. */
 export function formatMoney(value: number) {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+}
+
+/** Valores que vêm da Stripe — euro de verdade, nunca somado com real. */
+export function formatEuro(value: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "EUR" }).format(value);
+}
+
+/** Referência aproximada em real de um valor em euro (só exibição). */
+export function approxBrl(euro: number, rate: number) {
+  return `≈ ${new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  }).format(euro * rate)}`;
 }
 
 export function formatDate(iso: string) {
