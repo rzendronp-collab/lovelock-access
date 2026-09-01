@@ -9,7 +9,8 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/states";
 import { TotalCard } from "@/components/total-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { formatMoney } from "@/lib/finance";
+import { approxBrl, formatEuro } from "@/lib/finance";
+import { useEurRate } from "@/hooks/use-eur-rate";
 import { useRecords } from "@/hooks/use-records";
 import { stripeConnect, stripeSync } from "@/lib/stripe.functions";
 
@@ -61,6 +62,7 @@ export function StripeSummary({
   projectId: string | null;
 }) {
   const accounts = useStripeAccounts(orgId, projectId);
+  const { rate } = useEurRate();
   const stripeRows = accounts.rows.filter((a) => a.stripe_connection_id);
 
   const totals = useMemo(() => {
@@ -79,10 +81,10 @@ export function StripeSummary({
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <TotalCard label="Disponível na Stripe" value={formatMoney(totals.available)} />
-      <TotalCard label="A receber (pendente)" value={formatMoney(totals.pending)} />
-      <TotalCard label="Receita bruta" value={formatMoney(totals.gross)} />
-      <TotalCard label="Taxas" value={formatMoney(totals.fees)} />
+      <TotalCard label="Disponível na Stripe" value={formatEuro(totals.available)} sub={approxBrl(totals.available, rate)} />
+      <TotalCard label="A receber (pendente)" value={formatEuro(totals.pending)} sub={approxBrl(totals.pending, rate)} />
+      <TotalCard label="Receita bruta" value={formatEuro(totals.gross)} sub={approxBrl(totals.gross, rate)} />
+      <TotalCard label="Taxas" value={formatEuro(totals.fees)} sub={approxBrl(totals.fees, rate)} />
     </div>
   );
 }
@@ -104,6 +106,7 @@ export function StripeSection({
   isAdmin: boolean;
 }) {
   const accounts = useStripeAccounts(orgId, projectId);
+  const { rate } = useEurRate();
   const connections = useRecords<StripeConnectionRow>({
     table: "connections",
     columns: "id, label, key_mask, status, last_sync_at",
@@ -295,13 +298,13 @@ export function StripeSection({
                   )}
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <TotalCard label="Disponível" value={formatMoney(Number(account.balance_available))} />
-                    <TotalCard label="Pendente" value={formatMoney(Number(account.balance_pending))} />
-                    <TotalCard label="Reserva" value={formatMoney(Number(account.balance_reserved))} />
-                    <TotalCard label="Receita bruta" value={formatMoney(Number(account.gross_volume))} />
-                    <TotalCard label="Taxas" value={formatMoney(Number(account.fees_total))} />
-                    <TotalCard label="Reembolsos" value={formatMoney(Number(account.refunds_total))} />
-                    <TotalCard label="Repasses" value={formatMoney(Number(account.payouts_total))} />
+                    <TotalCard label="Disponível" value={formatEuro(Number(account.balance_available))} sub={approxBrl(Number(account.balance_available), rate)} />
+                    <TotalCard label="Pendente" value={formatEuro(Number(account.balance_pending))} sub={approxBrl(Number(account.balance_pending), rate)} />
+                    <TotalCard label="Reserva" value={formatEuro(Number(account.balance_reserved))} sub={approxBrl(Number(account.balance_reserved), rate)} />
+                    <TotalCard label="Receita bruta" value={formatEuro(Number(account.gross_volume))} sub={approxBrl(Number(account.gross_volume), rate)} />
+                    <TotalCard label="Taxas" value={formatEuro(Number(account.fees_total))} sub={approxBrl(Number(account.fees_total), rate)} />
+                    <TotalCard label="Reembolsos" value={formatEuro(Number(account.refunds_total))} sub={approxBrl(Number(account.refunds_total), rate)} />
+                    <TotalCard label="Repasses" value={formatEuro(Number(account.payouts_total))} sub={approxBrl(Number(account.payouts_total), rate)} />
                   </div>
                 </div>
               );

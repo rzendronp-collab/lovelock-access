@@ -24,7 +24,8 @@ import { StripeSection, StripeSummary } from "@/components/stripe-accounts";
 
 
 import { Button } from "@/components/ui/button";
-import { formatDate, formatMoney } from "@/lib/finance";
+import { approxBrl, formatDate, formatEuro } from "@/lib/finance";
+import { useEurRate } from "@/hooks/use-eur-rate";
 import {
   deleteReceipt,
   maskKey,
@@ -306,10 +307,10 @@ function ReceiptsSection({
       </AppCard>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <TotalCard label="Bruto" value={formatMoney(summary.gross)} />
-        <TotalCard label="Taxas" value={formatMoney(summary.fee)} />
-        <TotalCard label="Líquido" value={formatMoney(summary.net)} />
-        <TotalCard label="A cair" value={formatMoney(summary.pending)} />
+        <TotalCard label="Bruto" value={formatEuro(summary.gross)} sub={approxBrl(summary.gross, rate)} />
+        <TotalCard label="Taxas" value={formatEuro(summary.fee)} sub={approxBrl(summary.fee, rate)} />
+        <TotalCard label="Líquido" value={formatEuro(summary.net)} sub={approxBrl(summary.net, rate)} />
+        <TotalCard label="A cair" value={formatEuro(summary.pending)} sub={approxBrl(summary.pending, rate)} />
       </div>
 
       <AppCard
@@ -368,13 +369,13 @@ function ReceiptsSection({
                 <p className="text-label text-muted-foreground">
                   {[
                     r.account_id ? (accountById.get(r.account_id)?.name ?? "conta removida") : "sem conta",
-                    `bruto ${formatMoney(Number(r.gross))}`,
+                    `bruto ${formatEuro(Number(r.gross))}`,
                     `taxa ${Number(r.fee_percent)}%`,
                   ].join(" · ")}
                 </p>
               </div>
               <span className="text-body font-semibold text-primary">
-                {formatMoney(netAmount(Number(r.gross), Number(r.fee_percent)))}
+                {formatEuro(netAmount(Number(r.gross), Number(r.fee_percent)))}
               </span>
               <div className="flex items-center gap-1">
                 {perms.canWrite && (
@@ -429,7 +430,7 @@ function ReceiptsSection({
               <li key={when} className="flex items-center justify-between py-2">
                 <span className="text-body">{formatDate(when)}</span>
                 <span className="text-body font-semibold text-primary">
-                  {formatMoney(amount)}
+                  {formatEuro(amount)}
                 </span>
               </li>
             ))}
@@ -451,7 +452,7 @@ function ReceiptsSection({
       >
         <p className="text-label text-muted-foreground">
           Líquido:{" "}
-          {formatMoney(netAmount(toNumber(values['gross']), toNumber(values['fee_percent'])))}
+          {formatEuro(netAmount(toNumber(values['gross']), toNumber(values['fee_percent'])))}
         </p>
       </RecordPanel>
 
