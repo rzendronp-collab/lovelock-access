@@ -163,6 +163,7 @@ function formatValue(value: number, unit: string) {
 
 function Metas() {
   const { data: orgId, isLoading: loadingOrg } = useOrgId();
+  const perms = usePermissions();
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(emptyValues);
