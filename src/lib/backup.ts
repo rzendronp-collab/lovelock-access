@@ -115,19 +115,19 @@ export async function importBackup(
 
     let rows = allRows;
     if (skipExisting && allRows.length) {
-      let res = await db.from(table).select("id, deleted_at").eq("org_id", orgId);
+      type CurrentRow = { id: string; deleted_at?: string | null };
       let hasSoftDelete = true;
-      if (res.error) {
+      let currentRows: CurrentRow[] = [];
+      const withDeleted = await db.from(table).select("id, deleted_at").eq("org_id", orgId);
+      if (withDeleted.error) {
         hasSoftDelete = false;
-        res = await db.from(table).select("id").eq("org_id", orgId);
-        if (res.error) throw res.error;
+        const idsOnly = await db.from(table).select("id").eq("org_id", orgId);
+        if (idsOnly.error) throw idsOnly.error;
+        currentRows = (idsOnly.data ?? []) as CurrentRow[];
+      } else {
+        currentRows = (withDeleted.data ?? []) as CurrentRow[];
       }
-      const current = new Map(
-        ((res.data ?? []) as { id: string; deleted_at?: string | null }[]).map((r) => [
-          r.id,
-          r.deleted_at ?? null,
-        ]),
-      );
+      const current = new Map(currentRows.map((r) => [r.id, r.deleted_at ?? null]));
       const revive: string[] = [];
       rows = [];
       for (const r of allRows) {
