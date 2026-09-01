@@ -259,6 +259,22 @@ function Trabalho() {
     setCardPanelOpen(true);
   }
 
+  // Abre direto o cartão indicado no link (ex.: vindo do Painel de hoje).
+  const requestedCard = urlSearch.cartao;
+  useEffect(() => {
+    if (!requestedCard || handledCardRef.current === requestedCard) return;
+    const card = cards.rows.find((c) => c.id === requestedCard);
+    if (!card) return;
+    handledCardRef.current = requestedCard;
+    setBoardId(card.board_id);
+    setFolder("");
+    openCardPanel(card);
+    void navigate({ to: "/trabalho", search: {}, replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedCard, cards.rows]);
+
+
+
   function saveCard() {
     if (!cardPanelId) return;
     const title = String(cardValues['title'] ?? "").trim();
