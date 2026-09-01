@@ -334,7 +334,9 @@ function Metas() {
                             goal.current_source === "finance_entries"
                               ? "progresso automático do financeiro"
                               : "progresso manual",
-                            goal.due_date ? `prazo ${formatDateBR(goal.due_date)}` : "",
+                            goal.due_date
+                              ? `período ${formatDateBR(goal.period_start)} até ${formatDateBR(goal.due_date)}`
+                              : `a partir de ${formatDateBR(goal.period_start)}`,
                           ]
                             .filter(Boolean)
                             .join(" · ")}
