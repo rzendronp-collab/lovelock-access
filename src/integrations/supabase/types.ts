@@ -764,6 +764,7 @@ export type Database = {
           id: string
           note: string
           org_id: string
+          period_start: string
           target: number
           title: string
           unit: string
@@ -780,6 +781,7 @@ export type Database = {
           id?: string
           note?: string
           org_id: string
+          period_start?: string
           target?: number
           title: string
           unit?: string
@@ -796,6 +798,7 @@ export type Database = {
           id?: string
           note?: string
           org_id?: string
+          period_start?: string
           target?: number
           title?: string
           unit?: string
