@@ -157,6 +157,8 @@ function ReceiptsSection({
   const [values, setValues] = useState<Values>(() => emptyReceiptValues(""));
   const [toDelete, setToDelete] = useState<PaymentReceiptRow | null>(null);
   const perms = usePermissions();
+  const { rate } = useEurRate();
+
 
   const receipts = useRecords<PaymentReceiptRow & { id: string }>({
     table: "payment_receipts",
