@@ -583,6 +583,7 @@ function OpeningSection({
     refetch: () => unknown;
   };
 }) {
+  const perms = usePermissions();
   const queryClient = useQueryClient();
   const current = query.data;
   const [amount, setAmount] = useState<string | null>(null);
