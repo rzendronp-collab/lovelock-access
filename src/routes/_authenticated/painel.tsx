@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarClock, CircleCheck, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import { LinkList, type LinkListItem } from "@/components/link-list";
 import { useFinanceTotals } from "@/hooks/use-finance-totals";
 import { useRecords } from "@/hooks/use-records";
 import { useOrgId } from "@/hooks/use-org";
+import { ProjectFilter } from "@/components/project-select";
 import { colorSwatch, formatDateBR, inDays, todayISO } from "@/lib/board";
 import { formatMoney } from "@/lib/finance";
 
@@ -73,9 +74,10 @@ function ppDelta(current: number, previous: number, hint: string): Delta {
 function Painel() {
   const thisMonth = useMemo(() => monthRange(0), []);
   const lastMonth = useMemo(() => monthRange(-1), []);
+  const [projectFilter, setProjectFilter] = useState<string | null>(null);
 
-  const current = useFinanceTotals(thisMonth);
-  const previous = useFinanceTotals(lastMonth);
+  const current = useFinanceTotals(thisMonth, { projectId: projectFilter });
+  const previous = useFinanceTotals(lastMonth, { projectId: projectFilter });
 
   const { data: orgId } = useOrgId();
 
@@ -101,6 +103,7 @@ function Painel() {
     table: "boards",
     columns: "id, name, folder",
     orgId: orgId ?? null,
+    projectId: projectFilter,
     orderBy: { column: "name", ascending: true },
     label: "quadro",
   });
@@ -113,6 +116,16 @@ function Painel() {
     label: "cartão",
   });
 
+  /** Com filtro de projeto, só valem cartões dos quadros desse projeto. */
+  const visibleCards = useMemo(
+    () =>
+      projectFilter
+        ? cards.rows.filter((c) => boards.rows.some((b) => b.id === c.board_id))
+        : cards.rows,
+    [cards.rows, boards.rows, projectFilter],
+  );
+
+
   const boardName = (id: string) => boards.rows.find((b) => b.id === id)?.name ?? "sem quadro";
 
   const today = todayISO();
@@ -120,7 +133,7 @@ function Painel() {
 
   const upcoming = useMemo<LinkListItem[]>(
     () =>
-      cards.rows
+      visibleCards
         .filter(
           (c) =>
             !c.archived &&
@@ -139,11 +152,11 @@ function Painel() {
           link: { to: "/trabalho", search: { cartao: c.id } },
         })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [cards.rows, boards.rows, today, weekEnd],
+    [visibleCards, boards.rows, today, weekEnd],
   );
 
   const stuck = useMemo<LinkListItem[]>(() => {
-    const lateCards: LinkListItem[] = cards.rows
+    const lateCards: LinkListItem[] = visibleCards
       .filter((c) => !c.archived && !c.done && c.due_date && c.due_date < today)
       .map((c) => ({
         id: `card-${c.id}`,
@@ -175,7 +188,7 @@ function Painel() {
 
     return [...lateCards, ...lateReceivables].sort((a, b) => a.title.localeCompare(b.title));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cards.rows, boards.rows, current.allEntries, today]);
+  }, [visibleCards, boards.rows, current.allEntries, today]);
 
   const t = current.totals;
   const p = previous.totals;
@@ -188,6 +201,8 @@ function Painel() {
         title="Painel de hoje"
         subtitle="Os números do mês, os prazos da semana e o que está travado."
       />
+
+      <ProjectFilter value={projectFilter} onChange={setProjectFilter} />
 
       <AppCard title="Sua empresa" subtitle="Dados do seu vínculo atual">
         {membership.isLoading ? (

@@ -30,6 +30,9 @@ import {
 import { useRecords } from "@/hooks/use-records";
 import { useContactField } from "@/hooks/use-contacts";
 import { useOrgId, usePermissions, useUserId } from "@/hooks/use-org";
+import { useCurrentProject } from "@/hooks/use-projects";
+import { NoProjectState } from "@/components/project-select";
+
 import {
   ITEM_COLORS,
   colorSwatch,
@@ -133,8 +136,10 @@ function Trabalho() {
   const navigate = useNavigate();
   const handledCardRef = useRef<string | null>(null);
   const { data: orgId, isLoading: loadingOrg } = useOrgId();
+  const { projectId } = useCurrentProject();
   const perms = usePermissions();
   const { data: userId } = useUserId();
+
 
 
   const [boardId, setBoardId] = useState<string>("");
@@ -160,10 +165,13 @@ function Trabalho() {
     table: "boards",
     columns: "id, name, folder, created_by",
     orgId: orgId ?? null,
+    projectId,
+    projectRequired: true,
     orderBy: { column: "name", ascending: true },
     trackCreatedBy: true,
     label: "quadro",
   });
+
 
   const columns = useRecords<ColumnRow>({
     table: "board_columns",
@@ -394,8 +402,20 @@ function Trabalho() {
   const loading = loadingOrg || boards.isLoading || columns.isLoading || cards.isLoading;
   const error = boards.error ?? columns.error ?? cards.error;
 
+  if (!projectId) {
+    return (
+      <>
+        <PageHeader title="Trabalho" subtitle="Quadros, colunas e cartões do projeto." />
+        <AppCard>
+          <NoProjectState />
+        </AppCard>
+      </>
+    );
+  }
+
   return (
     <>
+
       <PageHeader
         title="Trabalho"
         subtitle="Quadros, colunas e cartões da sua equipe."

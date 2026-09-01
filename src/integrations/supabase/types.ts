@@ -27,6 +27,7 @@ export type Database = {
           kind: string
           note: string
           org_id: string
+          project_id: string | null
           source_id: string | null
           source_type: string | null
           time: string | null
@@ -45,6 +46,7 @@ export type Database = {
           kind?: string
           note?: string
           org_id: string
+          project_id?: string | null
           source_id?: string | null
           source_type?: string | null
           time?: string | null
@@ -63,6 +65,7 @@ export type Database = {
           kind?: string
           note?: string
           org_id?: string
+          project_id?: string | null
           source_id?: string | null
           source_type?: string | null
           time?: string | null
@@ -75,6 +78,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agenda_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -136,6 +146,7 @@ export type Database = {
           id: string
           name: string
           org_id: string
+          project_id: string | null
           updated_at: string
         }
         Insert: {
@@ -146,6 +157,7 @@ export type Database = {
           id?: string
           name: string
           org_id: string
+          project_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -156,6 +168,7 @@ export type Database = {
           id?: string
           name?: string
           org_id?: string
+          project_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -164,6 +177,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "boards_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -328,6 +348,7 @@ export type Database = {
           note: string
           opening_date: string
           org_id: string
+          project_id: string | null
           updated_at: string
         }
         Insert: {
@@ -337,6 +358,7 @@ export type Database = {
           note?: string
           opening_date?: string
           org_id: string
+          project_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -346,14 +368,22 @@ export type Database = {
           note?: string
           opening_date?: string
           org_id?: string
+          project_id?: string | null
           updated_at?: string
         }
         Relationships: [
           {
             foreignKeyName: "cash_opening_org_id_fkey"
             columns: ["org_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_opening_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -475,6 +505,7 @@ export type Database = {
           name: string
           org_id: string
           path: string
+          project_id: string | null
           size_bytes: number
           updated_at: string
           url: string
@@ -492,6 +523,7 @@ export type Database = {
           name: string
           org_id: string
           path?: string
+          project_id?: string | null
           size_bytes?: number
           updated_at?: string
           url?: string
@@ -509,6 +541,7 @@ export type Database = {
           name?: string
           org_id?: string
           path?: string
+          project_id?: string | null
           size_bytes?: number
           updated_at?: string
           url?: string
@@ -535,6 +568,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
         ]
       }
       finance_entries: {
@@ -552,6 +592,7 @@ export type Database = {
           kind: string
           org_id: string
           origin: string
+          project_id: string | null
           received: boolean
           updated_at: string
         }
@@ -569,6 +610,7 @@ export type Database = {
           kind?: string
           org_id: string
           origin?: string
+          project_id?: string | null
           received?: boolean
           updated_at?: string
         }
@@ -586,6 +628,7 @@ export type Database = {
           kind?: string
           org_id?: string
           origin?: string
+          project_id?: string | null
           received?: boolean
           updated_at?: string
         }
@@ -604,6 +647,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "finance_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
         ]
       }
       fixed_costs: {
@@ -618,6 +668,7 @@ export type Database = {
           id: string
           label: string
           org_id: string
+          project_id: string | null
           start_month: string
           updated_at: string
         }
@@ -632,6 +683,7 @@ export type Database = {
           id?: string
           label: string
           org_id: string
+          project_id?: string | null
           start_month?: string
           updated_at?: string
         }
@@ -646,6 +698,7 @@ export type Database = {
           id?: string
           label?: string
           org_id?: string
+          project_id?: string | null
           start_month?: string
           updated_at?: string
         }
@@ -655,6 +708,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixed_costs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -669,6 +729,7 @@ export type Database = {
           name: string
           org_id: string
           parent_id: string | null
+          project_id: string | null
           updated_at: string
         }
         Insert: {
@@ -680,6 +741,7 @@ export type Database = {
           name: string
           org_id: string
           parent_id?: string | null
+          project_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -691,6 +753,7 @@ export type Database = {
           name?: string
           org_id?: string
           parent_id?: string | null
+          project_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -706,6 +769,13 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "folders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -765,6 +835,7 @@ export type Database = {
           note: string
           org_id: string
           period_start: string
+          project_id: string | null
           target: number
           title: string
           unit: string
@@ -782,6 +853,7 @@ export type Database = {
           note?: string
           org_id: string
           period_start?: string
+          project_id?: string | null
           target?: number
           title: string
           unit?: string
@@ -799,6 +871,7 @@ export type Database = {
           note?: string
           org_id?: string
           period_start?: string
+          project_id?: string | null
           target?: number
           title?: string
           unit?: string
@@ -810,6 +883,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -880,6 +960,7 @@ export type Database = {
           name: string
           org_id: string
           payout_days: number
+          project_id: string | null
           provider: string
           updated_at: string
         }
@@ -892,6 +973,7 @@ export type Database = {
           name: string
           org_id: string
           payout_days?: number
+          project_id?: string | null
           provider?: string
           updated_at?: string
         }
@@ -904,6 +986,7 @@ export type Database = {
           name?: string
           org_id?: string
           payout_days?: number
+          project_id?: string | null
           provider?: string
           updated_at?: string
         }
@@ -913,6 +996,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_accounts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -932,6 +1022,7 @@ export type Database = {
           id: string
           org_id: string
           paid_out: boolean
+          project_id: string | null
           updated_at: string
         }
         Insert: {
@@ -948,6 +1039,7 @@ export type Database = {
           id?: string
           org_id: string
           paid_out?: boolean
+          project_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -964,6 +1056,7 @@ export type Database = {
           id?: string
           org_id?: string
           paid_out?: boolean
+          project_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -986,6 +1079,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_receipts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -1014,6 +1114,50 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          archived: boolean
+          color: string
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          org_id: string
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          color?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name: string
+          org_id: string
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          color?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          org_id?: string
+          position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1031,6 +1175,10 @@ export type Database = {
       is_admin_or_owner: { Args: { target_org: string }; Returns: boolean }
       is_member: { Args: { org_id: string }; Returns: boolean }
       is_member_via_goal: { Args: { target_goal: string }; Returns: boolean }
+      is_member_via_project: {
+        Args: { target_project: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

@@ -18,6 +18,9 @@ import { TotalCard } from "@/components/total-card";
 import { PeriodPicker, toISODate, usePeriodPicker } from "@/components/period-picker";
 import { useRecords } from "@/hooks/use-records";
 import { useOrgId, useOrgRole, usePermissions } from "@/hooks/use-org";
+import { useCurrentProject } from "@/hooks/use-projects";
+import { NoProjectState } from "@/components/project-select";
+
 import { Button } from "@/components/ui/button";
 import { formatDate, formatMoney } from "@/lib/finance";
 import {
@@ -59,6 +62,7 @@ function toNumber(value: FieldValue | undefined) {
 function Recebimentos() {
   const [tab, setTab] = useState<Tab>("recebimentos");
   const { data: orgId } = useOrgId();
+  const { projectId } = useCurrentProject();
   const { data: role } = useOrgRole();
   const isAdmin = role === "dono" || role === "admin";
 
@@ -66,10 +70,23 @@ function Recebimentos() {
     table: "payment_accounts",
     columns: "id, name, provider, fee_percent, payout_days, color, created_by",
     orgId: orgId ?? null,
+    projectId,
+    projectRequired: true,
     orderBy: { column: "name" },
     softDelete: false,
     label: "conta",
   });
+
+  if (!projectId) {
+    return (
+      <>
+        <PageHeader title="Recebimentos" subtitle={DESCRIPTION} />
+        <AppCard>
+          <NoProjectState />
+        </AppCard>
+      </>
+    );
+  }
 
   return (
     <>
@@ -88,13 +105,14 @@ function Recebimentos() {
       </SelectPillGroup>
 
       {tab === "recebimentos" && (
-        <ReceiptsSection orgId={orgId ?? null} accounts={accounts.rows} />
+        <ReceiptsSection orgId={orgId ?? null} projectId={projectId} accounts={accounts.rows} />
       )}
       {tab === "contas" && <AccountsSection records={accounts} />}
       {tab === "conexoes" && <ConnectionsSection orgId={orgId ?? null} isAdmin={isAdmin} />}
     </>
   );
 }
+
 
 /* ------------------------------- Recebimentos ------------------------------ */
 
@@ -112,9 +130,11 @@ function emptyReceiptValues(accountId: string): Values {
 
 function ReceiptsSection({
   orgId,
+  projectId,
   accounts,
 }: {
   orgId: string | null;
+  projectId: string | null;
   accounts: (PaymentAccountRow & { id: string })[];
 }) {
   const queryClient = useQueryClient();
@@ -132,9 +152,12 @@ function ReceiptsSection({
     columns:
       "id, account_id, date, description, gross, fee_percent, paid_out, external_id, finance_entry_id, created_by",
     orgId: orgId ?? null,
+    projectId,
+    projectRequired: true,
     orderBy: { column: "date", ascending: false },
     label: "recebimento",
   });
+
 
   const accountById = useMemo(
     () => new Map(accounts.map((a) => [a.id, a])),
@@ -209,7 +232,9 @@ function ReceiptsSection({
       const accountId = String(values['account_id'] ?? "") || null;
       await saveReceipt({
         orgId,
+        projectId,
         id: editingId,
+
         input: {
           account_id: accountId,
           date: String(values['date'] ?? ""),

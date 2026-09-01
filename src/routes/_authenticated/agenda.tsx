@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRecords } from "@/hooks/use-records";
 import { useOrgId, usePermissions, useUserId } from "@/hooks/use-org";
+import { ProjectFilter } from "@/components/project-select";
+
 import { ITEM_COLORS, colorSwatch } from "@/lib/board";
 import { formatDate, formatMoney } from "@/lib/finance";
 import { cn } from "@/lib/utils";
@@ -157,6 +159,7 @@ function Agenda() {
   const [values, setValues] = useState<Values>(() => emptyValues(today));
   const [toDelete, setToDelete] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
+  const [projectFilter, setProjectFilter] = useState<string | null>(null);
 
   const period = useMemo<Period>(() => {
     const now = new Date();
@@ -169,6 +172,7 @@ function Agenda() {
     table: "agenda_items",
     columns: "id, title, date, time, kind, note, color, done, assignee_id, created_by",
     orgId: orgId ?? null,
+    projectId: projectFilter,
     orderBy: { column: "date", ascending: true },
     trackCreatedBy: true,
     label: "item",
@@ -186,6 +190,7 @@ function Agenda() {
     table: "boards",
     columns: "id, name",
     orgId: orgId ?? null,
+    projectId: projectFilter,
     orderBy: { column: "name", ascending: true },
     label: "quadro",
   });
@@ -194,9 +199,11 @@ function Agenda() {
     table: "finance_entries",
     columns: "id, entry_date, description, kind, amount",
     orgId: orgId ?? null,
+    projectId: projectFilter,
     orderBy: { column: "entry_date", ascending: true },
     label: "lançamento",
   });
+
 
   const boardName = useMemo(() => {
     const map = new Map<string, string>();
@@ -220,7 +227,9 @@ function Agenda() {
     }));
 
     const fromCards: AgendaDisplay[] = cards.rows
+      .filter((c) => !projectFilter || boardName.has(c.board_id))
       .filter((c) => inRange(c.due_date))
+
       .map((c) => ({
         id: `card:${c.id}`,
         date: c.due_date as string,
@@ -252,7 +261,7 @@ function Agenda() {
     return [...own, ...fromCards, ...fromFinance].sort(
       (a, b) => a.date.localeCompare(b.date) || (a.time ?? "").localeCompare(b.time ?? ""),
     );
-  }, [agenda.rows, cards.rows, entries.rows, boardName, period.from, period.to]);
+  }, [agenda.rows, cards.rows, entries.rows, boardName, period.from, period.to, projectFilter]);
 
   const byDay = useMemo(() => {
     const map = new Map<string, AgendaDisplay[]>();
@@ -417,6 +426,10 @@ function Agenda() {
           ) : undefined
         }
       />
+
+      <ProjectFilter value={projectFilter} onChange={setProjectFilter} />
+
+
 
       <SelectPillGroup>
         <SelectPill active={view === "lista"} onClick={() => setView("lista")}>

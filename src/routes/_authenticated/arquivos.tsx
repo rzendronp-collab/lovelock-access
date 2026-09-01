@@ -48,6 +48,8 @@ import {
 import { useRecords } from "@/hooks/use-records";
 import { useContactField } from "@/hooks/use-contacts";
 import { useOrgId, usePermissions } from "@/hooks/use-org";
+import { ProjectFilter } from "@/components/project-select";
+
 import { ITEM_COLORS, colorSwatch } from "@/lib/board";
 import { cn } from "@/lib/utils";
 
@@ -176,11 +178,15 @@ function Arquivos() {
   const [toDelete, setToDelete] = useState<FileRow | null>(null);
   const [folderToDelete, setFolderToDelete] = useState<FolderRow | null>(null);
   const [preview, setPreview] = useState<{ name: string; url: string; mime: string } | null>(null);
+  const [projectFilter, setProjectFilter] = useState<string | null>(null);
+
+
 
   const folders = useRecords<FolderRow>({
     table: "folders",
     columns: "id, parent_id, name, color, created_by",
     orgId: orgId ?? null,
+    projectId: projectFilter,
     orderBy: { column: "name", ascending: true },
     trackCreatedBy: true,
     label: "pasta",
@@ -191,10 +197,12 @@ function Arquivos() {
     columns:
       "id, folder_id, kind, name, path, url, content, mime_type, size_bytes, contact_id, created_by",
     orgId: orgId ?? null,
+    projectId: projectFilter,
     orderBy: { column: "created_at", ascending: false },
     trackCreatedBy: true,
     label: "item",
   });
+
 
   const currentFolder = useMemo(
     () => folders.rows.find((f) => f.id === folderId) ?? null,
@@ -348,6 +356,10 @@ function Arquivos() {
           ) : undefined
         }
       />
+
+      <ProjectFilter value={projectFilter} onChange={setProjectFilter} />
+
+
 
       <AppCard title="Pastas" subtitle="Clique para entrar; subpastas ficam dentro da pasta atual.">
         <div className="space-y-3">

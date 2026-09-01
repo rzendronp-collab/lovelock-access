@@ -25,6 +25,9 @@ import {
 } from "@/components/period-picker";
 import { useRecords } from "@/hooks/use-records";
 import { usePermissions } from "@/hooks/use-org";
+import { useCurrentProject } from "@/hooks/use-projects";
+import { NoProjectState } from "@/components/project-select";
+
 import { useContactField } from "@/hooks/use-contacts";
 import { entriesInRange, useFinanceTotals } from "@/hooks/use-finance-totals";
 import { Button } from "@/components/ui/button";
@@ -128,6 +131,7 @@ function toNumber(value: FieldValue | undefined) {
 
 function Dinheiro() {
   const perms = usePermissions();
+  const { projectId } = useCurrentProject();
   const urlSearch = Route.useSearch();
   const [tab, setTab] = useState<Tab>("lancamentos");
   const { key, setKey, custom, setCustom, period } = usePeriodPicker(urlSearch.periodo ?? "mes", {
@@ -145,7 +149,7 @@ function Dinheiro() {
   const [values, setValues] = useState<Values>(emptyEntryValues);
   const [toDelete, setToDelete] = useState<string | null>(null);
 
-  const finance = useFinanceTotals(period);
+  const finance = useFinanceTotals(period, { projectId, projectRequired: true });
   const orgId = finance.orgId;
   const entries = finance.entries;
   const fixed = finance.fixed;
@@ -155,18 +159,20 @@ function Dinheiro() {
   const periodTotals = finance.totals;
 
   const openingQuery = useQuery({
-    queryKey: ["cash-opening", orgId],
-    enabled: !!orgId,
+    queryKey: ["cash-opening", orgId, projectId],
+    enabled: !!orgId && !!projectId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cash_opening")
         .select("id, amount, opening_date, note")
         .eq("org_id", orgId!)
+        .eq("project_id", projectId!)
         .maybeSingle();
       if (error) throw error;
       return data;
     },
   });
+
 
   const accumulated = useMemo(() => {
     const opening = openingQuery.data;
@@ -244,11 +250,25 @@ function Dinheiro() {
   const loading = finance.isLoading;
   const failed = finance.error || openingQuery.error;
 
+  if (!projectId) {
+    return (
+      <>
+        <PageHeader
+          title="Dinheiro"
+          subtitle="Entradas, saídas, despesas fixas e saldo do projeto."
+        />
+        <AppCard>
+          <NoProjectState />
+        </AppCard>
+      </>
+    );
+  }
+
   return (
     <>
       <PageHeader
         title="Dinheiro"
-        subtitle="Entradas, saídas, despesas fixas e saldo da empresa."
+        subtitle="Entradas, saídas, despesas fixas e saldo do projeto."
         actions={
           perms.canWrite ? (
             <Button className="text-body" onClick={openNew}>
@@ -257,6 +277,8 @@ function Dinheiro() {
           ) : undefined
         }
       />
+
+
 
       <SelectPillGroup>
         <SelectPill active={tab === "lancamentos"} onClick={() => setTab("lancamentos")}>
@@ -391,7 +413,10 @@ function Dinheiro() {
       )}
 
       {tab === "fixas" && <FixedCostsSection records={fixed} />}
-      {tab === "saldo" && <OpeningSection orgId={orgId ?? null} query={openingQuery} />}
+      {tab === "saldo" && (
+        <OpeningSection orgId={orgId ?? null} projectId={projectId} query={openingQuery} />
+      )}
+
 
       <RecordPanel
         open={panelOpen}
@@ -573,9 +598,11 @@ function FixedCostsSection({
 
 function OpeningSection({
   orgId,
+  projectId,
   query,
 }: {
   orgId: string | null;
+  projectId: string | null;
   query: {
     data: { id: string; amount: number; opening_date: string; note: string } | null | undefined;
     isLoading: boolean;
@@ -597,17 +624,26 @@ function OpeningSection({
   const save = useMutation({
     mutationFn: async () => {
       if (!orgId) throw new Error("sem empresa");
-      const payload = {
-        org_id: orgId,
+      if (!projectId) throw new Error("sem projeto");
+      const values = {
         amount: Number(amountValue.replace(",", ".")) || 0,
         opening_date: dateValue,
         note: noteValue,
       };
+      if (current?.id) {
+        const { error } = await supabase
+          .from("cash_opening")
+          .update(values)
+          .eq("id", current.id);
+        if (error) throw error;
+        return;
+      }
       const { error } = await supabase
         .from("cash_opening")
-        .upsert(payload, { onConflict: "org_id" });
+        .insert({ ...values, org_id: orgId, project_id: projectId });
       if (error) throw error;
     },
+
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["cash-opening"] });
       toast.success("Saldo inicial salvo.");

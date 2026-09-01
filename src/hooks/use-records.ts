@@ -16,8 +16,13 @@ export type UseRecordsOptions = {
   columns?: string;
   /** Escopo da empresa (quando a tabela tem org_id). */
   orgId?: string | null;
+  /** Escopo do projeto (quando informado, filtra e grava project_id). */
+  projectId?: string | null;
+  /** Só lista quando há projeto escolhido (módulos por projeto). */
+  projectRequired?: boolean;
   /** Ordenação da lista. */
   orderBy?: { column: string; ascending?: boolean };
+
   /** Exclusão suave por deleted_at (padrão: sim). */
   softDelete?: boolean;
   /** Campos ignorados ao duplicar um registro. */
@@ -36,6 +41,8 @@ export function useRecords<T extends RecordRow = RecordRow>({
   table,
   columns = "*",
   orgId,
+  projectId,
+  projectRequired = false,
   orderBy,
   softDelete = true,
   omitOnDuplicate = ["id", "created_at", "updated_at"],
@@ -43,15 +50,19 @@ export function useRecords<T extends RecordRow = RecordRow>({
   label = "registro",
 }: UseRecordsOptions) {
   const queryClient = useQueryClient();
-  const queryKey = useMemo(() => ["records", table, orgId ?? null], [table, orgId]);
+  const queryKey = useMemo(
+    () => ["records", table, orgId ?? null, projectId ?? null],
+    [table, orgId, projectId],
+  );
   const needsOrg = orgId !== undefined;
 
   const list = useQuery({
     queryKey,
-    enabled: !needsOrg || !!orgId,
+    enabled: (!needsOrg || !!orgId) && (!projectRequired || !!projectId),
     queryFn: async () => {
       let q = db.from(table).select(columns);
       if (orgId) q = q.eq("org_id", orgId);
+      if (projectId) q = q.eq("project_id", projectId);
       if (softDelete) q = q.is("deleted_at", null);
       if (orderBy) q = q.order(orderBy.column, { ascending: orderBy.ascending ?? true });
       const { data, error } = await q;
@@ -65,6 +76,7 @@ export function useRecords<T extends RecordRow = RecordRow>({
   async function insert(values: Record<string, unknown>) {
     const payload: Record<string, unknown> = { ...values };
     if (orgId) payload['org_id'] = orgId;
+    if (projectId && payload['project_id'] === undefined) payload['project_id'] = projectId;
     if (trackCreatedBy) {
       const { data: userData } = await supabase.auth.getUser();
       payload['created_by'] = userData.user?.id ?? null;
@@ -72,6 +84,7 @@ export function useRecords<T extends RecordRow = RecordRow>({
     const { error } = await db.from(table).insert(payload);
     if (error) throw error;
   }
+
 
   const create = useMutation({
     mutationFn: insert,
