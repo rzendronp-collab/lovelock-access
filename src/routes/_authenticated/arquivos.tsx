@@ -176,6 +176,9 @@ function Arquivos() {
   const [toDelete, setToDelete] = useState<FileRow | null>(null);
   const [folderToDelete, setFolderToDelete] = useState<FolderRow | null>(null);
   const [preview, setPreview] = useState<{ name: string; url: string; mime: string } | null>(null);
+  const [projectFilter, setProjectFilter] = useState<string | null>(null);
+
+
 
   const folders = useRecords<FolderRow>({
     table: "folders",
