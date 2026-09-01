@@ -20,6 +20,8 @@ import { useRecords } from "@/hooks/use-records";
 import { useOrgId, useOrgRole, usePermissions } from "@/hooks/use-org";
 import { useCurrentProject } from "@/hooks/use-projects";
 import { NoProjectState } from "@/components/project-select";
+import { StripeSection, StripeSummary } from "@/components/stripe-accounts";
+
 
 import { Button } from "@/components/ui/button";
 import { formatDate, formatMoney } from "@/lib/finance";
