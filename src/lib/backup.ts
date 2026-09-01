@@ -115,13 +115,37 @@ export async function importBackup(
 
     let rows = allRows;
     if (skipExisting && allRows.length) {
-      const { data, error } = await db.from(table).select("id").eq("org_id", orgId);
-      if (error) throw error;
-      const existing = new Set(((data ?? []) as { id: string }[]).map((r) => r.id));
-      rows = allRows.filter((r) => !existing.has(r.id));
-      // Registros que já estão no banco mantêm o mesmo id nos vínculos.
-      for (const r of allRows) if (existing.has(r.id)) idMap[table]!.set(r.id, r.id);
-      skippedCounts[table] = allRows.length - rows.length;
+      let res = await db.from(table).select("id, deleted_at").eq("org_id", orgId);
+      let hasSoftDelete = true;
+      if (res.error) {
+        hasSoftDelete = false;
+        res = await db.from(table).select("id").eq("org_id", orgId);
+        if (res.error) throw res.error;
+      }
+      const current = new Map(
+        ((res.data ?? []) as { id: string; deleted_at?: string | null }[]).map((r) => [
+          r.id,
+          r.deleted_at ?? null,
+        ]),
+      );
+      const revive: string[] = [];
+      rows = [];
+      for (const r of allRows) {
+        if (!current.has(r.id)) {
+          rows.push(r);
+          continue;
+        }
+        // Registro ainda existe: mantém o mesmo id nos vínculos.
+        idMap[table]!.set(r.id, r.id);
+        // Se foi excluído depois do backup, o restauro o traz de volta.
+        if (hasSoftDelete && current.get(r.id) && !r['deleted_at']) revive.push(r.id);
+        else skippedCounts[table] = (skippedCounts[table] ?? 0) + 1;
+      }
+      if (revive.length) {
+        const { error } = await db.from(table).update({ deleted_at: null }).in("id", revive);
+        if (error) throw error;
+        counts[table] = (counts[table] ?? 0) + revive.length;
+      }
     }
     if (!rows.length) continue;
 
