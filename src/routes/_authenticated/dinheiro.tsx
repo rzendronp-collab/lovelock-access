@@ -24,6 +24,7 @@ import {
   type PeriodKey,
 } from "@/components/period-picker";
 import { useRecords } from "@/hooks/use-records";
+import { useContactField } from "@/hooks/use-contacts";
 import { entriesInRange, useFinanceTotals } from "@/hooks/use-finance-totals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
