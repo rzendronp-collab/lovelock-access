@@ -53,3 +53,34 @@ export function useUserId() {
     },
   });
 }
+
+export type OrgRole = "dono" | "admin" | "membro" | "parceiro" | "leitura";
+
+/** Papel da pessoa logada, normalizado. */
+export function useMyRole() {
+  const { data, isLoading } = useOrgRole();
+  return { role: (data as OrgRole | null) ?? null, isLoading };
+}
+
+/**
+ * Permissões da pessoa logada — fonte ÚNICA usada por todos os módulos:
+ * leitura só vê; membro/parceiro criam e editam e excluem só o que criaram;
+ * dono/admin excluem qualquer coisa.
+ */
+export function usePermissions() {
+  const { role, isLoading } = useMyRole();
+  const { data: userId } = useUserId();
+
+  const isAdmin = role === "dono" || role === "admin";
+  const canWrite = isAdmin || role === "membro" || role === "parceiro";
+  const isReadOnly = role === "leitura";
+
+  /** Pode excluir ESTE registro (dono/admin sempre; os demais só o que criaram). */
+  function canDelete(createdBy?: string | null) {
+    if (isAdmin) return true;
+    if (!canWrite) return false;
+    return !!createdBy && !!userId && createdBy === userId;
+  }
+
+  return { role, userId: userId ?? null, isAdmin, canWrite, isReadOnly, canDelete, isLoading };
+}
