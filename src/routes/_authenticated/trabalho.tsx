@@ -304,6 +304,17 @@ function Trabalho() {
     return list;
   }, [filteredBoardCards, sort]);
 
+  const calendarCardsByDay = useMemo(() => {
+    const map = new Map<string, CardRow[]>();
+    for (const card of filteredBoardCards) {
+      if (!card.due_date) continue;
+      const list = map.get(card.due_date) ?? [];
+      list.push(card);
+      map.set(card.due_date, list);
+    }
+    return map;
+  }, [filteredBoardCards]);
+
   const openCard = useMemo(
     () => cards.rows.find((c) => c.id === cardPanelId) ?? null,
     [cards.rows, cardPanelId],
