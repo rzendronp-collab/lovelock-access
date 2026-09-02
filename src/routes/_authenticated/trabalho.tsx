@@ -1365,6 +1365,22 @@ function Trabalho() {
       />
 
       <RecordPanel
+        open={limitColumn !== null}
+        onOpenChange={(o) => {
+          if (!o) setLimitColumn(null);
+        }}
+        title={`Limite da coluna ${limitColumn?.name ?? ""}`}
+        description="Deixe vazio para não ter limite. O limite é só um aviso — não bloqueia novos cartões."
+        fields={LIMIT_FIELDS}
+        values={limitValues}
+        onChange={(name, value) => setLimitValues((p) => ({ ...p, [name]: value }))}
+        onSave={saveLimit}
+        saving={columns.update.isPending}
+        idPrefix="limite"
+      />
+
+
+      <RecordPanel
         open={cardPanelOpen}
         onOpenChange={(o) => {
           setCardPanelOpen(o);
