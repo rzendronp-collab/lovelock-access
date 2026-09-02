@@ -1097,22 +1097,6 @@ function Trabalho() {
       <PageHeader
         title="Trabalho"
         subtitle="Quadros, colunas e cartões da sua equipe."
-        actions={
-          perms.canWrite ? (
-            <>
-              <Button variant="outline" className="text-body" onClick={() => setBoardPanel(true)}>
-                <Plus className="size-4" aria-hidden />
-                Novo quadro
-              </Button>
-              {currentBoard && (
-                <Button className="text-body" onClick={() => setColumnPanel(true)}>
-                  <Plus className="size-4" aria-hidden />
-                  Nova coluna
-                </Button>
-              )}
-            </>
-          ) : undefined
-        }
       />
 
       {loading ? (
