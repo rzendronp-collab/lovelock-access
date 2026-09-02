@@ -599,9 +599,39 @@ function Trabalho() {
                 if (card) moveCard(card, col.id);
               }}
             >
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-highlight font-semibold">{col.name}</p>
-                <span className="text-label text-muted-foreground">{colCards.length}</span>
+              <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                <p className="text-highlight min-w-0 truncate font-semibold">{col.name}</p>
+                <div className="flex shrink-0 items-center gap-1">
+                  <span
+                    className={cn(
+                      "text-label",
+                      col.wip_limit != null && colCards.length >= col.wip_limit
+                        ? "text-destructive font-semibold"
+                        : "text-muted-foreground",
+                    )}
+                    title={
+                      col.wip_limit != null && colCards.length >= col.wip_limit
+                        ? "Coluna no limite (apenas aviso)"
+                        : undefined
+                    }
+                  >
+                    {col.wip_limit != null ? `${colCards.length} / ${col.wip_limit}` : colCards.length}
+                  </span>
+                  {perms.canWrite && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" aria-label={`Ações da coluna ${col.name}`}>
+                          <MoreVertical className="size-4" aria-hidden />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem className="text-body" onClick={() => openLimit(col)}>
+                          Definir limite
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
               </div>
               <ul className="space-y-2">{colCards.map((card) => renderCard(card))}</ul>
               {perms.canWrite && (
