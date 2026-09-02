@@ -304,6 +304,17 @@ function Trabalho() {
     return list;
   }, [filteredBoardCards, sort]);
 
+  const calendarCardsByDay = useMemo(() => {
+    const map = new Map<string, CardRow[]>();
+    for (const card of filteredBoardCards) {
+      if (!card.due_date) continue;
+      const list = map.get(card.due_date) ?? [];
+      list.push(card);
+      map.set(card.due_date, list);
+    }
+    return map;
+  }, [filteredBoardCards]);
+
   const openCard = useMemo(
     () => cards.rows.find((c) => c.id === cardPanelId) ?? null,
     [cards.rows, cardPanelId],
@@ -543,7 +554,7 @@ function Trabalho() {
     return (
       <div className="flex gap-4 overflow-x-auto pb-2">
         {boardColumns.map((col) => {
-          const colCards = boardCards.filter((c) => c.column_id === col.id);
+          const colCards = filteredBoardCards.filter((c) => c.column_id === col.id);
           return (
             <div
               key={col.id}
@@ -552,7 +563,7 @@ function Trabalho() {
               onDrop={(e) => {
                 e.preventDefault();
                 const id = e.dataTransfer.getData("text/plain");
-                const card = boardCards.find((c) => c.id === id);
+                const card = filteredBoardCards.find((c) => c.id === id);
                 if (card) moveCard(card, col.id);
               }}
             >
@@ -910,6 +921,13 @@ function Trabalho() {
     );
   }
 
+  function changeMonth(delta: number) {
+    setCalendarMonth((prev) => {
+      const date = new Date(prev.year, prev.month + delta, 1);
+      return { year: date.getFullYear(), month: date.getMonth() };
+    });
+  }
+
   function renderCalendar() {
     const { year, month } = calendarMonth;
     const firstDay = new Date(year, month, 1);
@@ -929,18 +947,6 @@ function Trabalho() {
       while (currentWeek.length < 7) currentWeek.push(0);
       weeks.push(currentWeek);
     }
-
-    const cardsByDay = useMemo(() => {
-      const map = new Map<string, CardRow[]>();
-      for (const card of filteredBoardCards) {
-        if (!card.due_date) continue;
-        const key = card.due_date;
-        const list = map.get(key) ?? [];
-        list.push(card);
-        map.set(key, list);
-      }
-      return map;
-    }, [filteredBoardCards]);
 
     const undated = filteredBoardCards.filter((c) => !c.due_date);
     const monthLabel = firstDay.toLocaleString("pt-BR", { month: "long", year: "numeric" });
@@ -993,7 +999,7 @@ function Trabalho() {
                   return <div key={`${wi}-${di}`} className="min-h-28 border-b border-r border-border bg-muted/20" />;
                 }
                 const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                const dayCards = cardsByDay.get(iso) ?? [];
+                const dayCards = calendarCardsByDay.get(iso) ?? [];
                 const isToday = iso === today;
                 return (
                   <div
@@ -1070,13 +1076,6 @@ function Trabalho() {
         )}
       </div>
     );
-  }
-
-  function changeMonth(delta: number) {
-    setCalendarMonth((prev) => {
-      const date = new Date(prev.year, prev.month + delta, 1);
-      return { year: date.getFullYear(), month: date.getMonth() };
-    });
   }
 
   if (!projectId) {
