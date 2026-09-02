@@ -800,10 +800,9 @@ function ConnectionsSection({
           getKey={(c) => c.id}
           getSearchText={(c) => `${c.provider} ${c.label}`}
           search={search}
-          onSearchChange={setSearch}
-          searchId="busca-conexoes"
-          searchLabel="Buscar conexão"
-          searchPlaceholder="Ex.: stripe"
+          onSearchChange={() => undefined}
+          hideControls
+
           loading={records.isLoading}
           error={records.error}
           onRetry={records.refetch}
