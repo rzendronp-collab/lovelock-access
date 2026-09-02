@@ -194,6 +194,8 @@ function Trabalho() {
   const [boardValues, setBoardValues] = useState<Values>({ name: "", folder: "" });
   const [columnPanel, setColumnPanel] = useState(false);
   const [columnValues, setColumnValues] = useState<Values>({ name: "", position: "0" });
+  const [limitColumn, setLimitColumn] = useState<ColumnRow | null>(null);
+  const [limitValues, setLimitValues] = useState<Values>({ wip_limit: "" });
 
   const [cardPanelId, setCardPanelId] = useState<string | undefined>(undefined);
   const [cardPanelOpen, setCardPanelOpen] = useState(false);
