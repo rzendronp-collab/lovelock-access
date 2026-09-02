@@ -29,6 +29,14 @@ import { useCurrentProject } from "@/hooks/use-projects";
 import { NoProjectState } from "@/components/project-select";
 
 import { useContactField } from "@/hooks/use-contacts";
+import {
+  CATEGORY_KINDS,
+  categoryKindLabel,
+  useFinanceCategories,
+  type FinanceCategoryRow,
+} from "@/hooks/use-finance-categories";
+import { ITEM_COLORS, colorSwatch } from "@/lib/board";
+import { cn } from "@/lib/utils";
 import { entriesInRange, useFinanceTotals } from "@/hooks/use-finance-totals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,7 +92,7 @@ export const Route = createFileRoute("/_authenticated/dinheiro")({
   component: Dinheiro,
 });
 
-type Tab = "lancamentos" | "fixas" | "saldo";
+type Tab = "lancamentos" | "fixas" | "categorias" | "saldo";
 
 type Values = Record<string, FieldValue>;
 
@@ -92,7 +100,7 @@ function emptyEntryValues(): Values {
   return {
     entry_date: toISODate(new Date()),
     description: "",
-    category: "",
+    category_id: "",
     account: "",
     kind: "saida",
     amount: "",
@@ -113,7 +121,6 @@ const ENTRY_FIELDS_BASE: FieldDef[] = [
   },
   { name: "entry_date", label: "Data", type: "date" },
   { name: "description", label: "Descrição", type: "text" },
-  { name: "category", label: "Categoria", type: "text" },
   { name: "account", label: "Conta", type: "text" },
   { name: "amount", label: "Valor", type: "decimal" },
   {
@@ -140,10 +147,8 @@ function Dinheiro() {
   const [search, setSearch] = useState(urlSearch.busca ?? "");
   const [category, setCategory] = useState("");
   const { field: contactField } = useContactField();
-  const entryFields = useMemo<FieldDef[]>(
-    () => [...ENTRY_FIELDS_BASE, contactField],
-    [contactField],
-  );
+  const categories = useFinanceCategories(projectId);
+  const [newCategory, setNewCategory] = useState("");
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(emptyEntryValues);
@@ -182,6 +187,58 @@ function Dinheiro() {
   }, [allEntries, fixedRows, openingQuery.data, period.to]);
 
 
+  const entryKind = (values['kind'] === "entrada" ? "entrada" : "saida") as EntryKind;
+  const categoryField = useMemo<FieldDef>(
+    () => ({
+      name: "category_id",
+      label: "Categoria",
+      type: "select",
+      placeholder: "Sem categoria",
+      options: [
+        { value: "", label: "Sem categoria" },
+        ...categories.forKind(entryKind).map((c) => ({
+          value: c.id,
+          label: c.name,
+          swatchClassName: colorSwatch(c.color),
+        })),
+      ],
+      extra: perms.canWrite ? (
+        <div className="flex items-center gap-2 pt-1">
+          <Input
+            className="text-body"
+            placeholder="+ Nova categoria"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+          />
+          <Button
+            variant="secondary"
+            className="text-body"
+            disabled={!newCategory.trim() || categories.create.isPending}
+            onClick={() => {
+              const name = newCategory.trim();
+              categories.create.mutate(
+                { name, color: "neutra", kind: "ambos", position: categories.rows.length },
+                {
+                  onSuccess: async () => {
+                    setNewCategory("");
+                    await categories.refetchAsync();
+                  },
+                },
+              );
+            }}
+          >
+            Criar
+          </Button>
+        </div>
+      ) : undefined,
+    }),
+    [categories, entryKind, newCategory, perms.canWrite],
+  );
+  const entryFields = useMemo<FieldDef[]>(
+    () => [...ENTRY_FIELDS_BASE, categoryField, contactField],
+    [categoryField, contactField],
+  );
+
   function setValue(name: string, value: FieldValue) {
     setValues((prev) => {
       const next = { ...prev, [name]: value };
@@ -201,7 +258,7 @@ function Dinheiro() {
     setValues({
       entry_date: entry.entry_date,
       description: entry.description,
-      category: entry.category,
+      category_id: entry.category_id ?? "",
       account: entry.account,
       kind: entry.kind,
       amount: String(entry.amount),
@@ -216,7 +273,7 @@ function Dinheiro() {
     setValues({
       entry_date: toISODate(new Date()),
       description: entry.description,
-      category: entry.category,
+      category_id: entry.category_id ?? "",
       account: entry.account,
       kind: entry.kind,
       amount: String(entry.amount),
@@ -234,7 +291,7 @@ function Dinheiro() {
         values: {
           entry_date: String(values['entry_date'] ?? ""),
           description: String(values['description'] ?? "").trim(),
-          category: String(values['category'] ?? "").trim(),
+          category_id: String(values['category_id'] ?? "") || null,
           account: String(values['account'] ?? "").trim(),
           kind,
           amount: toNumber(values['amount']),
@@ -287,6 +344,9 @@ function Dinheiro() {
         <SelectPill active={tab === "fixas"} onClick={() => setTab("fixas")}>
           Despesas fixas
         </SelectPill>
+        <SelectPill active={tab === "categorias"} onClick={() => setTab("categorias")}>
+          Categorias
+        </SelectPill>
         <SelectPill active={tab === "saldo"} onClick={() => setTab("saldo")}>
           Saldo inicial
         </SelectPill>
@@ -318,7 +378,7 @@ function Dinheiro() {
               items={periodEntries}
               getKey={(e) => e.id}
               getSearchText={(e) => e.description}
-              getGroup={(e) => e.category}
+              getGroup={(e) => categories.nameOf(e.category_id, e.category)}
               search={search}
               onSearchChange={setSearch}
               searchId="busca"
@@ -359,8 +419,15 @@ function Dinheiro() {
                         </span>
                       )}
                     </p>
-                    <p className="text-label text-muted-foreground">
-                      {[e.category || "sem categoria", e.account || "—"].join(" · ")}
+                    <p className="text-label flex items-center gap-1.5 text-muted-foreground">
+                      <span
+                        className={cn(
+                          "size-2.5 shrink-0 rounded-full",
+                          categories.swatchOf(e.category_id),
+                        )}
+                        aria-hidden
+                      />
+                      {categories.nameOf(e.category_id, e.category)} · {e.account || "—"}
                     </p>
                   </div>
                   <span
@@ -413,6 +480,7 @@ function Dinheiro() {
       )}
 
       {tab === "fixas" && <FixedCostsSection records={fixed} />}
+      {tab === "categorias" && <CategoriesSection categories={categories} />}
       {tab === "saldo" && (
         <OpeningSection orgId={orgId ?? null} projectId={projectId} query={openingQuery} />
       )}
