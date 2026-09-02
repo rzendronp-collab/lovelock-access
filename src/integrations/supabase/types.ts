@@ -99,6 +99,7 @@ export type Database = {
           org_id: string
           position: number
           updated_at: string
+          wip_limit: number | null
         }
         Insert: {
           board_id: string
@@ -109,6 +110,7 @@ export type Database = {
           org_id: string
           position?: number
           updated_at?: string
+          wip_limit?: number | null
         }
         Update: {
           board_id?: string
@@ -119,6 +121,7 @@ export type Database = {
           org_id?: string
           position?: number
           updated_at?: string
+          wip_limit?: number | null
         }
         Relationships: [
           {
