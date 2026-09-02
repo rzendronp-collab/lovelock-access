@@ -195,6 +195,21 @@ function Trabalho() {
   const [dueFilter, setDueFilter] = useState<DueFilter>("");
   const [view, setView] = useState<View>("kanban");
   const [search, setSearch] = useState("");
+  /** Densidade dos cartões — só apresentação, persistida no navegador. */
+  const [density, setDensity] = useState<"confortavel" | "compacto">("confortavel");
+  const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
+  const compact = density === "compacto";
+
+  useEffect(() => {
+    const saved = localStorage.getItem(DENSITY_KEY);
+    if (saved === "compacto" || saved === "confortavel") setDensity(saved);
+  }, []);
+
+  function changeDensity(next: "confortavel" | "compacto") {
+    setDensity(next);
+    localStorage.setItem(DENSITY_KEY, next);
+  }
+
   const [sort, setSort] = useState<{
     column: "due_date" | "priority" | "title";
     dir: "asc" | "desc";
