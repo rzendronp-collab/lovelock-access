@@ -1256,9 +1256,9 @@ function Trabalho() {
                     ))}
                   </SelectPillGroup>
                 </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+            </ToolbarFilters>
+          </Toolbar>
+
 
           {view === "kanban" ? (
             renderKanban()
