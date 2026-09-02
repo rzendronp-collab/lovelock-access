@@ -14,8 +14,15 @@ import {
   type FieldValue,
 } from "@/components/detail-panel";
 import { RecordList } from "@/components/record-list";
+import { Toolbar, ToolbarFilters, ToolbarSearch, ToolbarTabs } from "@/components/toolbar";
 import { TotalCard } from "@/components/total-card";
-import { PeriodPicker, toISODate, usePeriodPicker } from "@/components/period-picker";
+import {
+  PeriodPicker,
+  toISODate,
+  usePeriodPicker,
+  type Period,
+} from "@/components/period-picker";
+
 import { useRecords } from "@/hooks/use-records";
 import { useOrgId, useOrgRole, usePermissions } from "@/hooks/use-org";
 import { useCurrentProject } from "@/hooks/use-projects";
