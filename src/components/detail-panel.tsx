@@ -22,6 +22,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/use-org";
 import { Button } from "@/components/ui/button";
 
@@ -80,12 +88,23 @@ export type FieldValue = string | boolean;
 export type FieldDef = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "date" | "month" | "number" | "decimal" | "switch" | "choice";
-  /** Opções quando type = "choice". */
-  options?: { value: string; label: string }[];
+  type:
+    | "text"
+    | "textarea"
+    | "date"
+    | "month"
+    | "number"
+    | "decimal"
+    | "switch"
+    | "choice"
+    | "select";
+  /** Opções quando type = "choice" ou "select". */
+  options?: { value: string; label: string; swatchClassName?: string }[];
   min?: number;
   max?: number;
   placeholder?: string;
+  /** Conteúdo extra abaixo do campo (ex.: criar categoria ali mesmo). */
+  extra?: ReactNode;
   /** Mostra o campo só quando esta condição for verdadeira. */
   showWhen?: (values: Record<string, FieldValue>) => boolean;
 };
@@ -177,6 +196,41 @@ export function RecordPanel({
                     </SelectPill>
                   ))}
                 </SelectPillGroup>
+                {f.extra}
+              </div>
+            );
+          }
+
+          if (f.type === "select") {
+            return (
+              <div key={f.name} className="space-y-1">
+                <Label htmlFor={id} className="text-label">
+                  {f.label}
+                </Label>
+                <Select
+                  value={String(raw ?? "")}
+                  onValueChange={(v) => onChange(f.name, v === "-" ? "" : v)}
+                >
+                  <SelectTrigger id={id} className="text-body">
+                    <SelectValue placeholder={f.placeholder ?? "Selecione"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(f.options ?? []).map((o) => (
+                      <SelectItem key={o.value || "-"} value={o.value || "-"} className="text-body">
+                        <span className="flex items-center gap-2">
+                          {o.swatchClassName && (
+                            <span
+                              className={cn("size-2.5 shrink-0 rounded-full", o.swatchClassName)}
+                              aria-hidden
+                            />
+                          )}
+                          {o.label}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {f.extra}
               </div>
             );
           }
