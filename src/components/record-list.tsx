@@ -136,7 +136,7 @@ export function RecordList<T>({
       )}
 
 
-      {colorOptions && colorOptions.length > 0 && onColorChange && (
+      {!hideControls && colorOptions && colorOptions.length > 0 && onColorChange && (
         <div className="mb-4">
           <SelectPillGroup>
             <SelectPill active={!color} onClick={() => onColorChange("")}>
