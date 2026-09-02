@@ -79,8 +79,10 @@ export function RecordList<T>({
   toolbarExtra,
   hideControls,
 }: RecordListProps<T>) {
-
+  const groups = useMemo(() => {
+    if (!getGroup) return [];
     const set = new Set<string>();
+
     for (const item of items) {
       const g = getGroup(item);
       if (g) set.add(g);
