@@ -409,12 +409,11 @@ function Dinheiro() {
               getGroup={(e) => categories.nameOf(e.category_id, e.category)}
               search={search}
               onSearchChange={setSearch}
-              searchId="busca"
-              searchLabel="Buscar descrição"
-              searchPlaceholder="Ex.: aluguel"
+              searchId="busca-lista"
               group={category}
               onGroupChange={setCategory}
-              groupAllLabel="Todas"
+              hideControls
+
               loading={loading}
               error={failed}
               onRetry={entries.refetch}
