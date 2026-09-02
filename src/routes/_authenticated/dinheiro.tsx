@@ -478,6 +478,15 @@ function Dinheiro() {
         </>
       )}
 
+      {tab === "orcamento" && (
+        <BudgetSection
+          orgId={orgId ?? null}
+          projectId={projectId}
+          categories={categories}
+          allEntries={allEntries}
+          fixedRows={fixedRows}
+        />
+      )}
       {tab === "fixas" && <FixedCostsSection records={fixed} />}
       {tab === "categorias" && <CategoriesSection categories={categories} />}
       {tab === "saldo" && (
