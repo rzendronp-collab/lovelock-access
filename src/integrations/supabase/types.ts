@@ -715,6 +715,7 @@ export type Database = {
           description: string
           entry_date: string
           id: string
+          is_withdrawal: boolean
           kind: string
           org_id: string
           origin: string
@@ -734,6 +735,7 @@ export type Database = {
           description: string
           entry_date?: string
           id?: string
+          is_withdrawal?: boolean
           kind?: string
           org_id: string
           origin?: string
@@ -753,6 +755,7 @@ export type Database = {
           description?: string
           entry_date?: string
           id?: string
+          is_withdrawal?: boolean
           kind?: string
           org_id?: string
           origin?: string
@@ -1558,6 +1561,42 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      withdrawal_settings: {
+        Row: {
+          org_id: string
+          percent: number
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          org_id: string
+          percent?: number
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          org_id?: string
+          percent?: number
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawal_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "withdrawal_settings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
