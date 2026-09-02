@@ -92,7 +92,7 @@ export const Route = createFileRoute("/_authenticated/dinheiro")({
   component: Dinheiro,
 });
 
-type Tab = "lancamentos" | "fixas" | "categorias" | "saldo";
+type Tab = "lancamentos" | "orcamento" | "fixas" | "categorias" | "saldo";
 
 type Values = Record<string, FieldValue>;
 
