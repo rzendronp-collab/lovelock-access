@@ -240,10 +240,13 @@ function Trabalho() {
     label: "item",
   });
 
-  const folders = useMemo(() => {
-    const set = new Set<string>();
-    for (const b of boards.rows) if (b.folder) set.add(b.folder);
-    return [...set].sort();
+  const boardGroups = useMemo(() => {
+    const groups = new Map<string, BoardRow[]>();
+    for (const b of boards.rows) {
+      const key = b.folder || "Sem pasta";
+      groups.set(key, [...(groups.get(key) ?? []), b]);
+    }
+    return [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [boards.rows]);
 
   const currentBoard = useMemo(
