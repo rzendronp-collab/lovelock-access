@@ -335,39 +335,61 @@ function Dinheiro() {
         }
       />
 
+      <Toolbar>
+        <ToolbarTabs<Tab>
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: "lancamentos", label: "Lançamentos" },
+            { value: "orcamento", label: "Orçado vs realizado" },
+            { value: "caixa", label: "Caixa e retiradas" },
+            { value: "fixas", label: "Despesas fixas" },
+            { value: "categorias", label: "Categorias" },
+            { value: "saldo", label: "Saldo inicial" },
+          ]}
+        />
 
-
-      <SelectPillGroup>
-        <SelectPill active={tab === "lancamentos"} onClick={() => setTab("lancamentos")}>
-          Lançamentos
-        </SelectPill>
-        <SelectPill active={tab === "orcamento"} onClick={() => setTab("orcamento")}>
-          Orçado vs realizado
-        </SelectPill>
-        <SelectPill active={tab === "caixa"} onClick={() => setTab("caixa")}>
-          Caixa e retiradas
-        </SelectPill>
-        <SelectPill active={tab === "fixas"} onClick={() => setTab("fixas")}>
-          Despesas fixas
-        </SelectPill>
-        <SelectPill active={tab === "categorias"} onClick={() => setTab("categorias")}>
-          Categorias
-        </SelectPill>
-        <SelectPill active={tab === "saldo"} onClick={() => setTab("saldo")}>
-          Saldo inicial
-        </SelectPill>
-      </SelectPillGroup>
-
-      {tab === "lancamentos" && (
-        <>
-          <AppCard title="Período" subtitle="Escolha o intervalo dos números abaixo.">
+        {tab === "lancamentos" && (
+          <>
             <PeriodPicker
               value={key}
               onChange={setKey}
               custom={custom}
               onCustomChange={setCustom}
             />
-          </AppCard>
+            <ToolbarSearch
+              id="busca"
+              value={search}
+              onChange={setSearch}
+              label="Buscar descrição"
+              placeholder="Ex.: aluguel"
+            />
+            <ToolbarFilters activeCount={category ? 1 : 0}>
+              <div>
+                <p className="text-label mb-2 font-medium text-muted-foreground">Categoria</p>
+                <SelectPillGroup>
+                  <SelectPill active={!category} onClick={() => setCategory("")}>
+                    Todas
+                  </SelectPill>
+                  {categoryNames.map((name) => (
+                    <SelectPill
+                      key={name}
+                      active={category === name}
+                      onClick={() => setCategory(name)}
+                    >
+                      {name}
+                    </SelectPill>
+                  ))}
+                </SelectPillGroup>
+              </div>
+            </ToolbarFilters>
+          </>
+        )}
+      </Toolbar>
+
+      {tab === "lancamentos" && (
+        <>
+
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <TotalCard label="Entrou" value={formatMoney(periodTotals.entrou)} />
