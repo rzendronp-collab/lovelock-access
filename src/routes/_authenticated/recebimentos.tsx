@@ -752,7 +752,15 @@ function emptyConnectionValues(): Values {
   return { provider: "", label: "", secret_ref: "", key_last4: "", status: "desconectado" };
 }
 
-function ConnectionsSection({ orgId, isAdmin }: { orgId: string | null; isAdmin: boolean }) {
+function ConnectionsSection({
+  orgId,
+  isAdmin,
+  search,
+}: {
+  orgId: string | null;
+  isAdmin: boolean;
+  search: string;
+}) {
   const records = useRecords<ConnectionRow & { id: string }>({
     table: "connections",
     columns: "id, provider, label, secret_ref, key_mask, status, last_sync_at",
@@ -764,7 +772,7 @@ function ConnectionsSection({ orgId, isAdmin }: { orgId: string | null; isAdmin:
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(emptyConnectionValues);
-  const [search, setSearch] = useState("");
+
   const [toDelete, setToDelete] = useState<string | null>(null);
 
   return (
