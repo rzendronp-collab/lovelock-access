@@ -102,23 +102,25 @@ export function RecordList<T>({
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-end gap-3">
-        <div className="min-w-48 flex-1 space-y-1">
-          <Label htmlFor={searchId} className="text-label">
-            {searchLabel}
-          </Label>
-          <Input
-            id={searchId}
-            className="text-body"
-            placeholder={searchPlaceholder}
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
+      {!hideControls && (
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <div className="min-w-48 flex-1 space-y-1">
+            <Label htmlFor={searchId} className="text-label">
+              {searchLabel}
+            </Label>
+            <Input
+              id={searchId}
+              className="text-body"
+              placeholder={searchPlaceholder}
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          </div>
+          {toolbarExtra}
         </div>
-        {toolbarExtra}
-      </div>
+      )}
 
-      {getGroup && onGroupChange && (
+      {!hideControls && getGroup && onGroupChange && (
         <div className="mb-4">
           <SelectPillGroup>
             <SelectPill active={!group} onClick={() => onGroupChange("")}>
@@ -132,6 +134,7 @@ export function RecordList<T>({
           </SelectPillGroup>
         </div>
       )}
+
 
       {colorOptions && colorOptions.length > 0 && onColorChange && (
         <div className="mb-4">
