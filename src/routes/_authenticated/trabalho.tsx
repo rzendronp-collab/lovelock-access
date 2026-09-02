@@ -999,7 +999,7 @@ function Trabalho() {
                   return <div key={`${wi}-${di}`} className="min-h-28 border-b border-r border-border bg-muted/20" />;
                 }
                 const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                const dayCards = cardsByDay.get(iso) ?? [];
+                const dayCards = calendarCardsByDay.get(iso) ?? [];
                 const isToday = iso === today;
                 return (
                   <div
