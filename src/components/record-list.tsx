@@ -45,6 +45,8 @@ export type RecordListProps<T> = {
   onRetry?: () => void;
   empty?: { title: string; message?: string; icon?: ReactNode; action?: ReactNode };
   toolbarExtra?: ReactNode;
+  /** Esconde busca/filtros internos quando o módulo já os mostra na barra do topo. */
+  hideControls?: boolean;
 };
 
 /**
@@ -74,10 +76,12 @@ export function RecordList<T>({
   onRetry,
   empty,
   toolbarExtra,
+  hideControls,
 }: RecordListProps<T>) {
   const groups = useMemo(() => {
     if (!getGroup) return [];
     const set = new Set<string>();
+
     for (const item of items) {
       const g = getGroup(item);
       if (g) set.add(g);
@@ -97,23 +101,25 @@ export function RecordList<T>({
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-end gap-3">
-        <div className="min-w-48 flex-1 space-y-1">
-          <Label htmlFor={searchId} className="text-label">
-            {searchLabel}
-          </Label>
-          <Input
-            id={searchId}
-            className="text-body"
-            placeholder={searchPlaceholder}
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
+      {!hideControls && (
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <div className="min-w-48 flex-1 space-y-1">
+            <Label htmlFor={searchId} className="text-label">
+              {searchLabel}
+            </Label>
+            <Input
+              id={searchId}
+              className="text-body"
+              placeholder={searchPlaceholder}
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          </div>
+          {toolbarExtra}
         </div>
-        {toolbarExtra}
-      </div>
+      )}
 
-      {getGroup && onGroupChange && (
+      {!hideControls && getGroup && onGroupChange && (
         <div className="mb-4">
           <SelectPillGroup>
             <SelectPill active={!group} onClick={() => onGroupChange("")}>
@@ -128,7 +134,7 @@ export function RecordList<T>({
         </div>
       )}
 
-      {colorOptions && colorOptions.length > 0 && onColorChange && (
+      {!hideControls && colorOptions && colorOptions.length > 0 && onColorChange && (
         <div className="mb-4">
           <SelectPillGroup>
             <SelectPill active={!color} onClick={() => onColorChange("")}>

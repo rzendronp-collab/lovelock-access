@@ -16,6 +16,8 @@ import {
   type FieldValue,
 } from "@/components/detail-panel";
 import { RecordList } from "@/components/record-list";
+import { Toolbar, ToolbarFilters, ToolbarSearch, ToolbarTabs } from "@/components/toolbar";
+
 import { BudgetSection } from "@/components/budget-section";
 import { CashSection, WithdrawalBadge } from "@/components/cash-section";
 import { TotalCard } from "@/components/total-card";
@@ -65,12 +67,12 @@ type DinheiroSearch = {
 
 export const Route = createFileRoute("/_authenticated/dinheiro")({
   validateSearch: (search: Record<string, unknown>): DinheiroSearch => {
-    const periodo = String(search['periodo'] ?? "");
+    const periodo = String(search["periodo"] ?? "");
     const out: DinheiroSearch = {};
     if (PERIOD_KEYS.includes(periodo as PeriodKey)) out.periodo = periodo as PeriodKey;
-    if (search['de']) out.de = String(search['de']);
-    if (search['ate']) out.ate = String(search['ate']);
-    if (search['busca']) out.busca = String(search['busca']);
+    if (search["de"]) out.de = String(search["de"]);
+    if (search["ate"]) out.ate = String(search["ate"]);
+    if (search["busca"]) out.busca = String(search["busca"]);
     return out;
   },
   head: () => ({
@@ -129,10 +131,9 @@ const ENTRY_FIELDS_BASE: FieldDef[] = [
     name: "received",
     label: "Recebido",
     type: "switch",
-    showWhen: (v) => v['kind'] === "entrada",
+    showWhen: (v) => v["kind"] === "entrada",
   },
 ];
-
 
 function toNumber(value: FieldValue | undefined) {
   return Number(String(value ?? "").replace(",", ".")) || 0;
@@ -163,6 +164,16 @@ function Dinheiro() {
   const allEntries = finance.allEntries;
   const fixedRows = finance.fixedRows;
   const periodEntries = finance.periodEntries;
+  /** Nomes de categoria presentes no período — só para o filtro da barra. */
+  const categoryNames = useMemo(() => {
+    const set = new Set<string>();
+    for (const e of periodEntries) {
+      const name = categories.nameOf(e.category_id, e.category);
+      if (name) set.add(name);
+    }
+    return [...set].sort();
+  }, [periodEntries, categories]);
+
   const periodTotals = finance.totals;
 
   const openingQuery = useQuery({
@@ -180,7 +191,6 @@ function Dinheiro() {
     },
   });
 
-
   const accumulated = useMemo(() => {
     const opening = openingQuery.data;
     const start = opening?.opening_date ?? "1900-01-01";
@@ -190,8 +200,7 @@ function Dinheiro() {
     return Number(opening?.amount ?? 0) + t.sobrou;
   }, [allEntries, fixedRows, openingQuery.data, period.to]);
 
-
-  const entryKind = (values['kind'] === "entrada" ? "entrada" : "saida") as EntryKind;
+  const entryKind = (values["kind"] === "entrada" ? "entrada" : "saida") as EntryKind;
   const categoryField = useMemo<FieldDef>(
     () => ({
       name: "category_id",
@@ -242,7 +251,7 @@ function Dinheiro() {
   function setValue(name: string, value: FieldValue) {
     setValues((prev) => {
       const next = { ...prev, [name]: value };
-      if (name === "kind" && value === "saida") next['received'] = true;
+      if (name === "kind" && value === "saida") next["received"] = true;
       return next;
     });
   }
@@ -284,19 +293,19 @@ function Dinheiro() {
   }
 
   function saveEntry() {
-    const kind = (values['kind'] === "entrada" ? "entrada" : "saida") as EntryKind;
+    const kind = (values["kind"] === "entrada" ? "entrada" : "saida") as EntryKind;
     entries.save.mutate(
       {
         id: editingId,
         values: {
-          entry_date: String(values['entry_date'] ?? ""),
-          description: String(values['description'] ?? "").trim(),
-          category_id: String(values['category_id'] ?? "") || null,
-          account: String(values['account'] ?? "").trim(),
+          entry_date: String(values["entry_date"] ?? ""),
+          description: String(values["description"] ?? "").trim(),
+          category_id: String(values["category_id"] ?? "") || null,
+          account: String(values["account"] ?? "").trim(),
           kind,
-          amount: toNumber(values['amount']),
-          received: kind === "saida" ? true : Boolean(values['received']),
-          contact_id: String(values['contact_id'] ?? "") || null,
+          amount: toNumber(values["amount"]),
+          received: kind === "saida" ? true : Boolean(values["received"]),
+          contact_id: String(values["contact_id"] ?? "") || null,
           origin: "manual",
         },
       },
@@ -335,40 +344,60 @@ function Dinheiro() {
         }
       />
 
+      <Toolbar>
+        <ToolbarTabs<Tab>
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: "lancamentos", label: "Lançamentos" },
+            { value: "orcamento", label: "Orçado vs realizado" },
+            { value: "caixa", label: "Caixa e retiradas" },
+            { value: "fixas", label: "Despesas fixas" },
+            { value: "categorias", label: "Categorias" },
+            { value: "saldo", label: "Saldo inicial" },
+          ]}
+        />
 
-
-      <SelectPillGroup>
-        <SelectPill active={tab === "lancamentos"} onClick={() => setTab("lancamentos")}>
-          Lançamentos
-        </SelectPill>
-        <SelectPill active={tab === "orcamento"} onClick={() => setTab("orcamento")}>
-          Orçado vs realizado
-        </SelectPill>
-        <SelectPill active={tab === "caixa"} onClick={() => setTab("caixa")}>
-          Caixa e retiradas
-        </SelectPill>
-        <SelectPill active={tab === "fixas"} onClick={() => setTab("fixas")}>
-          Despesas fixas
-        </SelectPill>
-        <SelectPill active={tab === "categorias"} onClick={() => setTab("categorias")}>
-          Categorias
-        </SelectPill>
-        <SelectPill active={tab === "saldo"} onClick={() => setTab("saldo")}>
-          Saldo inicial
-        </SelectPill>
-      </SelectPillGroup>
-
-      {tab === "lancamentos" && (
-        <>
-          <AppCard title="Período" subtitle="Escolha o intervalo dos números abaixo.">
+        {tab === "lancamentos" && (
+          <>
             <PeriodPicker
               value={key}
               onChange={setKey}
               custom={custom}
               onCustomChange={setCustom}
             />
-          </AppCard>
+            <ToolbarSearch
+              id="busca"
+              value={search}
+              onChange={setSearch}
+              label="Buscar descrição"
+              placeholder="Ex.: aluguel"
+            />
+            <ToolbarFilters activeCount={category ? 1 : 0}>
+              <div>
+                <p className="text-label mb-2 font-medium text-muted-foreground">Categoria</p>
+                <SelectPillGroup>
+                  <SelectPill active={!category} onClick={() => setCategory("")}>
+                    Todas
+                  </SelectPill>
+                  {categoryNames.map((name) => (
+                    <SelectPill
+                      key={name}
+                      active={category === name}
+                      onClick={() => setCategory(name)}
+                    >
+                      {name}
+                    </SelectPill>
+                  ))}
+                </SelectPillGroup>
+              </div>
+            </ToolbarFilters>
+          </>
+        )}
+      </Toolbar>
 
+      {tab === "lancamentos" && (
+        <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <TotalCard label="Entrou" value={formatMoney(periodTotals.entrou)} />
             <TotalCard label="Saiu" value={formatMoney(periodTotals.saiu)} />
@@ -387,12 +416,11 @@ function Dinheiro() {
               getGroup={(e) => categories.nameOf(e.category_id, e.category)}
               search={search}
               onSearchChange={setSearch}
-              searchId="busca"
-              searchLabel="Buscar descrição"
-              searchPlaceholder="Ex.: aluguel"
+              searchId="busca-lista"
               group={category}
               onGroupChange={setCategory}
-              groupAllLabel="Todas"
+              hideControls
+
               loading={loading}
               error={failed}
               onRetry={entries.refetch}
@@ -530,7 +558,6 @@ function Dinheiro() {
         <OpeningSection orgId={orgId ?? null} projectId={projectId} query={openingQuery} />
       )}
 
-
       <RecordPanel
         open={panelOpen}
         onOpenChange={setPanelOpen}
@@ -551,15 +578,12 @@ function Dinheiro() {
         description="Ele sai da lista, mas o histórico fica guardado."
         confirmLabel="Excluir"
         onConfirm={() =>
-          toDelete &&
-          entries.remove.mutate(toDelete, { onSuccess: () => setToDelete(null) })
+          toDelete && entries.remove.mutate(toDelete, { onSuccess: () => setToDelete(null) })
         }
       />
     </>
   );
 }
-
-
 
 const FIXED_FIELDS: FieldDef[] = [
   { name: "label", label: "Rótulo", type: "text" },
@@ -597,12 +621,12 @@ function FixedCostsSection({
       {
         id: editingId,
         values: {
-          label: String(values['label'] ?? "").trim(),
-          category: String(values['category'] ?? "").trim(),
-          amount: toNumber(values['amount']),
-          day_of_month: Math.min(31, Math.max(1, Number(values['day_of_month']) || 1)),
-          start_month: `${String(values['start_month'] ?? "")}-01`,
-          end_month: values['end_month'] ? `${String(values['end_month'])}-01` : null,
+          label: String(values["label"] ?? "").trim(),
+          category: String(values["category"] ?? "").trim(),
+          amount: toNumber(values["amount"]),
+          day_of_month: Math.min(31, Math.max(1, Number(values["day_of_month"]) || 1)),
+          start_month: `${String(values["start_month"] ?? "")}-01`,
+          end_month: values["end_month"] ? `${String(values["end_month"])}-01` : null,
         },
       },
       { onSuccess: () => setOpen(false) },
@@ -666,25 +690,25 @@ function FixedCostsSection({
                     }
                   />
                   {perms.canWrite && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Editar despesa fixa"
-                    onClick={() => {
-                      setEditingId(c.id);
-                      setValues({
-                        label: c.label,
-                        category: c.category,
-                        amount: String(c.amount),
-                        day_of_month: String(c.day_of_month),
-                        start_month: c.start_month.slice(0, 7),
-                        end_month: c.end_month ? c.end_month.slice(0, 7) : "",
-                      });
-                      setOpen(true);
-                    }}
-                  >
-                    <Pencil className="size-4" aria-hidden />
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Editar despesa fixa"
+                      onClick={() => {
+                        setEditingId(c.id);
+                        setValues({
+                          label: c.label,
+                          category: c.category,
+                          amount: String(c.amount),
+                          day_of_month: String(c.day_of_month),
+                          start_month: c.start_month.slice(0, 7),
+                          end_month: c.end_month ? c.end_month.slice(0, 7) : "",
+                        });
+                        setOpen(true);
+                      }}
+                    >
+                      <Pencil className="size-4" aria-hidden />
+                    </Button>
                   )}
                 </div>
               </li>
@@ -758,10 +782,10 @@ function CategoriesSection({
       {
         id: editingId,
         values: {
-          name: String(values['name'] ?? "").trim(),
-          color: String(values['color'] ?? "neutra"),
-          kind: String(values['kind'] ?? "ambos"),
-          archived: Boolean(values['archived']),
+          name: String(values["name"] ?? "").trim(),
+          color: String(values["color"] ?? "neutra"),
+          kind: String(values["kind"] ?? "ambos"),
+          archived: Boolean(values["archived"]),
           position: categories.rows.length,
         },
       },
@@ -873,10 +897,7 @@ function OpeningSection({
         note: noteValue,
       };
       if (current?.id) {
-        const { error } = await supabase
-          .from("cash_opening")
-          .update(values)
-          .eq("id", current.id);
+        const { error } = await supabase.from("cash_opening").update(values).eq("id", current.id);
         if (error) throw error;
         return;
       }
