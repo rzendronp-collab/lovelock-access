@@ -49,6 +49,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Toolbar, ToolbarFilters, ToolbarSearch, ToolbarTabs } from "@/components/toolbar";
+import { Progress } from "@/components/ui/progress";
 import { useRecords } from "@/hooks/use-records";
 import { useContactField } from "@/hooks/use-contacts";
 import { useOrgId, useOrgMembers, usePermissions, useUserId } from "@/hooks/use-org";
@@ -107,6 +108,7 @@ type ColumnRow = {
   board_id: string;
   name: string;
   position: number;
+  wip_limit: number | null;
 };
 
 type CardRow = {
@@ -147,6 +149,16 @@ const BOARD_FIELDS: FieldDef[] = [
 const COLUMN_FIELDS: FieldDef[] = [
   { name: "name", label: "Nome da coluna", type: "text" },
   { name: "position", label: "Ordem", type: "number", min: 0 },
+];
+
+const LIMIT_FIELDS: FieldDef[] = [
+  {
+    name: "wip_limit",
+    label: "Máximo de cartões",
+    type: "number",
+    min: 1,
+    placeholder: "Vazio = sem limite",
+  },
 ];
 
 const DUE_OPTIONS: { value: DueFilter; label: string }[] = [
@@ -192,6 +204,8 @@ function Trabalho() {
   const [boardValues, setBoardValues] = useState<Values>({ name: "", folder: "" });
   const [columnPanel, setColumnPanel] = useState(false);
   const [columnValues, setColumnValues] = useState<Values>({ name: "", position: "0" });
+  const [limitColumn, setLimitColumn] = useState<ColumnRow | null>(null);
+  const [limitValues, setLimitValues] = useState<Values>({ wip_limit: "" });
 
   const [cardPanelId, setCardPanelId] = useState<string | undefined>(undefined);
   const [cardPanelOpen, setCardPanelOpen] = useState(false);
@@ -215,7 +229,7 @@ function Trabalho() {
 
   const columns = useRecords<ColumnRow>({
     table: "board_columns",
-    columns: "id, board_id, name, position",
+    columns: "id, board_id, name, position, wip_limit",
     orgId: orgId ?? null,
     orderBy: { column: "position", ascending: true },
     label: "coluna",
@@ -515,6 +529,39 @@ function Trabalho() {
   );
   const checklist = cardItems.filter((i) => i.kind === "checklist");
   const comments = cardItems.filter((i) => i.kind === "comentario");
+  const checklistDone = checklist.filter((i) => i.done).length;
+
+  /** Progresso de subtarefas (checklist) por cartão — para o indicador compacto. */
+  const subtasksByCard = useMemo(() => {
+    const map = new Map<string, { done: number; total: number }>();
+    for (const i of items.rows) {
+      if (i.kind !== "checklist") continue;
+      const cur = map.get(i.card_id) ?? { done: 0, total: 0 };
+      cur.total += 1;
+      if (i.done) cur.done += 1;
+      map.set(i.card_id, cur);
+    }
+    return map;
+  }, [items.rows]);
+
+  function openLimit(col: ColumnRow) {
+    setLimitColumn(col);
+    setLimitValues({ wip_limit: col.wip_limit == null ? "" : String(col.wip_limit) });
+  }
+
+  function saveLimit() {
+    if (!limitColumn) return;
+    const raw = String(limitValues["wip_limit"] ?? "").trim();
+    const parsed = raw === "" ? null : Number(raw);
+    if (parsed !== null && (!Number.isFinite(parsed) || parsed < 1)) {
+      toast.error("Informe um número maior que zero ou deixe vazio.");
+      return;
+    }
+    columns.update.mutate(
+      { id: limitColumn.id, values: { wip_limit: parsed } },
+      { onSuccess: () => setLimitColumn(null) },
+    );
+  }
 
   const loading = loadingOrg || boards.isLoading || columns.isLoading || cards.isLoading;
   const error = boards.error ?? columns.error ?? cards.error;
@@ -562,9 +609,39 @@ function Trabalho() {
                 if (card) moveCard(card, col.id);
               }}
             >
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-highlight font-semibold">{col.name}</p>
-                <span className="text-label text-muted-foreground">{colCards.length}</span>
+              <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                <p className="text-highlight min-w-0 truncate font-semibold">{col.name}</p>
+                <div className="flex shrink-0 items-center gap-1">
+                  <span
+                    className={cn(
+                      "text-label",
+                      col.wip_limit != null && colCards.length >= col.wip_limit
+                        ? "text-destructive font-semibold"
+                        : "text-muted-foreground",
+                    )}
+                    title={
+                      col.wip_limit != null && colCards.length >= col.wip_limit
+                        ? "Coluna no limite (apenas aviso)"
+                        : undefined
+                    }
+                  >
+                    {col.wip_limit != null ? `${colCards.length} / ${col.wip_limit}` : colCards.length}
+                  </span>
+                  {perms.canWrite && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" aria-label={`Ações da coluna ${col.name}`}>
+                          <MoreVertical className="size-4" aria-hidden />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem className="text-body" onClick={() => openLimit(col)}>
+                          Definir limite
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
               </div>
               <ul className="space-y-2">{colCards.map((card) => renderCard(card))}</ul>
               {perms.canWrite && (
@@ -666,7 +743,7 @@ function Trabalho() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        {(card.assignee_id || card.due_date) && (
+        {(card.assignee_id || card.due_date || (subtasksByCard.get(card.id)?.total ?? 0) > 0) && (
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {card.assignee_id && (
               <Avatar className="size-5" title={memberName(card.assignee_id)}>
@@ -688,6 +765,15 @@ function Trabalho() {
               >
                 <CalendarDays className="size-3.5" aria-hidden />
                 {formatDateBR(card.due_date)}
+              </span>
+            )}
+            {(subtasksByCard.get(card.id)?.total ?? 0) > 0 && (
+              <span
+                className="text-label inline-flex items-center gap-1 text-muted-foreground"
+                title="Subtarefas concluídas"
+              >
+                <ListChecks className="size-3.5" aria-hidden />
+                {subtasksByCard.get(card.id)?.done ?? 0}/{subtasksByCard.get(card.id)?.total ?? 0}
               </span>
             )}
           </div>
@@ -1289,6 +1375,22 @@ function Trabalho() {
       />
 
       <RecordPanel
+        open={limitColumn !== null}
+        onOpenChange={(o) => {
+          if (!o) setLimitColumn(null);
+        }}
+        title={`Limite da coluna ${limitColumn?.name ?? ""}`}
+        description="Deixe vazio para não ter limite. O limite é só um aviso — não bloqueia novos cartões."
+        fields={LIMIT_FIELDS}
+        values={limitValues}
+        onChange={(name, value) => setLimitValues((p) => ({ ...p, [name]: value }))}
+        onSave={saveLimit}
+        saving={columns.update.isPending}
+        idPrefix="limite"
+      />
+
+
+      <RecordPanel
         open={cardPanelOpen}
         onOpenChange={(o) => {
           setCardPanelOpen(o);
@@ -1313,7 +1415,15 @@ function Trabalho() {
         {cardPanelId && (
           <div className="space-y-6 border-t border-border pt-4">
             <div className="space-y-2">
-              <p className="text-highlight font-semibold">Checklist</p>
+              <p className="text-highlight font-semibold">Subtarefas</p>
+              {checklist.length > 0 && (
+                <div className="space-y-1">
+                  <Progress value={Math.round((checklistDone / checklist.length) * 100)} />
+                  <p className="text-label text-muted-foreground">
+                    {checklistDone} de {checklist.length} concluídas
+                  </p>
+                </div>
+              )}
               <ul className="space-y-2">
                 {checklist.map((i) => (
                   <li key={i.id} className="flex items-center gap-2">

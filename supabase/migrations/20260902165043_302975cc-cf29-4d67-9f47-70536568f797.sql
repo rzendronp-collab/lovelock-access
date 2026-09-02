@@ -1,0 +1,1 @@
+alter table public.board_columns add column if not exists wip_limit int;
