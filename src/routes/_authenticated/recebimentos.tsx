@@ -225,7 +225,6 @@ function ReceiptsSection({
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
 
-  const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(() => emptyReceiptValues(""));
   const [toDelete, setToDelete] = useState<PaymentReceiptRow | null>(null);
