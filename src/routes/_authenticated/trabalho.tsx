@@ -267,6 +267,38 @@ function Trabalho() {
     });
   }, [cards.rows, currentBoard, assigneeFilter, userId, dueFilter]);
 
+  const filteredBoardCards = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return boardCards;
+    return boardCards.filter((c) =>
+      [c.title, c.label, c.description, memberName(c.assignee_id)]
+        .join(" ")
+        .toLowerCase()
+        .includes(q),
+    );
+  }, [boardCards, search, memberName]);
+
+  const sortedListCards = useMemo(() => {
+    const priorityRank: Record<string, number> = { baixa: 1, normal: 2, alta: 3, urgente: 4 };
+    const list = [...filteredBoardCards];
+    list.sort((a, b) => {
+      if (sort.column === "due_date") {
+        const da = a.due_date || "9999-12-31";
+        const db = b.due_date || "9999-12-31";
+        return sort.dir === "asc" ? da.localeCompare(db) : db.localeCompare(da);
+      }
+      if (sort.column === "priority") {
+        const pa = priorityRank[a.priority ?? "normal"] ?? 0;
+        const pb = priorityRank[b.priority ?? "normal"] ?? 0;
+        return sort.dir === "asc" ? pa - pb : pb - pa;
+      }
+      return sort.dir === "asc"
+        ? a.title.localeCompare(b.title)
+        : b.title.localeCompare(a.title);
+    });
+    return list;
+  }, [filteredBoardCards, sort]);
+
   const openCard = useMemo(
     () => cards.rows.find((c) => c.id === cardPanelId) ?? null,
     [cards.rows, cardPanelId],
