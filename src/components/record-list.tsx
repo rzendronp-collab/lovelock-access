@@ -49,7 +49,6 @@ export type RecordListProps<T> = {
   hideControls?: boolean;
 };
 
-
 /**
  * Lista ÚNICA de registros do sistema: busca, filtro por categoria/pasta e
  * seletor de cor. Serve para qualquer módulo que liste registros.
@@ -134,7 +133,6 @@ export function RecordList<T>({
           </SelectPillGroup>
         </div>
       )}
-
 
       {!hideControls && colorOptions && colorOptions.length > 0 && onColorChange && (
         <div className="mb-4">

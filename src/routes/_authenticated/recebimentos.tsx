@@ -16,19 +16,13 @@ import {
 import { RecordList } from "@/components/record-list";
 import { Toolbar, ToolbarFilters, ToolbarSearch, ToolbarTabs } from "@/components/toolbar";
 import { TotalCard } from "@/components/total-card";
-import {
-  PeriodPicker,
-  toISODate,
-  usePeriodPicker,
-  type Period,
-} from "@/components/period-picker";
+import { PeriodPicker, toISODate, usePeriodPicker, type Period } from "@/components/period-picker";
 
 import { useRecords } from "@/hooks/use-records";
 import { useOrgId, useOrgRole, usePermissions } from "@/hooks/use-org";
 import { useCurrentProject } from "@/hooks/use-projects";
 import { NoProjectState } from "@/components/project-select";
 import { StripeSection, StripeSummary } from "@/components/stripe-accounts";
-
 
 import { Button } from "@/components/ui/button";
 import { approxBrl, formatDate, formatEuro } from "@/lib/finance";
@@ -197,9 +191,6 @@ function Recebimentos() {
   );
 }
 
-
-
-
 /* ------------------------------- Recebimentos ------------------------------ */
 
 function emptyReceiptValues(accountId: string): Values {
@@ -238,7 +229,6 @@ function ReceiptsSection({
   const perms = usePermissions();
   const { rate } = useEurRate();
 
-
   const receipts = useRecords<PaymentReceiptRow & { id: string }>({
     table: "payment_receipts",
     columns:
@@ -250,11 +240,7 @@ function ReceiptsSection({
     label: "recebimento",
   });
 
-
-  const accountById = useMemo(
-    () => new Map(accounts.map((a) => [a.id, a])),
-    [accounts],
-  );
+  const accountById = useMemo(() => new Map(accounts.map((a) => [a.id, a])), [accounts]);
 
   const fields: FieldDef[] = useMemo(
     () => [
@@ -310,8 +296,8 @@ function ReceiptsSection({
       // Ao escolher a conta, sugere a taxa padrão dela.
       if (name === "account_id") {
         const acc = accountById.get(String(value));
-        if (acc && !String(prev['fee_percent'] ?? "").trim()) {
-          next['fee_percent'] = String(acc.fee_percent);
+        if (acc && !String(prev["fee_percent"] ?? "").trim()) {
+          next["fee_percent"] = String(acc.fee_percent);
         }
       }
       return next;
@@ -321,7 +307,7 @@ function ReceiptsSection({
   const save = useMutation({
     mutationFn: async () => {
       if (!orgId) throw new Error("Sem empresa");
-      const accountId = String(values['account_id'] ?? "") || null;
+      const accountId = String(values["account_id"] ?? "") || null;
       await saveReceipt({
         orgId,
         projectId,
@@ -329,12 +315,12 @@ function ReceiptsSection({
 
         input: {
           account_id: accountId,
-          date: String(values['date'] ?? ""),
-          description: String(values['description'] ?? "").trim(),
-          gross: toNumber(values['gross']),
-          fee_percent: toNumber(values['fee_percent']),
-          paid_out: Boolean(values['paid_out']),
-          external_id: String(values['external_id'] ?? "").trim() || null,
+          date: String(values["date"] ?? ""),
+          description: String(values["description"] ?? "").trim(),
+          gross: toNumber(values["gross"]),
+          fee_percent: toNumber(values["fee_percent"]),
+          paid_out: Boolean(values["paid_out"]),
+          external_id: String(values["external_id"] ?? "").trim() || null,
         },
         accountName: accountId ? (accountById.get(accountId)?.name ?? "") : "",
       });
@@ -384,10 +370,26 @@ function ReceiptsSection({
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <TotalCard label="Bruto" value={formatEuro(summary.gross)} sub={approxBrl(summary.gross, rate)} />
-        <TotalCard label="Taxas" value={formatEuro(summary.fee)} sub={approxBrl(summary.fee, rate)} />
-        <TotalCard label="Líquido" value={formatEuro(summary.net)} sub={approxBrl(summary.net, rate)} />
-        <TotalCard label="A cair" value={formatEuro(summary.pending)} sub={approxBrl(summary.pending, rate)} />
+        <TotalCard
+          label="Bruto"
+          value={formatEuro(summary.gross)}
+          sub={approxBrl(summary.gross, rate)}
+        />
+        <TotalCard
+          label="Taxas"
+          value={formatEuro(summary.fee)}
+          sub={approxBrl(summary.fee, rate)}
+        />
+        <TotalCard
+          label="Líquido"
+          value={formatEuro(summary.net)}
+          sub={approxBrl(summary.net, rate)}
+        />
+        <TotalCard
+          label="A cair"
+          value={formatEuro(summary.pending)}
+          sub={approxBrl(summary.pending, rate)}
+        />
       </div>
 
       <AppCard
@@ -442,7 +444,9 @@ function ReceiptsSection({
                 </p>
                 <p className="text-label text-muted-foreground">
                   {[
-                    r.account_id ? (accountById.get(r.account_id)?.name ?? "conta removida") : "sem conta",
+                    r.account_id
+                      ? (accountById.get(r.account_id)?.name ?? "conta removida")
+                      : "sem conta",
                     `bruto ${formatEuro(Number(r.gross))}`,
                     `taxa ${Number(r.fee_percent)}%`,
                   ].join(" · ")}
@@ -503,9 +507,7 @@ function ReceiptsSection({
             {forecast.map(([when, amount]) => (
               <li key={when} className="flex items-center justify-between py-2">
                 <span className="text-body">{formatDate(when)}</span>
-                <span className="text-body font-semibold text-primary">
-                  {formatEuro(amount)}
-                </span>
+                <span className="text-body font-semibold text-primary">{formatEuro(amount)}</span>
               </li>
             ))}
           </ul>
@@ -526,7 +528,7 @@ function ReceiptsSection({
       >
         <p className="text-label text-muted-foreground">
           Líquido:{" "}
-          {formatEuro(netAmount(toNumber(values['gross']), toNumber(values['fee_percent'])))}
+          {formatEuro(netAmount(toNumber(values["gross"]), toNumber(values["fee_percent"])))}
         </p>
       </RecordPanel>
 
@@ -645,34 +647,34 @@ function AccountsSection({
               </div>
               <div className="flex items-center gap-1">
                 {perms.canWrite && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Editar conta"
-                  onClick={() => {
-                    setEditingId(a.id);
-                    setValues({
-                      name: a.name,
-                      provider: a.provider,
-                      fee_percent: String(a.fee_percent),
-                      payout_days: String(a.payout_days),
-                      color: a.color,
-                    });
-                    setOpen(true);
-                  }}
-                >
-                  <Pencil className="size-4" aria-hidden />
-                </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Editar conta"
+                    onClick={() => {
+                      setEditingId(a.id);
+                      setValues({
+                        name: a.name,
+                        provider: a.provider,
+                        fee_percent: String(a.fee_percent),
+                        payout_days: String(a.payout_days),
+                        color: a.color,
+                      });
+                      setOpen(true);
+                    }}
+                  >
+                    <Pencil className="size-4" aria-hidden />
+                  </Button>
                 )}
                 {perms.canDelete(a.created_by) && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Excluir conta"
-                  onClick={() => setToDelete(a.id)}
-                >
-                  <Trash2 className="size-4" aria-hidden />
-                </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Excluir conta"
+                    onClick={() => setToDelete(a.id)}
+                  >
+                    <Trash2 className="size-4" aria-hidden />
+                  </Button>
                 )}
               </div>
             </>
@@ -692,11 +694,11 @@ function AccountsSection({
             {
               id: editingId,
               values: {
-                name: String(values['name'] ?? "").trim(),
-                provider: String(values['provider'] ?? "").trim(),
-                fee_percent: toNumber(values['fee_percent']),
-                payout_days: Math.max(0, Number(values['payout_days']) || 0),
-                color: String(values['color'] ?? "#64748b"),
+                name: String(values["name"] ?? "").trim(),
+                provider: String(values["provider"] ?? "").trim(),
+                fee_percent: toNumber(values["fee_percent"]),
+                payout_days: Math.max(0, Number(values["payout_days"]) || 0),
+                color: String(values["color"] ?? "#64748b"),
               },
             },
             { onSuccess: () => setOpen(false) },
@@ -887,16 +889,16 @@ function ConnectionsSection({
         values={values}
         onChange={(name, value) => setValues((p) => ({ ...p, [name]: value }))}
         onSave={() => {
-          const last4 = String(values['key_last4'] ?? "").trim();
+          const last4 = String(values["key_last4"] ?? "").trim();
           const mask = last4 ? maskKey(last4) : editingId ? undefined : null;
           records.save.mutate(
             {
               id: editingId,
               values: {
-                provider: String(values['provider'] ?? "").trim(),
-                label: String(values['label'] ?? "").trim(),
-                secret_ref: String(values['secret_ref'] ?? "").trim() || null,
-                status: String(values['status'] ?? "desconectado"),
+                provider: String(values["provider"] ?? "").trim(),
+                label: String(values["label"] ?? "").trim(),
+                secret_ref: String(values["secret_ref"] ?? "").trim() || null,
+                status: String(values["status"] ?? "desconectado"),
                 ...(mask === undefined ? {} : { key_mask: mask }),
               },
             },

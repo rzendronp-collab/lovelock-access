@@ -75,7 +75,7 @@ type TrabalhoSearch = { cartao?: string };
 
 export const Route = createFileRoute("/_authenticated/trabalho")({
   validateSearch: (search: Record<string, unknown>): TrabalhoSearch =>
-    search['cartao'] ? { cartao: String(search['cartao']) } : {},
+    search["cartao"] ? { cartao: String(search["cartao"]) } : {},
   head: () => ({
     meta: [
       { title: "Trabalho | EuroHub" },
@@ -171,14 +171,15 @@ function Trabalho() {
   const { data: members = [] } = useOrgMembers();
   const [newCardColumn, setNewCardColumn] = useState<string | null>(null);
 
-
-
   const [boardId, setBoardId] = useState<string>("");
   const [assigneeFilter, setAssigneeFilter] = useState<"" | "meus" | "sem">("");
   const [dueFilter, setDueFilter] = useState<DueFilter>("");
   const [view, setView] = useState<View>("kanban");
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<{ column: "due_date" | "priority" | "title"; dir: "asc" | "desc" }>({
+  const [sort, setSort] = useState<{
+    column: "due_date" | "priority" | "title";
+    dir: "asc" | "desc";
+  }>({
     column: "due_date",
     dir: "asc",
   });
@@ -211,7 +212,6 @@ function Trabalho() {
     trackCreatedBy: true,
     label: "quadro",
   });
-
 
   const columns = useRecords<ColumnRow>({
     table: "board_columns",
@@ -300,9 +300,7 @@ function Trabalho() {
         const pb = priorityRank[b.priority ?? "normal"] ?? 0;
         return sort.dir === "asc" ? pa - pb : pb - pa;
       }
-      return sort.dir === "asc"
-        ? a.title.localeCompare(b.title)
-        : b.title.localeCompare(a.title);
+      return sort.dir === "asc" ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title);
     });
     return list;
   }, [filteredBoardCards, sort]);
@@ -391,24 +389,22 @@ function Trabalho() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedCard, cards.rows]);
 
-
-
   function saveCard() {
-    const title = String(cardValues['title'] ?? "").trim();
+    const title = String(cardValues["title"] ?? "").trim();
     if (!title) {
       toast.error("Informe o título do cartão.");
       return;
     }
     const values = {
       title,
-      description: String(cardValues['description'] ?? ""),
-      assignee_id: String(cardValues['assignee_id'] ?? "") || null,
-      due_date: String(cardValues['due_date'] ?? "") || null,
-      label: String(cardValues['label'] ?? ""),
-      color: String(cardValues['color'] ?? ""),
-      priority: String(cardValues['priority'] ?? "normal"),
-      done: Boolean(cardValues['done']),
-      contact_id: String(cardValues['contact_id'] ?? "") || null,
+      description: String(cardValues["description"] ?? ""),
+      assignee_id: String(cardValues["assignee_id"] ?? "") || null,
+      due_date: String(cardValues["due_date"] ?? "") || null,
+      label: String(cardValues["label"] ?? ""),
+      color: String(cardValues["color"] ?? ""),
+      priority: String(cardValues["priority"] ?? "normal"),
+      done: Boolean(cardValues["done"]),
+      contact_id: String(cardValues["contact_id"] ?? "") || null,
     };
 
     if (!cardPanelId) {
@@ -430,10 +426,7 @@ function Trabalho() {
       return;
     }
 
-    cards.update.mutate(
-      { id: cardPanelId, values },
-      { onSuccess: () => setCardPanelOpen(false) },
-    );
+    cards.update.mutate({ id: cardPanelId, values }, { onSuccess: () => setCardPanelOpen(false) });
   }
 
   function newCard(columnId: string) {
@@ -457,13 +450,13 @@ function Trabalho() {
   }
 
   function saveBoard() {
-    const name = String(boardValues['name'] ?? "").trim();
+    const name = String(boardValues["name"] ?? "").trim();
     if (!name) {
       toast.error("Informe o nome do quadro.");
       return;
     }
     boards.create.mutate(
-      { name, folder: String(boardValues['folder'] ?? "") },
+      { name, folder: String(boardValues["folder"] ?? "") },
       {
         onSuccess: () => {
           setBoardPanel(false);
@@ -475,7 +468,7 @@ function Trabalho() {
 
   function saveColumn() {
     if (!currentBoard) return;
-    const name = String(columnValues['name'] ?? "").trim();
+    const name = String(columnValues["name"] ?? "").trim();
     if (!name) {
       toast.error("Informe o nome da coluna.");
       return;
@@ -484,7 +477,7 @@ function Trabalho() {
       {
         board_id: currentBoard.id,
         name,
-        position: Number(columnValues['position'] ?? 0) || boardColumns.length,
+        position: Number(columnValues["position"] ?? 0) || boardColumns.length,
       },
       {
         onSuccess: () => {
@@ -573,9 +566,7 @@ function Trabalho() {
                 <p className="text-highlight font-semibold">{col.name}</p>
                 <span className="text-label text-muted-foreground">{colCards.length}</span>
               </div>
-              <ul className="space-y-2">
-                {colCards.map((card) => renderCard(card))}
-              </ul>
+              <ul className="space-y-2">{colCards.map((card) => renderCard(card))}</ul>
               {perms.canWrite && (
                 <Button
                   variant="ghost"
@@ -777,7 +768,9 @@ function Trabalho() {
                     <SortHeader column="title">Título</SortHeader>
                     <TableHead>Responsável</TableHead>
                     <SortHeader column="due_date">Prazo</SortHeader>
-                    <SortHeader column="priority" align="right">Prioridade</SortHeader>
+                    <SortHeader column="priority" align="right">
+                      Prioridade
+                    </SortHeader>
                     <TableHead>Etiqueta</TableHead>
                     <TableHead className="w-10"></TableHead>
                   </TableRow>
@@ -843,7 +836,9 @@ function Trabalho() {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <span className="text-body">{priorityLabel(card.priority ?? "normal")}</span>
+                        <span className="text-body">
+                          {priorityLabel(card.priority ?? "normal")}
+                        </span>
                       </TableCell>
                       <TableCell>
                         {card.label ? (
@@ -875,7 +870,9 @@ function Trabalho() {
                             {perms.canWrite && (
                               <>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuLabel className="text-label">Mover para…</DropdownMenuLabel>
+                                <DropdownMenuLabel className="text-label">
+                                  Mover para…
+                                </DropdownMenuLabel>
                                 {boardColumns.map((target) => (
                                   <DropdownMenuItem
                                     key={target.id}
@@ -968,21 +965,11 @@ function Trabalho() {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-body"
-            onClick={() => changeMonth(-1)}
-          >
+          <Button variant="outline" size="sm" className="text-body" onClick={() => changeMonth(-1)}>
             <ChevronLeft className="size-4" aria-hidden /> Mês anterior
           </Button>
           <p className="text-highlight font-semibold capitalize">{monthLabel}</p>
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-body"
-            onClick={() => changeMonth(1)}
-          >
+          <Button variant="outline" size="sm" className="text-body" onClick={() => changeMonth(1)}>
             Próximo mês <ChevronRight className="size-4" aria-hidden />
           </Button>
         </div>
@@ -998,7 +985,12 @@ function Trabalho() {
             <div key={wi} className="grid grid-cols-7">
               {week.map((day, di) => {
                 if (day === 0) {
-                  return <div key={`${wi}-${di}`} className="min-h-28 border-b border-r border-border bg-muted/20" />;
+                  return (
+                    <div
+                      key={`${wi}-${di}`}
+                      className="min-h-28 border-b border-r border-border bg-muted/20"
+                    />
+                  );
                 }
                 const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                 const dayCards = calendarCardsByDay.get(iso) ?? [];
@@ -1057,7 +1049,9 @@ function Trabalho() {
         </div>
         {undated.length > 0 && (
           <div className="rounded-md border border-border p-3">
-            <p className="text-highlight font-semibold mb-2">Sem data definida · {undated.length}</p>
+            <p className="text-highlight font-semibold mb-2">
+              Sem data definida · {undated.length}
+            </p>
             <div className="flex flex-wrap gap-2">
               {undated.map((card) => (
                 <button
@@ -1069,7 +1063,10 @@ function Trabalho() {
                     card.done && "text-muted-foreground line-through opacity-70",
                   )}
                 >
-                  <span aria-hidden className={cn("size-2 rounded-full", colorSwatch(card.color))} />
+                  <span
+                    aria-hidden
+                    className={cn("size-2 rounded-full", colorSwatch(card.color))}
+                  />
                   {card.title}
                 </button>
               ))}
@@ -1093,11 +1090,7 @@ function Trabalho() {
 
   return (
     <>
-
-      <PageHeader
-        title="Trabalho"
-        subtitle="Quadros, colunas e cartões da sua equipe."
-      />
+      <PageHeader title="Trabalho" subtitle="Quadros, colunas e cartões da sua equipe." />
 
       {loading ? (
         <AppCard>
@@ -1218,47 +1211,43 @@ function Trabalho() {
             />
 
             {/* Filters popover */}
-            <ToolbarFilters
-              activeCount={(assigneeFilter ? 1 : 0) + (dueFilter ? 1 : 0)}
-            >
-
-                <div>
-                  <p className="text-label mb-2 font-medium text-muted-foreground">Responsável</p>
-                  <SelectPillGroup>
-                    <SelectPill active={!assigneeFilter} onClick={() => setAssigneeFilter("")}>
-                      Todos
-                    </SelectPill>
+            <ToolbarFilters activeCount={(assigneeFilter ? 1 : 0) + (dueFilter ? 1 : 0)}>
+              <div>
+                <p className="text-label mb-2 font-medium text-muted-foreground">Responsável</p>
+                <SelectPillGroup>
+                  <SelectPill active={!assigneeFilter} onClick={() => setAssigneeFilter("")}>
+                    Todos
+                  </SelectPill>
+                  <SelectPill
+                    active={assigneeFilter === "meus"}
+                    onClick={() => setAssigneeFilter("meus")}
+                  >
+                    Meus cartões
+                  </SelectPill>
+                  <SelectPill
+                    active={assigneeFilter === "sem"}
+                    onClick={() => setAssigneeFilter("sem")}
+                  >
+                    Sem responsável
+                  </SelectPill>
+                </SelectPillGroup>
+              </div>
+              <div>
+                <p className="text-label mb-2 font-medium text-muted-foreground">Prazo</p>
+                <SelectPillGroup>
+                  {DUE_OPTIONS.map((o) => (
                     <SelectPill
-                      active={assigneeFilter === "meus"}
-                      onClick={() => setAssigneeFilter("meus")}
+                      key={o.value || "todos"}
+                      active={dueFilter === o.value}
+                      onClick={() => setDueFilter(o.value)}
                     >
-                      Meus cartões
+                      {o.label}
                     </SelectPill>
-                    <SelectPill
-                      active={assigneeFilter === "sem"}
-                      onClick={() => setAssigneeFilter("sem")}
-                    >
-                      Sem responsável
-                    </SelectPill>
-                  </SelectPillGroup>
-                </div>
-                <div>
-                  <p className="text-label mb-2 font-medium text-muted-foreground">Prazo</p>
-                  <SelectPillGroup>
-                    {DUE_OPTIONS.map((o) => (
-                      <SelectPill
-                        key={o.value || "todos"}
-                        active={dueFilter === o.value}
-                        onClick={() => setDueFilter(o.value)}
-                      >
-                        {o.label}
-                      </SelectPill>
-                    ))}
-                  </SelectPillGroup>
-                </div>
+                  ))}
+                </SelectPillGroup>
+              </div>
             </ToolbarFilters>
           </Toolbar>
-
 
           {view === "kanban" ? (
             renderKanban()
