@@ -45,7 +45,10 @@ export type RecordListProps<T> = {
   onRetry?: () => void;
   empty?: { title: string; message?: string; icon?: ReactNode; action?: ReactNode };
   toolbarExtra?: ReactNode;
+  /** Esconde busca/filtros internos quando o módulo já os mostra na barra do topo. */
+  hideControls?: boolean;
 };
+
 
 /**
  * Lista ÚNICA de registros do sistema: busca, filtro por categoria/pasta e
