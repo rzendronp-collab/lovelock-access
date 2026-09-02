@@ -84,3 +84,36 @@ export function usePermissions() {
 
   return { role, userId: userId ?? null, isAdmin, canWrite, isReadOnly, canDelete, isLoading };
 }
+
+export type OrgMember = { user_id: string; full_name: string; role: string };
+
+/** Pessoas da empresa atual (memberships + profiles) — alimenta seletores de responsável. */
+export function useOrgMembers() {
+  const { data: orgId } = useOrgId();
+  return useQuery({
+    queryKey: ["org-members", orgId ?? null],
+    enabled: !!orgId,
+    queryFn: async (): Promise<OrgMember[]> => {
+      const { data: members, error } = await supabase
+        .from("memberships")
+        .select("user_id, role")
+        .eq("org_id", orgId!);
+      if (error) throw error;
+      const ids = (members ?? []).map((m) => m.user_id);
+      if (ids.length === 0) return [];
+      const { data: profiles, error: pErr } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", ids);
+      if (pErr) throw pErr;
+      const nameById = new Map((profiles ?? []).map((p) => [p.id, p.full_name]));
+      return (members ?? [])
+        .map((m) => ({
+          user_id: m.user_id,
+          full_name: nameById.get(m.user_id) ?? "Sem nome",
+          role: m.role,
+        }))
+        .sort((a, b) => a.full_name.localeCompare(b.full_name));
+    },
+  });
+}
