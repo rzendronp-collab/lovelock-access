@@ -603,6 +603,28 @@ function Trabalho() {
 
           <AppCard title="Filtros">
             <div className="space-y-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <SelectPillGroup>
+                  <SelectPill active={view === "kanban"} onClick={() => setView("kanban")}>
+                    Kanban
+                  </SelectPill>
+                  <SelectPill active={view === "lista"} onClick={() => setView("lista")}>
+                    Lista
+                  </SelectPill>
+                  <SelectPill active={view === "calendario"} onClick={() => setView("calendario")}>
+                    Calendário
+                  </SelectPill>
+                </SelectPillGroup>
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+                  <Input
+                    placeholder="Buscar cartões…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9 text-body"
+                  />
+                </div>
+              </div>
               <SelectPillGroup>
                 <SelectPill active={!assigneeFilter} onClick={() => setAssigneeFilter("")}>
                   Todos
