@@ -151,6 +151,16 @@ const COLUMN_FIELDS: FieldDef[] = [
   { name: "position", label: "Ordem", type: "number", min: 0 },
 ];
 
+const LIMIT_FIELDS: FieldDef[] = [
+  {
+    name: "wip_limit",
+    label: "Máximo de cartões",
+    type: "number",
+    min: 1,
+    placeholder: "Vazio = sem limite",
+  },
+];
+
 const DUE_OPTIONS: { value: DueFilter; label: string }[] = [
   { value: "", label: "Todos os prazos" },
   { value: "atrasado", label: "Atrasado" },
