@@ -107,6 +107,7 @@ type ColumnRow = {
   board_id: string;
   name: string;
   position: number;
+  wip_limit: number | null;
 };
 
 type CardRow = {
