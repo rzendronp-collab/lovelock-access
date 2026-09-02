@@ -771,18 +771,71 @@ function Trabalho() {
   }
 
   function renderCard(card: CardRow) {
+    const focused = focusedCardId === card.id;
     return (
       <li
         key={card.id}
         draggable={perms.canWrite}
         onDragStart={(e) => e.dataTransfer.setData("text/plain", card.id)}
-        className="relative overflow-hidden rounded-md border border-border bg-background p-3 pl-4"
+        onMouseDown={() => setFocusedCardId(card.id)}
+        className={cn(
+          "group relative overflow-hidden rounded-md border border-border bg-background pl-4",
+          compact ? "p-2 pl-4" : "p-3 pl-4",
+          focused && "ring-2 ring-primary ring-offset-1 ring-offset-background",
+        )}
       >
         <span
           aria-hidden
           className={cn("absolute inset-y-0 left-0 w-1", priorityBar(card.priority ?? "normal"))}
         />
-        {card.label && (
+
+        {/* Ações rápidas — só no hover, em telas com mouse. */}
+        <div className="pointer-events-none absolute right-1 top-1 hidden opacity-0 transition-opacity group-hover:opacity-100 md:flex md:group-hover:pointer-events-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6"
+            aria-label="Abrir cartão"
+            onClick={() => openCardPanel(card)}
+          >
+            <Pencil className="size-3.5" aria-hidden />
+          </Button>
+          {perms.canWrite && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                aria-label="Duplicar cartão"
+                onClick={() => cards.duplicate.mutate({ ...card })}
+              >
+                <Copy className="size-3.5" aria-hidden />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="size-6" aria-label="Mover cartão">
+                    <MoveRight className="size-3.5" aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel className="text-label">Mover para…</DropdownMenuLabel>
+                  {boardColumns.map((target) => (
+                    <DropdownMenuItem
+                      key={target.id}
+                      className="text-body"
+                      disabled={target.id === card.column_id}
+                      onClick={() => moveCard(card, target.id)}
+                    >
+                      {target.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
+        </div>
+
+        {card.label && !compact && (
           <span className="text-label mb-2 inline-flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-muted-foreground">
             <span aria-hidden className={cn("size-2 rounded-full", colorSwatch(card.color))} />
             {card.label}
