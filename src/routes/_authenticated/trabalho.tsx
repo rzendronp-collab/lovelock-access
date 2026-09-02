@@ -757,6 +757,15 @@ function Trabalho() {
                 {formatDateBR(card.due_date)}
               </span>
             )}
+            {(subtasksByCard.get(card.id)?.total ?? 0) > 0 && (
+              <span
+                className="text-label inline-flex items-center gap-1 text-muted-foreground"
+                title="Subtarefas concluídas"
+              >
+                <ListChecks className="size-3.5" aria-hidden />
+                {subtasksByCard.get(card.id)?.done ?? 0}/{subtasksByCard.get(card.id)?.total ?? 0}
+              </span>
+            )}
           </div>
         )}
       </li>
