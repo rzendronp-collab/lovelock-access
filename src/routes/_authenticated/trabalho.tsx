@@ -921,6 +921,13 @@ function Trabalho() {
     );
   }
 
+  function changeMonth(delta: number) {
+    setCalendarMonth((prev) => {
+      const date = new Date(prev.year, prev.month + delta, 1);
+      return { year: date.getFullYear(), month: date.getMonth() };
+    });
+  }
+
   function renderCalendar() {
     const { year, month } = calendarMonth;
     const firstDay = new Date(year, month, 1);
@@ -940,18 +947,6 @@ function Trabalho() {
       while (currentWeek.length < 7) currentWeek.push(0);
       weeks.push(currentWeek);
     }
-
-    const cardsByDay = useMemo(() => {
-      const map = new Map<string, CardRow[]>();
-      for (const card of filteredBoardCards) {
-        if (!card.due_date) continue;
-        const key = card.due_date;
-        const list = map.get(key) ?? [];
-        list.push(card);
-        map.set(key, list);
-      }
-      return map;
-    }, [filteredBoardCards]);
 
     const undated = filteredBoardCards.filter((c) => !c.due_date);
     const monthLabel = firstDay.toLocaleString("pt-BR", { month: "long", year: "numeric" });
