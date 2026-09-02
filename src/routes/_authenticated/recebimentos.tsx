@@ -376,10 +376,6 @@ function ReceiptsSection({
 
   return (
     <>
-      <AppCard title="Período" subtitle="Escolha o intervalo dos números abaixo.">
-        <PeriodPicker value={key} onChange={setKey} custom={custom} onCustomChange={setCustom} />
-      </AppCard>
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <TotalCard label="Bruto" value={formatEuro(summary.gross)} sub={approxBrl(summary.gross, rate)} />
         <TotalCard label="Taxas" value={formatEuro(summary.fee)} sub={approxBrl(summary.fee, rate)} />
@@ -404,13 +400,10 @@ function ReceiptsSection({
           getSearchText={(r) => `${r.description} ${r.external_id ?? ""}`}
           getGroup={(r) => (r.account_id ? (accountById.get(r.account_id)?.name ?? "") : "")}
           search={search}
-          onSearchChange={setSearch}
-          searchId="busca-recebimentos"
-          searchLabel="Buscar descrição"
-          searchPlaceholder="Ex.: venda site"
+          onSearchChange={() => undefined}
           group={group}
-          onGroupChange={setGroup}
-          groupAllLabel="Todas as contas"
+          hideControls
+
           loading={receipts.isLoading}
           error={receipts.error}
           onRetry={receipts.refetch}
