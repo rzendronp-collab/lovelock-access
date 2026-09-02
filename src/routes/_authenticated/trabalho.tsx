@@ -1078,13 +1078,6 @@ function Trabalho() {
     );
   }
 
-  function changeMonth(delta: number) {
-    setCalendarMonth((prev) => {
-      const date = new Date(prev.year, prev.month + delta, 1);
-      return { year: date.getFullYear(), month: date.getMonth() };
-    });
-  }
-
   if (!projectId) {
     return (
       <>
