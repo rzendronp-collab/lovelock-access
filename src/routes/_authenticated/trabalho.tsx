@@ -171,6 +171,16 @@ function Trabalho() {
   const [folder, setFolder] = useState("");
   const [assigneeFilter, setAssigneeFilter] = useState<"" | "meus" | "sem">("");
   const [dueFilter, setDueFilter] = useState<DueFilter>("");
+  const [view, setView] = useState<View>("kanban");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<{ column: "due_date" | "priority" | "title"; dir: "asc" | "desc" }>({
+    column: "due_date",
+    dir: "asc",
+  });
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() };
+  });
 
   const [boardPanel, setBoardPanel] = useState(false);
   const [boardValues, setBoardValues] = useState<Values>({ name: "", folder: "" });
