@@ -16,6 +16,7 @@ import {
   type FieldValue,
 } from "@/components/detail-panel";
 import { RecordList } from "@/components/record-list";
+import { BudgetSection } from "@/components/budget-section";
 import { TotalCard } from "@/components/total-card";
 import {
   PeriodPicker,
@@ -92,7 +93,7 @@ export const Route = createFileRoute("/_authenticated/dinheiro")({
   component: Dinheiro,
 });
 
-type Tab = "lancamentos" | "fixas" | "categorias" | "saldo";
+type Tab = "lancamentos" | "orcamento" | "fixas" | "categorias" | "saldo";
 
 type Values = Record<string, FieldValue>;
 
@@ -337,6 +338,9 @@ function Dinheiro() {
         <SelectPill active={tab === "lancamentos"} onClick={() => setTab("lancamentos")}>
           Lançamentos
         </SelectPill>
+        <SelectPill active={tab === "orcamento"} onClick={() => setTab("orcamento")}>
+          Orçado vs realizado
+        </SelectPill>
         <SelectPill active={tab === "fixas"} onClick={() => setTab("fixas")}>
           Despesas fixas
         </SelectPill>
@@ -475,6 +479,15 @@ function Dinheiro() {
         </>
       )}
 
+      {tab === "orcamento" && (
+        <BudgetSection
+          orgId={orgId ?? null}
+          projectId={projectId}
+          categories={categories}
+          allEntries={allEntries}
+          fixedRows={fixedRows}
+        />
+      )}
       {tab === "fixas" && <FixedCostsSection records={fixed} />}
       {tab === "categorias" && <CategoriesSection categories={categories} />}
       {tab === "saldo" && (
