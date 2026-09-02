@@ -174,7 +174,6 @@ function Trabalho() {
 
 
   const [boardId, setBoardId] = useState<string>("");
-  const [folder, setFolder] = useState("");
   const [assigneeFilter, setAssigneeFilter] = useState<"" | "meus" | "sem">("");
   const [dueFilter, setDueFilter] = useState<DueFilter>("");
   const [view, setView] = useState<View>("kanban");
@@ -247,14 +246,9 @@ function Trabalho() {
     return [...set].sort();
   }, [boards.rows]);
 
-  const visibleBoards = useMemo(
-    () => boards.rows.filter((b) => !folder || b.folder === folder),
-    [boards.rows, folder],
-  );
-
   const currentBoard = useMemo(
-    () => visibleBoards.find((b) => b.id === boardId) ?? visibleBoards[0] ?? null,
-    [visibleBoards, boardId],
+    () => boards.rows.find((b) => b.id === boardId) ?? boards.rows[0] ?? null,
+    [boards.rows, boardId],
   );
 
   const boardColumns = useMemo(
