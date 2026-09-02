@@ -71,6 +71,8 @@ const OPTIONS: { key: PeriodKey; label: string }[] = [
   { key: "7d", label: "7 dias" },
   { key: "mes", label: "1 mês" },
   { key: "3meses", label: "3 meses" },
+  { key: "trimestre", label: "Trimestre" },
+  { key: "ano", label: "Ano" },
   { key: "custom", label: "Personalizado" },
 ];
 
