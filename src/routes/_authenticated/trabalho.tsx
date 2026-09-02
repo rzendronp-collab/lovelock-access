@@ -1191,63 +1191,37 @@ function Trabalho() {
             </div>
 
             {/* View selector */}
-            <SelectPillGroup>
-              <SelectPill
-                active={view === "kanban"}
-                onClick={() => setView("kanban")}
-                className="gap-1.5"
-              >
-                <LayoutTemplate className="size-3.5" aria-hidden />
-                Kanban
-              </SelectPill>
-              <SelectPill
-                active={view === "lista"}
-                onClick={() => setView("lista")}
-                className="gap-1.5"
-              >
-                <List className="size-3.5" aria-hidden />
-                Lista
-              </SelectPill>
-              <SelectPill
-                active={view === "calendario"}
-                onClick={() => setView("calendario")}
-                className="gap-1.5"
-              >
-                <CalendarDays className="size-3.5" aria-hidden />
-                Calendário
-              </SelectPill>
-            </SelectPillGroup>
+            <ToolbarTabs<typeof view>
+              value={view}
+              onChange={setView}
+              options={[
+                {
+                  value: "kanban",
+                  label: "Kanban",
+                  icon: <LayoutTemplate className="size-3.5" aria-hidden />,
+                },
+                { value: "lista", label: "Lista", icon: <List className="size-3.5" aria-hidden /> },
+                {
+                  value: "calendario",
+                  label: "Calendário",
+                  icon: <CalendarDays className="size-3.5" aria-hidden />,
+                },
+              ]}
+            />
 
             {/* Search */}
-            <div className="relative min-w-[8rem] flex-1 sm:max-w-[14rem]">
-              <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-              <Input
-                placeholder="Buscar cartões…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="h-8 pl-8 text-body transition-all focus:min-w-[12rem]"
-              />
-            </div>
+            <ToolbarSearch
+              value={search}
+              onChange={setSearch}
+              label="Buscar cartões"
+              placeholder="Buscar cartões…"
+            />
 
             {/* Filters popover */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-body h-8 gap-1"
-                >
-                  <Filter className="size-4" aria-hidden />
-                  Filtros
-                  {(assigneeFilter || dueFilter) && (
-                    <span className="text-label ml-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 font-medium text-primary-foreground">
-                      {(assigneeFilter ? 1 : 0) + (dueFilter ? 1 : 0)}
-                    </span>
-                  )}
-                  <ChevronDown className="size-4" aria-hidden />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-72 space-y-4">
+            <ToolbarFilters
+              activeCount={(assigneeFilter ? 1 : 0) + (dueFilter ? 1 : 0)}
+            >
+
                 <div>
                   <p className="text-label mb-2 font-medium text-muted-foreground">Responsável</p>
                   <SelectPillGroup>
