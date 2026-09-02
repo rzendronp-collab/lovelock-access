@@ -6,12 +6,18 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Copy,
   Filter,
+  Keyboard,
   LayoutTemplate,
   List,
   ListChecks,
   MoreVertical,
+  MoveRight,
+  Pencil,
   Plus,
+  Rows2,
+  Rows3,
   Search,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -50,6 +56,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Toolbar, ToolbarFilters, ToolbarSearch, ToolbarTabs } from "@/components/toolbar";
 import { Progress } from "@/components/ui/progress";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRecords } from "@/hooks/use-records";
 import { useContactField } from "@/hooks/use-contacts";
 import { useOrgId, useOrgMembers, usePermissions, useUserId } from "@/hooks/use-org";
@@ -71,6 +78,16 @@ import {
 import { cn } from "@/lib/utils";
 
 type View = "kanban" | "lista" | "calendario";
+
+const DENSITY_KEY = "eurohub:trabalho:densidade";
+
+const SHORTCUTS: { keys: string; label: string }[] = [
+  { keys: "N", label: "Novo cartão na coluna em foco" },
+  { keys: "↑ / ↓", label: "Navegar entre cartões da coluna" },
+  { keys: "Enter", label: "Abrir detalhe do cartão em foco" },
+  { keys: "E", label: "Editar o cartão em foco" },
+  { keys: "Esc", label: "Fechar painel aberto" },
+];
 
 type TrabalhoSearch = { cartao?: string };
 
@@ -188,6 +205,21 @@ function Trabalho() {
   const [dueFilter, setDueFilter] = useState<DueFilter>("");
   const [view, setView] = useState<View>("kanban");
   const [search, setSearch] = useState("");
+  /** Densidade dos cartões — só apresentação, persistida no navegador. */
+  const [density, setDensity] = useState<"confortavel" | "compacto">("confortavel");
+  const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
+  const compact = density === "compacto";
+
+  useEffect(() => {
+    const saved = localStorage.getItem(DENSITY_KEY);
+    if (saved === "compacto" || saved === "confortavel") setDensity(saved);
+  }, []);
+
+  function changeDensity(next: "confortavel" | "compacto") {
+    setDensity(next);
+    localStorage.setItem(DENSITY_KEY, next);
+  }
+
   const [sort, setSort] = useState<{
     column: "due_date" | "priority" | "title";
     dir: "asc" | "desc";
@@ -563,6 +595,80 @@ function Trabalho() {
     );
   }
 
+  // Atalhos de teclado do quadro — ignorados quando o foco está num campo de texto.
+  useEffect(() => {
+    function isTyping(target: EventTarget | null) {
+      const el = target as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName;
+      return (
+        tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable === true
+      );
+    }
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (isTyping(e.target)) return;
+
+      if (e.key === "Escape") {
+        if (cardPanelOpen) setCardPanelOpen(false);
+        if (boardPanel) setBoardPanel(false);
+        if (columnPanel) setColumnPanel(false);
+        if (limitColumn) setLimitColumn(null);
+        return;
+      }
+
+      if (view !== "kanban" || cardPanelOpen) return;
+
+      const focused = focusedCardId
+        ? (filteredBoardCards.find((c) => c.id === focusedCardId) ?? null)
+        : null;
+      const columnId = focused?.column_id ?? boardColumns[0]?.id ?? null;
+      const colCards = filteredBoardCards.filter((c) => c.column_id === columnId);
+
+      const key = e.key.toLowerCase();
+
+      if (key === "n") {
+        if (!perms.canWrite || !columnId) return;
+        e.preventDefault();
+        newCard(columnId);
+        return;
+      }
+
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        if (colCards.length === 0) return;
+        e.preventDefault();
+        const index = focused ? colCards.findIndex((c) => c.id === focused.id) : -1;
+        const next =
+          e.key === "ArrowDown"
+            ? Math.min(colCards.length - 1, index + 1)
+            : Math.max(0, index <= 0 ? 0 : index - 1);
+        const target = colCards[next];
+        if (target) setFocusedCardId(target.id);
+        return;
+      }
+
+      if ((e.key === "Enter" || key === "e") && focused) {
+        e.preventDefault();
+        openCardPanel(focused);
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    view,
+    cardPanelOpen,
+    boardPanel,
+    columnPanel,
+    limitColumn,
+    focusedCardId,
+    filteredBoardCards,
+    boardColumns,
+    perms.canWrite,
+  ]);
+
   const loading = loadingOrg || boards.isLoading || columns.isLoading || cards.isLoading;
   const error = boards.error ?? columns.error ?? cards.error;
 
@@ -625,12 +731,18 @@ function Trabalho() {
                         : undefined
                     }
                   >
-                    {col.wip_limit != null ? `${colCards.length} / ${col.wip_limit}` : colCards.length}
+                    {col.wip_limit != null
+                      ? `${colCards.length} / ${col.wip_limit}`
+                      : colCards.length}
                   </span>
                   {perms.canWrite && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" aria-label={`Ações da coluna ${col.name}`}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Ações da coluna ${col.name}`}
+                        >
                           <MoreVertical className="size-4" aria-hidden />
                         </Button>
                       </DropdownMenuTrigger>
@@ -662,18 +774,71 @@ function Trabalho() {
   }
 
   function renderCard(card: CardRow) {
+    const focused = focusedCardId === card.id;
     return (
       <li
         key={card.id}
         draggable={perms.canWrite}
         onDragStart={(e) => e.dataTransfer.setData("text/plain", card.id)}
-        className="relative overflow-hidden rounded-md border border-border bg-background p-3 pl-4"
+        onMouseDown={() => setFocusedCardId(card.id)}
+        className={cn(
+          "group relative overflow-hidden rounded-md border border-border bg-background pl-4",
+          compact ? "p-2 pl-4" : "p-3 pl-4",
+          focused && "ring-2 ring-primary ring-offset-1 ring-offset-background",
+        )}
       >
         <span
           aria-hidden
           className={cn("absolute inset-y-0 left-0 w-1", priorityBar(card.priority ?? "normal"))}
         />
-        {card.label && (
+
+        {/* Ações rápidas — só no hover, em telas com mouse. */}
+        <div className="pointer-events-none absolute right-1 top-1 hidden opacity-0 transition-opacity group-hover:opacity-100 md:flex md:group-hover:pointer-events-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6"
+            aria-label="Abrir cartão"
+            onClick={() => openCardPanel(card)}
+          >
+            <Pencil className="size-3.5" aria-hidden />
+          </Button>
+          {perms.canWrite && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                aria-label="Duplicar cartão"
+                onClick={() => cards.duplicate.mutate({ ...card })}
+              >
+                <Copy className="size-3.5" aria-hidden />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="size-6" aria-label="Mover cartão">
+                    <MoveRight className="size-3.5" aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel className="text-label">Mover para…</DropdownMenuLabel>
+                  {boardColumns.map((target) => (
+                    <DropdownMenuItem
+                      key={target.id}
+                      className="text-body"
+                      disabled={target.id === card.column_id}
+                      onClick={() => moveCard(card, target.id)}
+                    >
+                      {target.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
+        </div>
+
+        {card.label && !compact && (
           <span className="text-label mb-2 inline-flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-muted-foreground">
             <span aria-hidden className={cn("size-2 rounded-full", colorSwatch(card.color))} />
             {card.label}
@@ -692,7 +857,8 @@ function Trabalho() {
           <button
             type="button"
             className={cn(
-              "text-body min-w-0 flex-1 text-left font-medium",
+              "min-w-0 flex-1 text-left font-medium",
+              compact ? "text-label" : "text-body",
               card.done && "line-through text-muted-foreground",
             )}
             onClick={() => openCardPanel(card)}
@@ -744,7 +910,7 @@ function Trabalho() {
           </DropdownMenu>
         </div>
         {(card.assignee_id || card.due_date || (subtasksByCard.get(card.id)?.total ?? 0) > 0) && (
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          <div className={cn("flex flex-wrap items-center gap-2", compact ? "mt-1" : "mt-2")}>
             {card.assignee_id && (
               <Avatar className="size-5" title={memberName(card.assignee_id)}>
                 <AvatarFallback className="text-label">
@@ -846,7 +1012,12 @@ function Trabalho() {
                 {groupCards.length}
               </span>
             </div>
-            <div className="rounded-md border border-border">
+            <div
+              className={cn(
+                "rounded-md border border-border",
+                compact && "[&_td]:py-1 [&_th]:py-1 [&_td_span]:text-label",
+              )}
+            >
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -1288,6 +1459,50 @@ function Trabalho() {
               ]}
             />
 
+            {/* Densidade dos cartões */}
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              aria-label={compact ? "Usar densidade confortável" : "Usar densidade compacta"}
+              title={compact ? "Densidade: compacta" : "Densidade: confortável"}
+              onClick={() => changeDensity(compact ? "confortavel" : "compacto")}
+            >
+              {compact ? (
+                <Rows3 className="size-4" aria-hidden />
+              ) : (
+                <Rows2 className="size-4" aria-hidden />
+              )}
+            </Button>
+
+            {/* Atalhos de teclado */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  aria-label="Atalhos de teclado"
+                  title="Atalhos de teclado"
+                >
+                  <Keyboard className="size-4" aria-hidden />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-72 space-y-2">
+                <p className="text-body font-semibold">Atalhos de teclado</p>
+                <ul className="space-y-1">
+                  {SHORTCUTS.map((s) => (
+                    <li key={s.keys} className="flex items-center justify-between gap-3">
+                      <span className="text-label rounded border border-border bg-muted px-1.5 py-0.5 font-medium">
+                        {s.keys}
+                      </span>
+                      <span className="text-label text-right text-muted-foreground">{s.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              </PopoverContent>
+            </Popover>
+
             {/* Search */}
             <ToolbarSearch
               value={search}
@@ -1388,7 +1603,6 @@ function Trabalho() {
         saving={columns.update.isPending}
         idPrefix="limite"
       />
-
 
       <RecordPanel
         open={cardPanelOpen}
