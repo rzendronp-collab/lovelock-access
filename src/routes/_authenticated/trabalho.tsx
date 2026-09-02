@@ -340,11 +340,6 @@ function Trabalho() {
     [userId, members, contactField],
   );
 
-  const memberName = useMemo(() => {
-    const map = new Map(members.map((m) => [m.user_id, m.full_name]));
-    return (id: string | null) => (id ? (map.get(id) ?? "Membro") : "");
-  }, [members]);
-
   function openCardPanel(card: CardRow) {
     setCardPanelId(card.id);
     setNewCardColumn(null);
