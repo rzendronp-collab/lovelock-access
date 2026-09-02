@@ -337,6 +337,9 @@ function Dinheiro() {
         <SelectPill active={tab === "lancamentos"} onClick={() => setTab("lancamentos")}>
           Lançamentos
         </SelectPill>
+        <SelectPill active={tab === "orcamento"} onClick={() => setTab("orcamento")}>
+          Orçado vs realizado
+        </SelectPill>
         <SelectPill active={tab === "fixas"} onClick={() => setTab("fixas")}>
           Despesas fixas
         </SelectPill>
