@@ -1011,7 +1011,12 @@ function Trabalho() {
                 {groupCards.length}
               </span>
             </div>
-            <div className="rounded-md border border-border">
+            <div
+              className={cn(
+                "rounded-md border border-border",
+                compact && "[&_td]:py-1 [&_th]:py-1 [&_td_span]:text-label",
+              )}
+            >
               <Table>
                 <TableHeader>
                   <TableRow>
