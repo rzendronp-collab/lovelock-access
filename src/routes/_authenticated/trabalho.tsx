@@ -554,7 +554,7 @@ function Trabalho() {
     return (
       <div className="flex gap-4 overflow-x-auto pb-2">
         {boardColumns.map((col) => {
-          const colCards = boardCards.filter((c) => c.column_id === col.id);
+          const colCards = filteredBoardCards.filter((c) => c.column_id === col.id);
           return (
             <div
               key={col.id}
@@ -563,7 +563,7 @@ function Trabalho() {
               onDrop={(e) => {
                 e.preventDefault();
                 const id = e.dataTransfer.getData("text/plain");
-                const card = boardCards.find((c) => c.id === id);
+                const card = filteredBoardCards.find((c) => c.id === id);
                 if (card) moveCard(card, col.id);
               }}
             >
