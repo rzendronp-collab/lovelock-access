@@ -211,15 +211,20 @@ function ReceiptsSection({
   orgId,
   projectId,
   accounts,
+  period,
+  search,
+  group,
 }: {
   orgId: string | null;
   projectId: string | null;
   accounts: (PaymentAccountRow & { id: string })[];
+  period: Period;
+  search: string;
+  group: string;
 }) {
   const queryClient = useQueryClient();
-  const { key, setKey, custom, setCustom, period } = usePeriodPicker("mes");
-  const [search, setSearch] = useState("");
-  const [group, setGroup] = useState("");
+  const [open, setOpen] = useState(false);
+
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(() => emptyReceiptValues(""));
