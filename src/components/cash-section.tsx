@@ -236,7 +236,7 @@ export function CashSection({
           }
           register();
         }}
-        saving={saving}
+        saving={saving ?? false}
         idPrefix="wd"
       />
 
