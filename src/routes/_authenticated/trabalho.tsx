@@ -217,7 +217,7 @@ function Trabalho() {
 
   const columns = useRecords<ColumnRow>({
     table: "board_columns",
-    columns: "id, board_id, name, position",
+    columns: "id, board_id, name, position, wip_limit",
     orgId: orgId ?? null,
     orderBy: { column: "position", ascending: true },
     label: "coluna",
