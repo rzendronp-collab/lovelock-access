@@ -599,10 +599,9 @@ function AccountsSection({
           getKey={(a) => a.id}
           getSearchText={(a) => `${a.name} ${a.provider}`}
           search={search}
-          onSearchChange={setSearch}
-          searchId="busca-contas"
-          searchLabel="Buscar conta"
-          searchPlaceholder="Ex.: Stripe"
+          onSearchChange={() => undefined}
+          hideControls
+
           loading={records.isLoading}
           error={records.error}
           onRetry={records.refetch}
