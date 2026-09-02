@@ -2,8 +2,13 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarDays,
+  Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Filter,
+  LayoutTemplate,
+  List,
   ListChecks,
   MoreVertical,
   Plus,
@@ -43,6 +48,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRecords } from "@/hooks/use-records";
 import { useContactField } from "@/hooks/use-contacts";
 import { useOrgId, useOrgMembers, usePermissions, useUserId } from "@/hooks/use-org";
@@ -168,7 +174,6 @@ function Trabalho() {
 
 
   const [boardId, setBoardId] = useState<string>("");
-  const [folder, setFolder] = useState("");
   const [assigneeFilter, setAssigneeFilter] = useState<"" | "meus" | "sem">("");
   const [dueFilter, setDueFilter] = useState<DueFilter>("");
   const [view, setView] = useState<View>("kanban");
@@ -235,20 +240,18 @@ function Trabalho() {
     label: "item",
   });
 
-  const folders = useMemo(() => {
-    const set = new Set<string>();
-    for (const b of boards.rows) if (b.folder) set.add(b.folder);
-    return [...set].sort();
+  const boardGroups = useMemo(() => {
+    const groups = new Map<string, BoardRow[]>();
+    for (const b of boards.rows) {
+      const key = b.folder || "Sem pasta";
+      groups.set(key, [...(groups.get(key) ?? []), b]);
+    }
+    return [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [boards.rows]);
 
-  const visibleBoards = useMemo(
-    () => boards.rows.filter((b) => !folder || b.folder === folder),
-    [boards.rows, folder],
-  );
-
   const currentBoard = useMemo(
-    () => visibleBoards.find((b) => b.id === boardId) ?? visibleBoards[0] ?? null,
-    [visibleBoards, boardId],
+    () => boards.rows.find((b) => b.id === boardId) ?? boards.rows[0] ?? null,
+    [boards.rows, boardId],
   );
 
   const boardColumns = useMemo(
@@ -383,7 +386,6 @@ function Trabalho() {
     if (!card) return;
     handledCardRef.current = requestedCard;
     setBoardId(card.board_id);
-    setFolder("");
     openCardPanel(card);
     void navigate({ to: "/trabalho", search: {}, replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1095,22 +1097,6 @@ function Trabalho() {
       <PageHeader
         title="Trabalho"
         subtitle="Quadros, colunas e cartões da sua equipe."
-        actions={
-          perms.canWrite ? (
-            <>
-              <Button variant="outline" className="text-body" onClick={() => setBoardPanel(true)}>
-                <Plus className="size-4" aria-hidden />
-                Novo quadro
-              </Button>
-              {currentBoard && (
-                <Button className="text-body" onClick={() => setColumnPanel(true)}>
-                  <Plus className="size-4" aria-hidden />
-                  Nova coluna
-                </Button>
-              )}
-            </>
-          ) : undefined
-        }
       />
 
       {loading ? (
@@ -1138,88 +1124,167 @@ function Trabalho() {
         </AppCard>
       ) : (
         <>
-          <AppCard title="Quadros" subtitle="Agrupados por pasta ou projeto.">
-            <div className="space-y-3">
-              {folders.length > 0 && (
-                <SelectPillGroup>
-                  <SelectPill active={!folder} onClick={() => setFolder("")}>
-                    Todas as pastas
-                  </SelectPill>
-                  {folders.map((f) => (
-                    <SelectPill key={f} active={folder === f} onClick={() => setFolder(f)}>
-                      {f}
-                    </SelectPill>
+          <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-2">
+            {/* Board selector + add */}
+            <div className="flex items-center gap-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-body h-8 max-w-40 justify-between gap-2"
+                  >
+                    <span className="truncate">{currentBoard?.name ?? "Quadro"}</span>
+                    <ChevronDown className="size-4 shrink-0" aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto">
+                  {boardGroups.map(([folderName, groupBoards]) => (
+                    <div key={folderName}>
+                      <DropdownMenuLabel className="text-label uppercase tracking-wider">
+                        {folderName}
+                      </DropdownMenuLabel>
+                      {groupBoards.map((b) => (
+                        <DropdownMenuItem
+                          key={b.id}
+                          className="text-body"
+                          onClick={() => setBoardId(b.id)}
+                        >
+                          <span className="truncate">{b.name}</span>
+                          {b.id === currentBoard?.id && (
+                            <Check className="ml-auto size-4 shrink-0" aria-hidden />
+                          )}
+                        </DropdownMenuItem>
+                      ))}
+                      <DropdownMenuSeparator />
+                    </div>
                   ))}
-                </SelectPillGroup>
-              )}
-              <SelectPillGroup>
-                {visibleBoards.map((b) => (
-                  <SelectPill
-                    key={b.id}
-                    active={currentBoard?.id === b.id}
-                    onClick={() => setBoardId(b.id)}
-                  >
-                    {b.name}
-                  </SelectPill>
-                ))}
-              </SelectPillGroup>
-            </div>
-          </AppCard>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-          <AppCard title="Filtros">
-            <div className="space-y-3">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <SelectPillGroup>
-                  <SelectPill active={view === "kanban"} onClick={() => setView("kanban")}>
-                    Kanban
-                  </SelectPill>
-                  <SelectPill active={view === "lista"} onClick={() => setView("lista")}>
-                    Lista
-                  </SelectPill>
-                  <SelectPill active={view === "calendario"} onClick={() => setView("calendario")}>
-                    Calendário
-                  </SelectPill>
-                </SelectPillGroup>
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-                  <Input
-                    placeholder="Buscar cartões…"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 text-body"
-                  />
-                </div>
-              </div>
-              <SelectPillGroup>
-                <SelectPill active={!assigneeFilter} onClick={() => setAssigneeFilter("")}>
-                  Todos
-                </SelectPill>
-                <SelectPill
-                  active={assigneeFilter === "meus"}
-                  onClick={() => setAssigneeFilter("meus")}
-                >
-                  Meus cartões
-                </SelectPill>
-                <SelectPill
-                  active={assigneeFilter === "sem"}
-                  onClick={() => setAssigneeFilter("sem")}
-                >
-                  Sem responsável
-                </SelectPill>
-              </SelectPillGroup>
-              <SelectPillGroup>
-                {DUE_OPTIONS.map((o) => (
-                  <SelectPill
-                    key={o.value || "todos"}
-                    active={dueFilter === o.value}
-                    onClick={() => setDueFilter(o.value)}
-                  >
-                    {o.label}
-                  </SelectPill>
-                ))}
-              </SelectPillGroup>
+              {perms.canWrite && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      aria-label="Novo quadro ou coluna"
+                    >
+                      <Plus className="size-4" aria-hidden />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem className="text-body" onClick={() => setBoardPanel(true)}>
+                      Novo quadro
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-body"
+                      disabled={!currentBoard}
+                      onClick={() => setColumnPanel(true)}
+                    >
+                      Nova coluna
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
-          </AppCard>
+
+            {/* View selector */}
+            <SelectPillGroup>
+              <SelectPill
+                active={view === "kanban"}
+                onClick={() => setView("kanban")}
+                className="gap-1.5"
+              >
+                <LayoutTemplate className="size-3.5" aria-hidden />
+                Kanban
+              </SelectPill>
+              <SelectPill
+                active={view === "lista"}
+                onClick={() => setView("lista")}
+                className="gap-1.5"
+              >
+                <List className="size-3.5" aria-hidden />
+                Lista
+              </SelectPill>
+              <SelectPill
+                active={view === "calendario"}
+                onClick={() => setView("calendario")}
+                className="gap-1.5"
+              >
+                <CalendarDays className="size-3.5" aria-hidden />
+                Calendário
+              </SelectPill>
+            </SelectPillGroup>
+
+            {/* Search */}
+            <div className="relative min-w-[8rem] flex-1 sm:max-w-[14rem]">
+              <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+              <Input
+                placeholder="Buscar cartões…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-8 pl-8 text-body transition-all focus:min-w-[12rem]"
+              />
+            </div>
+
+            {/* Filters popover */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-body h-8 gap-1"
+                >
+                  <Filter className="size-4" aria-hidden />
+                  Filtros
+                  {(assigneeFilter || dueFilter) && (
+                    <span className="text-label ml-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 font-medium text-primary-foreground">
+                      {(assigneeFilter ? 1 : 0) + (dueFilter ? 1 : 0)}
+                    </span>
+                  )}
+                  <ChevronDown className="size-4" aria-hidden />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-72 space-y-4">
+                <div>
+                  <p className="text-label mb-2 font-medium text-muted-foreground">Responsável</p>
+                  <SelectPillGroup>
+                    <SelectPill active={!assigneeFilter} onClick={() => setAssigneeFilter("")}>
+                      Todos
+                    </SelectPill>
+                    <SelectPill
+                      active={assigneeFilter === "meus"}
+                      onClick={() => setAssigneeFilter("meus")}
+                    >
+                      Meus cartões
+                    </SelectPill>
+                    <SelectPill
+                      active={assigneeFilter === "sem"}
+                      onClick={() => setAssigneeFilter("sem")}
+                    >
+                      Sem responsável
+                    </SelectPill>
+                  </SelectPillGroup>
+                </div>
+                <div>
+                  <p className="text-label mb-2 font-medium text-muted-foreground">Prazo</p>
+                  <SelectPillGroup>
+                    {DUE_OPTIONS.map((o) => (
+                      <SelectPill
+                        key={o.value || "todos"}
+                        active={dueFilter === o.value}
+                        onClick={() => setDueFilter(o.value)}
+                      >
+                        {o.label}
+                      </SelectPill>
+                    ))}
+                  </SelectPillGroup>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
 
           {view === "kanban" ? (
             renderKanban()
