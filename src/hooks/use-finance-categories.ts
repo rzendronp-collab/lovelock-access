@@ -69,6 +69,7 @@ export function useFinanceCategories(projectId: string | null) {
     mutationFn: async (name: string) => {
       if (!orgId || !projectId) throw new Error("sem projeto");
       const { data: userData } = await supabase.auth.getUser();
+      const userId = userData.user?.id;
       const { data, error } = await supabase
         .from("finance_categories")
         .insert({
@@ -78,7 +79,7 @@ export function useFinanceCategories(projectId: string | null) {
           color: "neutra",
           kind: "ambos",
           position: rows.length,
-          created_by: userData.user?.id,
+          ...(userId ? { created_by: userId } : {}),
         })
         .select("id")
         .single();
