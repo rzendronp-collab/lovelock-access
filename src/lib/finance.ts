@@ -5,6 +5,7 @@ export type FinanceEntryRow = {
   entry_date: string;
   description: string;
   category: string;
+  category_id: string | null;
   account: string;
   kind: string;
   amount: number;
@@ -34,6 +35,7 @@ export type DisplayEntry = {
   entry_date: string;
   description: string;
   category: string;
+  category_id: string | null;
   account: string;
   kind: EntryKind;
   amount: number;
@@ -103,6 +105,7 @@ export function expandFixedCosts(
             entry_date: iso,
             description: c.label,
             category: c.category,
+            category_id: null,
             account: "—",
             kind: "saida",
             amount: Number(c.amount),
@@ -128,6 +131,7 @@ export function toDisplay(rows: FinanceEntryRow[]): DisplayEntry[] {
     entry_date: r.entry_date,
     description: r.description,
     category: r.category,
+    category_id: r.category_id ?? null,
     account: r.account,
     kind: (r.kind === "entrada" ? "entrada" : "saida") as EntryKind,
     amount: Number(r.amount),
