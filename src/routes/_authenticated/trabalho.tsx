@@ -79,6 +79,16 @@ import { cn } from "@/lib/utils";
 
 type View = "kanban" | "lista" | "calendario";
 
+const DENSITY_KEY = "eurohub:trabalho:densidade";
+
+const SHORTCUTS: { keys: string; label: string }[] = [
+  { keys: "N", label: "Novo cartão na coluna em foco" },
+  { keys: "↑ / ↓", label: "Navegar entre cartões da coluna" },
+  { keys: "Enter", label: "Abrir detalhe do cartão em foco" },
+  { keys: "E", label: "Editar o cartão em foco" },
+  { keys: "Esc", label: "Fechar painel aberto" },
+];
+
 type TrabalhoSearch = { cartao?: string };
 
 export const Route = createFileRoute("/_authenticated/trabalho")({
