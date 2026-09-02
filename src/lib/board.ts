@@ -48,3 +48,26 @@ export function formatDateBR(iso: string | null) {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 }
+
+export type Priority = "baixa" | "normal" | "alta" | "urgente";
+
+/** Prioridades do cartão — cor sempre por variável de tema. */
+export const PRIORITY_OPTIONS: { value: Priority; label: string; barClassName: string }[] = [
+  { value: "baixa", label: "Baixa", barClassName: "bg-muted-foreground/40" },
+  { value: "normal", label: "Normal", barClassName: "bg-primary" },
+  { value: "alta", label: "Alta", barClassName: "bg-warning" },
+  { value: "urgente", label: "Urgente", barClassName: "bg-destructive" },
+];
+
+export function priorityBar(value: string) {
+  return PRIORITY_OPTIONS.find((p) => p.value === value)?.barClassName ?? "bg-primary";
+}
+
+/** Situação do prazo para colorir a data no cartão. */
+export function dueTone(dueDate: string | null, done: boolean): "atrasado" | "hoje" | "normal" {
+  if (!dueDate || done) return "normal";
+  const today = todayISO();
+  if (dueDate < today) return "atrasado";
+  if (dueDate === today) return "hoje";
+  return "normal";
+}
