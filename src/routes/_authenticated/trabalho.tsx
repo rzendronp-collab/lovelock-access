@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ListChecks, MoreVertical, Plus } from "lucide-react";
+import { CalendarDays, ListChecks, MoreVertical, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
 import { AppCard } from "@/components/app-card";
@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRecords } from "@/hooks/use-records";
 import { useContactField } from "@/hooks/use-contacts";
-import { useOrgId, usePermissions, useUserId } from "@/hooks/use-org";
+import { useOrgId, useOrgMembers, usePermissions, useUserId } from "@/hooks/use-org";
 import { useCurrentProject } from "@/hooks/use-projects";
 import { NoProjectState } from "@/components/project-select";
 
@@ -39,6 +39,9 @@ import {
   formatDateBR,
   initialsOf,
   matchesDue,
+  PRIORITY_OPTIONS,
+  priorityBar,
+  dueTone,
   type DueFilter,
 } from "@/lib/board";
 import { cn } from "@/lib/utils";
@@ -91,6 +94,7 @@ type CardRow = {
   due_date: string | null;
   label: string;
   color: string;
+  priority: string;
   position: number;
   done: boolean;
   archived: boolean;
@@ -139,6 +143,8 @@ function Trabalho() {
   const { projectId } = useCurrentProject();
   const perms = usePermissions();
   const { data: userId } = useUserId();
+  const { data: members = [] } = useOrgMembers();
+  const [newCardColumn, setNewCardColumn] = useState<string | null>(null);
 
 
 
@@ -184,7 +190,7 @@ function Trabalho() {
   const cards = useRecords<CardRow>({
     table: "cards",
     columns:
-      "id, board_id, column_id, title, description, assignee_id, due_date, label, color, position, done, archived, contact_id, created_by",
+      "id, board_id, column_id, title, description, assignee_id, due_date, label, color, priority, position, done, archived, contact_id, created_by",
     orgId: orgId ?? null,
     orderBy: { column: "position", ascending: true },
     trackCreatedBy: true,
@@ -246,26 +252,41 @@ function Trabalho() {
         label: "Responsável",
         type: "choice",
         options: [
-          { value: "", label: "Ninguém" },
-          ...(userId ? [{ value: userId, label: "Eu" }] : []),
+          { value: "", label: "Sem responsável" },
+          ...members.map((m) => ({
+            value: m.user_id,
+            label: m.user_id === userId ? `${m.full_name} (eu)` : m.full_name,
+          })),
         ],
       },
       { name: "due_date", label: "Prazo", type: "date" },
       { name: "label", label: "Etiqueta", type: "text" },
       {
         name: "color",
-        label: "Cor",
+        label: "Cor da etiqueta",
         type: "choice",
         options: ITEM_COLORS.map((c) => ({ value: c.value, label: c.label })),
+      },
+      {
+        name: "priority",
+        label: "Prioridade",
+        type: "choice",
+        options: PRIORITY_OPTIONS.map((p) => ({ value: p.value, label: p.label })),
       },
       { name: "done", label: "Concluído", type: "switch" },
       contactField,
     ],
-    [userId, contactField],
+    [userId, members, contactField],
   );
+
+  const memberName = useMemo(() => {
+    const map = new Map(members.map((m) => [m.user_id, m.full_name]));
+    return (id: string | null) => (id ? (map.get(id) ?? "Membro") : "");
+  }, [members]);
 
   function openCardPanel(card: CardRow) {
     setCardPanelId(card.id);
+    setNewCardColumn(null);
     setCardValues({
       title: card.title,
       description: card.description,
@@ -273,6 +294,7 @@ function Trabalho() {
       due_date: card.due_date ?? "",
       label: card.label,
       color: card.color,
+      priority: card.priority ?? "normal",
       done: card.done,
       contact_id: card.contact_id ?? "",
     });
@@ -298,38 +320,66 @@ function Trabalho() {
 
 
   function saveCard() {
-    if (!cardPanelId) return;
     const title = String(cardValues['title'] ?? "").trim();
     if (!title) {
       toast.error("Informe o título do cartão.");
       return;
     }
-    cards.update.mutate(
-      {
-        id: cardPanelId,
-        values: {
-          title,
-          description: String(cardValues['description'] ?? ""),
-          assignee_id: String(cardValues['assignee_id'] ?? "") || null,
-          due_date: String(cardValues['due_date'] ?? "") || null,
-          label: String(cardValues['label'] ?? ""),
-          color: String(cardValues['color'] ?? ""),
-          done: Boolean(cardValues['done']),
-          contact_id: String(cardValues['contact_id'] ?? "") || null,
+    const values = {
+      title,
+      description: String(cardValues['description'] ?? ""),
+      assignee_id: String(cardValues['assignee_id'] ?? "") || null,
+      due_date: String(cardValues['due_date'] ?? "") || null,
+      label: String(cardValues['label'] ?? ""),
+      color: String(cardValues['color'] ?? ""),
+      priority: String(cardValues['priority'] ?? "normal"),
+      done: Boolean(cardValues['done']),
+      contact_id: String(cardValues['contact_id'] ?? "") || null,
+    };
+
+    if (!cardPanelId) {
+      if (!currentBoard || !newCardColumn) return;
+      cards.create.mutate(
+        {
+          ...values,
+          board_id: currentBoard.id,
+          column_id: newCardColumn,
+          position: boardCards.length,
         },
-      },
+        {
+          onSuccess: () => {
+            setCardPanelOpen(false);
+            setNewCardColumn(null);
+          },
+        },
+      );
+      return;
+    }
+
+    cards.update.mutate(
+      { id: cardPanelId, values },
       { onSuccess: () => setCardPanelOpen(false) },
     );
   }
 
   function newCard(columnId: string) {
     if (!currentBoard) return;
-    cards.create.mutate({
-      board_id: currentBoard.id,
-      column_id: columnId,
-      title: "Novo cartão",
-      position: boardCards.length,
+    setCardPanelId(undefined);
+    setNewCardColumn(columnId);
+    setCardValues({
+      title: "",
+      description: "",
+      assignee_id: "",
+      due_date: "",
+      label: "",
+      color: ITEM_COLORS[0]?.value ?? "",
+      priority: "normal",
+      done: false,
+      contact_id: "",
     });
+    setChecklistText("");
+    setCommentText("");
+    setCardPanelOpen(true);
   }
 
   function saveBoard() {
@@ -563,8 +613,24 @@ function Trabalho() {
                           key={card.id}
                           draggable={perms.canWrite}
                           onDragStart={(e) => e.dataTransfer.setData("text/plain", card.id)}
-                          className="rounded-md border border-border bg-background p-3"
+                          className="relative overflow-hidden rounded-md border border-border bg-background p-3 pl-4"
                         >
+                          <span
+                            aria-hidden
+                            className={cn(
+                              "absolute inset-y-0 left-0 w-1",
+                              priorityBar(card.priority ?? "normal"),
+                            )}
+                          />
+                          {card.label && (
+                            <span className="text-label mb-2 inline-flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-muted-foreground">
+                              <span
+                                aria-hidden
+                                className={cn("size-2 rounded-full", colorSwatch(card.color))}
+                              />
+                              {card.label}
+                            </span>
+                          )}
                           <div className="flex items-start gap-2">
                             <Checkbox
                               className="mt-0.5"
@@ -643,29 +709,32 @@ function Trabalho() {
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
-                          <div className="mt-2 flex flex-wrap items-center gap-2">
-                            {card.assignee_id && (
-                              <Avatar className="size-5">
-                                <AvatarFallback className="text-label">
-                                  {initialsOf(card.assignee_id === userId ? "Eu" : "Membro")}
-                                </AvatarFallback>
-                              </Avatar>
-                            )}
-                            {card.due_date && (
-                              <span className="text-label text-muted-foreground">
-                                {formatDateBR(card.due_date)}
-                              </span>
-                            )}
-                            {card.label && (
-                              <span className="text-label inline-flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-muted-foreground">
+                          {(card.assignee_id || card.due_date) && (
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              {card.assignee_id && (
+                                <Avatar className="size-5" title={memberName(card.assignee_id)}>
+                                  <AvatarFallback className="text-label">
+                                    {initialsOf(memberName(card.assignee_id))}
+                                  </AvatarFallback>
+                                </Avatar>
+                              )}
+                              {card.due_date && (
                                 <span
-                                  aria-hidden
-                                  className={cn("size-2 rounded-full", colorSwatch(card.color))}
-                                />
-                                {card.label}
-                              </span>
-                            )}
-                          </div>
+                                  className={cn(
+                                    "text-label inline-flex items-center gap-1",
+                                    dueTone(card.due_date, card.done) === "atrasado"
+                                      ? "text-destructive font-medium"
+                                      : dueTone(card.due_date, card.done) === "hoje"
+                                        ? "text-warning font-medium"
+                                        : "text-muted-foreground",
+                                  )}
+                                >
+                                  <CalendarDays className="size-3.5" aria-hidden />
+                                  {formatDateBR(card.due_date)}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </li>
                       ))}
                     </ul>
@@ -716,15 +785,22 @@ function Trabalho() {
         open={cardPanelOpen}
         onOpenChange={(o) => {
           setCardPanelOpen(o);
-          if (!o) setCardPanelId(undefined);
+          if (!o) {
+            setCardPanelId(undefined);
+            setNewCardColumn(null);
+          }
         }}
-        title={openCard?.title ?? "Cartão"}
-        description="Detalhe, checklist, comentários e anexos."
+        title={cardPanelId ? (openCard?.title ?? "Cartão") : "Novo cartão"}
+        description={
+          cardPanelId
+            ? "Detalhe, checklist, comentários e anexos."
+            : "Preencha o título; o resto é opcional."
+        }
         fields={cardFields}
         values={cardValues}
         onChange={(name, value) => setCardValues((p) => ({ ...p, [name]: value }))}
         onSave={saveCard}
-        saving={cards.update.isPending}
+        saving={cards.update.isPending || cards.create.isPending}
         idPrefix="cartao"
       >
         {cardPanelId && (
