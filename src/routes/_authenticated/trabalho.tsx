@@ -519,6 +519,39 @@ function Trabalho() {
   );
   const checklist = cardItems.filter((i) => i.kind === "checklist");
   const comments = cardItems.filter((i) => i.kind === "comentario");
+  const checklistDone = checklist.filter((i) => i.done).length;
+
+  /** Progresso de subtarefas (checklist) por cartão — para o indicador compacto. */
+  const subtasksByCard = useMemo(() => {
+    const map = new Map<string, { done: number; total: number }>();
+    for (const i of items.rows) {
+      if (i.kind !== "checklist") continue;
+      const cur = map.get(i.card_id) ?? { done: 0, total: 0 };
+      cur.total += 1;
+      if (i.done) cur.done += 1;
+      map.set(i.card_id, cur);
+    }
+    return map;
+  }, [items.rows]);
+
+  function openLimit(col: ColumnRow) {
+    setLimitColumn(col);
+    setLimitValues({ wip_limit: col.wip_limit == null ? "" : String(col.wip_limit) });
+  }
+
+  function saveLimit() {
+    if (!limitColumn) return;
+    const raw = String(limitValues["wip_limit"] ?? "").trim();
+    const parsed = raw === "" ? null : Number(raw);
+    if (parsed !== null && (!Number.isFinite(parsed) || parsed < 1)) {
+      toast.error("Informe um número maior que zero ou deixe vazio.");
+      return;
+    }
+    columns.update.mutate(
+      { id: limitColumn.id, values: { wip_limit: parsed } },
+      { onSuccess: () => setLimitColumn(null) },
+    );
+  }
 
   const loading = loadingOrg || boards.isLoading || columns.isLoading || cards.isLoading;
   const error = boards.error ?? columns.error ?? cards.error;
