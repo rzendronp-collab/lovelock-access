@@ -562,13 +562,15 @@ function emptyAccountValues(): Values {
 
 function AccountsSection({
   records,
+  search,
 }: {
   records: ReturnType<typeof useRecords<PaymentAccountRow & { id: string }>>;
+  search: string;
 }) {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [values, setValues] = useState<Values>(emptyAccountValues);
-  const [search, setSearch] = useState("");
+
   const [toDelete, setToDelete] = useState<string | null>(null);
 
   function openNew() {
