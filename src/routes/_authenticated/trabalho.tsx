@@ -907,7 +907,9 @@ function Trabalho() {
           </DropdownMenu>
         </div>
         {(card.assignee_id || card.due_date || (subtasksByCard.get(card.id)?.total ?? 0) > 0) && (
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          <div
+            className={cn("flex flex-wrap items-center gap-2", compact ? "mt-1" : "mt-2")}
+          >
             {card.assignee_id && (
               <Avatar className="size-5" title={memberName(card.assignee_id)}>
                 <AvatarFallback className="text-label">
