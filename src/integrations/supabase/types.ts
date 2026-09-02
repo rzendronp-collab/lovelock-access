@@ -188,6 +188,64 @@ export type Database = {
           },
         ]
       }
+      budgets: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          month: string
+          org_id: string
+          planned: number
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          month: string
+          org_id: string
+          planned?: number
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          month?: string
+          org_id?: string
+          planned?: number
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "finance_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budgets_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budgets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       card_items: {
         Row: {
           card_id: string
