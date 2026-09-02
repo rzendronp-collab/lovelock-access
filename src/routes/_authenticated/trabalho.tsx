@@ -1389,7 +1389,15 @@ function Trabalho() {
         {cardPanelId && (
           <div className="space-y-6 border-t border-border pt-4">
             <div className="space-y-2">
-              <p className="text-highlight font-semibold">Checklist</p>
+              <p className="text-highlight font-semibold">Subtarefas</p>
+              {checklist.length > 0 && (
+                <div className="space-y-1">
+                  <Progress value={Math.round((checklistDone / checklist.length) * 100)} />
+                  <p className="text-label text-muted-foreground">
+                    {checklistDone} de {checklist.length} concluídas
+                  </p>
+                </div>
+              )}
               <ul className="space-y-2">
                 {checklist.map((i) => (
                   <li key={i.id} className="flex items-center gap-2">
