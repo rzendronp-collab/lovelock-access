@@ -590,11 +590,66 @@ export type Database = {
           },
         ]
       }
+      finance_categories: {
+        Row: {
+          archived: boolean
+          color: string
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          name: string
+          org_id: string
+          position: number
+          project_id: string
+        }
+        Insert: {
+          archived?: boolean
+          color?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          name: string
+          org_id: string
+          position?: number
+          project_id: string
+        }
+        Update: {
+          archived?: boolean
+          color?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          name?: string
+          org_id?: string
+          position?: number
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_categories_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_categories_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_entries: {
         Row: {
           account: string
           amount: number
           category: string
+          category_id: string | null
           contact_id: string | null
           created_at: string
           created_by: string | null
@@ -613,6 +668,7 @@ export type Database = {
           account?: string
           amount: number
           category?: string
+          category_id?: string | null
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -631,6 +687,7 @@ export type Database = {
           account?: string
           amount?: number
           category?: string
+          category_id?: string | null
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -646,6 +703,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "finance_entries_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "finance_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "finance_entries_contact_id_fkey"
             columns: ["contact_id"]
