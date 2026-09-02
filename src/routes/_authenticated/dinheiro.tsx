@@ -16,6 +16,8 @@ import {
   type FieldValue,
 } from "@/components/detail-panel";
 import { RecordList } from "@/components/record-list";
+import { Toolbar, ToolbarFilters, ToolbarSearch, ToolbarTabs } from "@/components/toolbar";
+
 import { BudgetSection } from "@/components/budget-section";
 import { CashSection, WithdrawalBadge } from "@/components/cash-section";
 import { TotalCard } from "@/components/total-card";
