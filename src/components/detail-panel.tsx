@@ -80,12 +80,23 @@ export type FieldValue = string | boolean;
 export type FieldDef = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "date" | "month" | "number" | "decimal" | "switch" | "choice";
-  /** Opções quando type = "choice". */
-  options?: { value: string; label: string }[];
+  type:
+    | "text"
+    | "textarea"
+    | "date"
+    | "month"
+    | "number"
+    | "decimal"
+    | "switch"
+    | "choice"
+    | "select";
+  /** Opções quando type = "choice" ou "select". */
+  options?: { value: string; label: string; swatchClassName?: string }[];
   min?: number;
   max?: number;
   placeholder?: string;
+  /** Conteúdo extra abaixo do campo (ex.: criar categoria ali mesmo). */
+  extra?: ReactNode;
   /** Mostra o campo só quando esta condição for verdadeira. */
   showWhen?: (values: Record<string, FieldValue>) => boolean;
 };
