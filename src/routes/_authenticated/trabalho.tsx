@@ -267,6 +267,11 @@ function Trabalho() {
     });
   }, [cards.rows, currentBoard, assigneeFilter, userId, dueFilter]);
 
+  const memberName = useMemo(() => {
+    const map = new Map(members.map((m) => [m.user_id, m.full_name]));
+    return (id: string | null) => (id ? (map.get(id) ?? "Membro") : "");
+  }, [members]);
+
   const filteredBoardCards = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return boardCards;
