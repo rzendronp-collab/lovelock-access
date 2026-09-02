@@ -55,7 +55,7 @@ export type Priority = "baixa" | "normal" | "alta" | "urgente";
 export const PRIORITY_OPTIONS: { value: Priority; label: string; barClassName: string }[] = [
   { value: "baixa", label: "Baixa", barClassName: "bg-muted-foreground/40" },
   { value: "normal", label: "Normal", barClassName: "bg-primary" },
-  { value: "alta", label: "Alta", barClassName: "bg-secondary" },
+  { value: "alta", label: "Alta", barClassName: "bg-warning" },
   { value: "urgente", label: "Urgente", barClassName: "bg-destructive" },
 ];
 
