@@ -69,6 +69,13 @@ function Recebimentos() {
   const { data: role } = useOrgRole();
   const isAdmin = role === "dono" || role === "admin";
 
+  // Controles da barra compacta (apresentação): período, busca e filtro por conta.
+  const { key, setKey, custom, setCustom, period } = usePeriodPicker("mes");
+  const [receiptSearch, setReceiptSearch] = useState("");
+  const [receiptGroup, setReceiptGroup] = useState("");
+  const [accountSearch, setAccountSearch] = useState("");
+  const [connectionSearch, setConnectionSearch] = useState("");
+
   const accounts = useRecords<PaymentAccountRow & { id: string }>({
     table: "payment_accounts",
     columns: "id, name, provider, fee_percent, payout_days, color, created_by",
@@ -91,37 +98,98 @@ function Recebimentos() {
     );
   }
 
+  const searchProps =
+    tab === "recebimentos"
+      ? {
+          value: receiptSearch,
+          onChange: setReceiptSearch,
+          label: "Buscar descrição",
+          placeholder: "Ex.: venda site",
+          id: "busca-recebimentos",
+        }
+      : tab === "contas"
+        ? {
+            value: accountSearch,
+            onChange: setAccountSearch,
+            label: "Buscar conta",
+            placeholder: "Ex.: Stripe",
+            id: "busca-contas",
+          }
+        : {
+            value: connectionSearch,
+            onChange: setConnectionSearch,
+            label: "Buscar conexão",
+            placeholder: "Ex.: stripe",
+            id: "busca-conexoes",
+          };
+
   return (
     <>
       <PageHeader title="Recebimentos" subtitle={DESCRIPTION} />
 
-      <SelectPillGroup>
-        <SelectPill active={tab === "recebimentos"} onClick={() => setTab("recebimentos")}>
-          Recebimentos
-        </SelectPill>
-        <SelectPill active={tab === "contas"} onClick={() => setTab("contas")}>
-          Contas de recebimento
-        </SelectPill>
-        <SelectPill active={tab === "conexoes"} onClick={() => setTab("conexoes")}>
-          Conexões
-        </SelectPill>
-      </SelectPillGroup>
+      <Toolbar>
+        <ToolbarTabs<Tab>
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: "recebimentos", label: "Recebimentos" },
+            { value: "contas", label: "Contas de recebimento" },
+            { value: "conexoes", label: "Conexões" },
+          ]}
+        />
+
+        {tab === "recebimentos" && (
+          <PeriodPicker value={key} onChange={setKey} custom={custom} onCustomChange={setCustom} />
+        )}
+
+        <ToolbarSearch {...searchProps} />
+
+        {tab === "recebimentos" && (
+          <ToolbarFilters activeCount={receiptGroup ? 1 : 0}>
+            <div>
+              <p className="text-label mb-2 font-medium text-muted-foreground">Conta</p>
+              <SelectPillGroup>
+                <SelectPill active={!receiptGroup} onClick={() => setReceiptGroup("")}>
+                  Todas as contas
+                </SelectPill>
+                {accounts.rows.map((a) => (
+                  <SelectPill
+                    key={a.id}
+                    active={receiptGroup === a.name}
+                    onClick={() => setReceiptGroup(a.name)}
+                  >
+                    {a.name}
+                  </SelectPill>
+                ))}
+              </SelectPillGroup>
+            </div>
+          </ToolbarFilters>
+        )}
+      </Toolbar>
 
       <StripeSummary orgId={orgId ?? null} projectId={projectId} />
 
       {tab === "recebimentos" && (
-        <ReceiptsSection orgId={orgId ?? null} projectId={projectId} accounts={accounts.rows} />
+        <ReceiptsSection
+          orgId={orgId ?? null}
+          projectId={projectId}
+          accounts={accounts.rows}
+          period={period}
+          search={receiptSearch}
+          group={receiptGroup}
+        />
       )}
-      {tab === "contas" && <AccountsSection records={accounts} />}
+      {tab === "contas" && <AccountsSection records={accounts} search={accountSearch} />}
       {tab === "conexoes" && (
         <>
           <StripeSection orgId={orgId ?? null} projectId={projectId} isAdmin={isAdmin} />
-          <ConnectionsSection orgId={orgId ?? null} isAdmin={isAdmin} />
+          <ConnectionsSection orgId={orgId ?? null} isAdmin={isAdmin} search={connectionSearch} />
         </>
       )}
     </>
   );
 }
+
 
 
 
