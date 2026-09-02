@@ -188,6 +188,41 @@ export function RecordPanel({
                     </SelectPill>
                   ))}
                 </SelectPillGroup>
+                {f.extra}
+              </div>
+            );
+          }
+
+          if (f.type === "select") {
+            return (
+              <div key={f.name} className="space-y-1">
+                <Label htmlFor={id} className="text-label">
+                  {f.label}
+                </Label>
+                <Select
+                  value={String(raw ?? "")}
+                  onValueChange={(v) => onChange(f.name, v)}
+                >
+                  <SelectTrigger id={id} className="text-body">
+                    <SelectValue placeholder={f.placeholder ?? "Selecione"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(f.options ?? []).map((o) => (
+                      <SelectItem key={o.value || "-"} value={o.value || "-"} className="text-body">
+                        <span className="flex items-center gap-2">
+                          {o.swatchClassName && (
+                            <span
+                              className={cn("size-2.5 shrink-0 rounded-full", o.swatchClassName)}
+                              aria-hidden
+                            />
+                          )}
+                          {o.label}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {f.extra}
               </div>
             );
           }
