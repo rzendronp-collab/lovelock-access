@@ -163,6 +163,16 @@ function Dinheiro() {
   const allEntries = finance.allEntries;
   const fixedRows = finance.fixedRows;
   const periodEntries = finance.periodEntries;
+  /** Nomes de categoria presentes no período — só para o filtro da barra. */
+  const categoryNames = useMemo(() => {
+    const set = new Set<string>();
+    for (const e of periodEntries) {
+      const name = categories.nameOf(e.category_id, e.category);
+      if (name) set.add(name);
+    }
+    return [...set].sort();
+  }, [periodEntries, categories]);
+
   const periodTotals = finance.totals;
 
   const openingQuery = useQuery({
