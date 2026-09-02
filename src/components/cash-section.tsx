@@ -175,11 +175,11 @@ export function CashSection({
                 inputMode="decimal"
                 className="text-body"
                 value={percentValue}
-                disabled={!perms.isAdminOrOwner}
+                disabled={!perms.isAdmin}
                 onChange={(e) => setPercentInput(e.target.value)}
               />
             </Field>
-            {perms.isAdminOrOwner && (
+            {perms.isAdmin && (
               <Button
                 className="text-body"
                 disabled={savePercent.isPending}

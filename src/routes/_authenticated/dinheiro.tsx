@@ -17,6 +17,7 @@ import {
 } from "@/components/detail-panel";
 import { RecordList } from "@/components/record-list";
 import { BudgetSection } from "@/components/budget-section";
+import { CashSection, WithdrawalBadge } from "@/components/cash-section";
 import { TotalCard } from "@/components/total-card";
 import {
   PeriodPicker,
@@ -93,7 +94,7 @@ export const Route = createFileRoute("/_authenticated/dinheiro")({
   component: Dinheiro,
 });
 
-type Tab = "lancamentos" | "orcamento" | "fixas" | "categorias" | "saldo";
+type Tab = "lancamentos" | "orcamento" | "caixa" | "fixas" | "categorias" | "saldo";
 
 type Values = Record<string, FieldValue>;
 
@@ -183,7 +184,9 @@ function Dinheiro() {
   const accumulated = useMemo(() => {
     const opening = openingQuery.data;
     const start = opening?.opening_date ?? "1900-01-01";
-    const t = totals(entriesInRange(allEntries, fixedRows, start, period.to));
+    const t = totals(entriesInRange(allEntries, fixedRows, start, period.to), {
+      includeWithdrawals: true,
+    });
     return Number(opening?.amount ?? 0) + t.sobrou;
   }, [allEntries, fixedRows, openingQuery.data, period.to]);
 
@@ -341,6 +344,9 @@ function Dinheiro() {
         <SelectPill active={tab === "orcamento"} onClick={() => setTab("orcamento")}>
           Orçado vs realizado
         </SelectPill>
+        <SelectPill active={tab === "caixa"} onClick={() => setTab("caixa")}>
+          Caixa e retiradas
+        </SelectPill>
         <SelectPill active={tab === "fixas"} onClick={() => setTab("fixas")}>
           Despesas fixas
         </SelectPill>
@@ -413,6 +419,7 @@ function Dinheiro() {
                           fixa
                         </span>
                       )}
+                      {e.is_withdrawal && <WithdrawalBadge />}
                       {!e.received && (
                         <span className="text-label ml-2 rounded-full bg-primary/15 px-2 py-0.5 font-medium text-primary">
                           a receber
@@ -486,6 +493,35 @@ function Dinheiro() {
           categories={categories}
           allEntries={allEntries}
           fixedRows={fixedRows}
+        />
+      )}
+      {tab === "caixa" && (
+        <CashSection
+          orgId={orgId ?? null}
+          projectId={projectId}
+          allEntries={allEntries}
+          fixedRows={fixedRows}
+          opening={openingQuery.data}
+          saving={entries.save.isPending}
+          onRegister={(v, done) =>
+            entries.save.mutate(
+              {
+                values: {
+                  entry_date: v.entry_date,
+                  description: v.description,
+                  category_id: null,
+                  account: "",
+                  kind: "saida",
+                  amount: v.amount,
+                  received: true,
+                  contact_id: null,
+                  origin: "manual",
+                  is_withdrawal: true,
+                },
+              },
+              { onSuccess: done },
+            )
+          }
         />
       )}
       {tab === "fixas" && <FixedCostsSection records={fixed} />}
