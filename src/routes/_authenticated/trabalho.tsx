@@ -383,7 +383,6 @@ function Trabalho() {
     if (!card) return;
     handledCardRef.current = requestedCard;
     setBoardId(card.board_id);
-    setFolder("");
     openCardPanel(card);
     void navigate({ to: "/trabalho", search: {}, replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
