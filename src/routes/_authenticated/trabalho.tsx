@@ -1458,6 +1458,52 @@ function Trabalho() {
               ]}
             />
 
+            {/* Densidade dos cartões */}
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              aria-label={compact ? "Usar densidade confortável" : "Usar densidade compacta"}
+              title={compact ? "Densidade: compacta" : "Densidade: confortável"}
+              onClick={() => changeDensity(compact ? "confortavel" : "compacto")}
+            >
+              {compact ? (
+                <Rows3 className="size-4" aria-hidden />
+              ) : (
+                <Rows2 className="size-4" aria-hidden />
+              )}
+            </Button>
+
+            {/* Atalhos de teclado */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  aria-label="Atalhos de teclado"
+                  title="Atalhos de teclado"
+                >
+                  <Keyboard className="size-4" aria-hidden />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-72 space-y-2">
+                <p className="text-body font-semibold">Atalhos de teclado</p>
+                <ul className="space-y-1">
+                  {SHORTCUTS.map((s) => (
+                    <li key={s.keys} className="flex items-center justify-between gap-3">
+                      <span className="text-label rounded border border-border bg-muted px-1.5 py-0.5 font-medium">
+                        {s.keys}
+                      </span>
+                      <span className="text-label text-right text-muted-foreground">{s.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              </PopoverContent>
+            </Popover>
+
+
+
             {/* Search */}
             <ToolbarSearch
               value={search}
