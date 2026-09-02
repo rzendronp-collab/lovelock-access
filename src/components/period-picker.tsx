@@ -87,7 +87,7 @@ export function PeriodPicker({
   onChange: (key: PeriodKey) => void;
   custom: Period;
   onCustomChange: (period: Period) => void;
-  /** Quais atalhos aparecem (padrão: hoje, ontem, 7 dias, 1 mês, 3 meses, personalizado). */
+  /** Quais atalhos aparecem (padrão: todas as opções). */
   options?: PeriodKey[];
 }) {
   const shown = OPTIONS.filter((o) =>
