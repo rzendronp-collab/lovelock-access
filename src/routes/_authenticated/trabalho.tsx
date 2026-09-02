@@ -733,7 +733,7 @@ function Trabalho() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        {(card.assignee_id || card.due_date) && (
+        {(card.assignee_id || card.due_date || (subtasksByCard.get(card.id)?.total ?? 0) > 0) && (
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {card.assignee_id && (
               <Avatar className="size-5" title={memberName(card.assignee_id)}>
