@@ -6,12 +6,18 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Copy,
   Filter,
+  Keyboard,
   LayoutTemplate,
   List,
   ListChecks,
   MoreVertical,
+  MoveRight,
+  Pencil,
   Plus,
+  Rows2,
+  Rows3,
   Search,
 } from "lucide-react";
 import { toast } from "sonner";
