@@ -78,7 +78,7 @@ export function useFinanceCategories(projectId: string | null) {
           color: "neutra",
           kind: "ambos",
           position: rows.length,
-          created_by: userData.user?.id ?? null,
+          created_by: userData.user?.id,
         })
         .select("id")
         .single();
