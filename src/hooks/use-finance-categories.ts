@@ -1,4 +1,7 @@
 import { useMemo } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { useRecords } from "@/hooks/use-records";
 import { useOrgId } from "@/hooks/use-org";
 import { colorSwatch } from "@/lib/board";
@@ -61,5 +64,33 @@ export function useFinanceCategories(projectId: string | null) {
     return cat?.name || fallback || "Sem categoria";
   }
 
-  return { ...records, rows, byId, forKind, swatchOf, nameOf };
+  /** Cria a categoria e devolve o id — usada pelo "+ Nova categoria" do formulário. */
+  const quickCreate = useMutation({
+    mutationFn: async (name: string) => {
+      if (!orgId || !projectId) throw new Error("sem projeto");
+      const { data: userData } = await supabase.auth.getUser();
+      const { data, error } = await supabase
+        .from("finance_categories")
+        .insert({
+          org_id: orgId,
+          project_id: projectId,
+          name,
+          color: "neutra",
+          kind: "ambos",
+          position: rows.length,
+          created_by: userData.user?.id ?? null,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data.id as string;
+    },
+    onSuccess: () => {
+      records.invalidate();
+      toast.success("Categoria salva.");
+    },
+    onError: () => toast.error("Não foi possível salvar a categoria."),
+  });
+
+  return { ...records, rows, byId, forKind, swatchOf, nameOf, quickCreate };
 }

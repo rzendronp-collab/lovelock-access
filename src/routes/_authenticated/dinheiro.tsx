@@ -213,19 +213,15 @@ function Dinheiro() {
           <Button
             variant="secondary"
             className="text-body"
-            disabled={!newCategory.trim() || categories.create.isPending}
-            onClick={() => {
-              const name = newCategory.trim();
-              categories.create.mutate(
-                { name, color: "neutra", kind: "ambos", position: categories.rows.length },
-                {
-                  onSuccess: async () => {
-                    setNewCategory("");
-                    await categories.refetchAsync();
-                  },
+            disabled={!newCategory.trim() || categories.quickCreate.isPending}
+            onClick={() =>
+              categories.quickCreate.mutate(newCategory.trim(), {
+                onSuccess: (id) => {
+                  setNewCategory("");
+                  setValues((prev) => ({ ...prev, category_id: id }));
                 },
-              );
-            }}
+              })
+            }
           >
             Criar
           </Button>
@@ -659,6 +655,135 @@ function FixedCostsSection({
         onSave={save}
         saving={records.save.isPending}
         idPrefix="fc"
+      />
+    </>
+  );
+}
+
+const CATEGORY_FIELDS: FieldDef[] = [
+  { name: "name", label: "Nome", type: "text" },
+  {
+    name: "color",
+    label: "Cor",
+    type: "choice",
+    options: ITEM_COLORS.map((c) => ({ value: c.value, label: c.label })),
+  },
+  {
+    name: "kind",
+    label: "Tipo",
+    type: "choice",
+    options: CATEGORY_KINDS.map((k) => ({ value: k.value, label: k.label })),
+  },
+  { name: "archived", label: "Arquivada", type: "switch" },
+];
+
+function CategoriesSection({
+  categories,
+}: {
+  categories: ReturnType<typeof useFinanceCategories>;
+}) {
+  const perms = usePermissions();
+  const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | undefined>(undefined);
+  const [values, setValues] = useState<Values>({
+    name: "",
+    color: "neutra",
+    kind: "ambos",
+    archived: false,
+  });
+
+  function openNew() {
+    setEditingId(undefined);
+    setValues({ name: "", color: "neutra", kind: "ambos", archived: false });
+    setOpen(true);
+  }
+
+  function openEdit(c: FinanceCategoryRow) {
+    setEditingId(c.id);
+    setValues({ name: c.name, color: c.color, kind: c.kind, archived: c.archived });
+    setOpen(true);
+  }
+
+  function save() {
+    categories.save.mutate(
+      {
+        id: editingId,
+        values: {
+          name: String(values['name'] ?? "").trim(),
+          color: String(values['color'] ?? "neutra"),
+          kind: String(values['kind'] ?? "ambos"),
+          archived: Boolean(values['archived']),
+          position: categories.rows.length,
+        },
+      },
+      { onSuccess: () => setOpen(false) },
+    );
+  }
+
+  return (
+    <>
+      <AppCard
+        title="Categorias do projeto"
+        subtitle="Cada projeto tem suas categorias, com cor e tipo."
+        actions={
+          perms.canWrite ? (
+            <Button className="text-body" onClick={openNew}>
+              <Plus className="size-4" aria-hidden /> Nova categoria
+            </Button>
+          ) : undefined
+        }
+      >
+        {categories.isLoading ? (
+          <LoadingState />
+        ) : categories.error ? (
+          <ErrorState onRetry={categories.refetch} />
+        ) : categories.rows.length === 0 ? (
+          <EmptyState
+            title="Nenhuma categoria"
+            message="Cadastre categorias para classificar os lançamentos deste projeto."
+          />
+        ) : (
+          <ul className="divide-y divide-border">
+            {categories.rows.map((c) => (
+              <li key={c.id} className="flex flex-wrap items-center gap-3 py-3">
+                <span
+                  className={cn("size-3 shrink-0 rounded-full", colorSwatch(c.color))}
+                  aria-hidden
+                />
+                <div className="min-w-40 flex-1">
+                  <p className="text-body font-medium">{c.name}</p>
+                  <p className="text-label text-muted-foreground">
+                    {categoryKindLabel(c.kind)}
+                    {c.archived ? " · arquivada" : ""}
+                  </p>
+                </div>
+                {perms.canWrite && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Editar categoria"
+                    onClick={() => openEdit(c)}
+                  >
+                    <Pencil className="size-4" aria-hidden />
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </AppCard>
+
+      <RecordPanel
+        open={open}
+        onOpenChange={setOpen}
+        title={editingId ? "Editar categoria" : "Nova categoria"}
+        description="Nome, cor e em quais lançamentos ela aparece."
+        fields={CATEGORY_FIELDS}
+        values={values}
+        onChange={(name, value) => setValues((prev) => ({ ...prev, [name]: value }))}
+        onSave={save}
+        saving={categories.save.isPending}
+        idPrefix="cat"
       />
     </>
   );
