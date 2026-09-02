@@ -595,6 +595,83 @@ function Trabalho() {
     );
   }
 
+  // Atalhos de teclado do quadro — ignorados quando o foco está num campo de texto.
+  useEffect(() => {
+    function isTyping(target: EventTarget | null) {
+      const el = target as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName;
+      return (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        el.isContentEditable === true
+      );
+    }
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (isTyping(e.target)) return;
+
+      if (e.key === "Escape") {
+        if (cardPanelOpen) setCardPanelOpen(false);
+        if (boardPanel) setBoardPanel(false);
+        if (columnPanel) setColumnPanel(false);
+        if (limitColumn) setLimitColumn(null);
+        return;
+      }
+
+      if (view !== "kanban" || cardPanelOpen) return;
+
+      const focused = focusedCardId
+        ? (filteredBoardCards.find((c) => c.id === focusedCardId) ?? null)
+        : null;
+      const columnId = focused?.column_id ?? boardColumns[0]?.id ?? null;
+      const colCards = filteredBoardCards.filter((c) => c.column_id === columnId);
+
+      const key = e.key.toLowerCase();
+
+      if (key === "n") {
+        if (!perms.canWrite || !columnId) return;
+        e.preventDefault();
+        newCard(columnId);
+        return;
+      }
+
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        if (colCards.length === 0) return;
+        e.preventDefault();
+        const index = focused ? colCards.findIndex((c) => c.id === focused.id) : -1;
+        const next =
+          e.key === "ArrowDown"
+            ? Math.min(colCards.length - 1, index + 1)
+            : Math.max(0, index <= 0 ? 0 : index - 1);
+        const target = colCards[next];
+        if (target) setFocusedCardId(target.id);
+        return;
+      }
+
+      if ((e.key === "Enter" || key === "e") && focused) {
+        e.preventDefault();
+        openCardPanel(focused);
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    view,
+    cardPanelOpen,
+    boardPanel,
+    columnPanel,
+    limitColumn,
+    focusedCardId,
+    filteredBoardCards,
+    boardColumns,
+    perms.canWrite,
+  ]);
+
   const loading = loadingOrg || boards.isLoading || columns.isLoading || cards.isLoading;
   const error = boards.error ?? columns.error ?? cards.error;
 
