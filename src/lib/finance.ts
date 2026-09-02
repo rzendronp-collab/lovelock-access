@@ -14,6 +14,7 @@ export type FinanceEntryRow = {
   contact_id: string | null;
   created_by: string | null;
   project_id?: string | null;
+  is_withdrawal?: boolean;
 };
 
 export type FixedCostRow = {
@@ -46,6 +47,8 @@ export type DisplayEntry = {
   contact_id: string | null;
   created_by: string | null;
   project_id: string | null;
+  /** Retirada (distribuição de lucro): sai do caixa, mas não é custo operacional. */
+  is_withdrawal: boolean;
 };
 
 /** Dinheiro digitado no sistema (gastos, metas, relatórios) — sempre em real. */
@@ -116,6 +119,7 @@ export function expandFixedCosts(
             contact_id: null,
             created_by: c.created_by ?? null,
             project_id: c.project_id ?? null,
+            is_withdrawal: false,
           });
         }
       }
@@ -142,17 +146,32 @@ export function toDisplay(rows: FinanceEntryRow[]): DisplayEntry[] {
     contact_id: r.contact_id ?? null,
     created_by: r.created_by ?? null,
     project_id: r.project_id ?? null,
+    is_withdrawal: Boolean(r.is_withdrawal),
   }));
 }
 
-export function totals(entries: DisplayEntry[]) {
+/**
+ * Fonte ÚNICA de soma. Por padrão calcula LUCRO OPERACIONAL: retiradas
+ * (distribuição de lucro) não entram em "saiu" nem em "sobrou".
+ * Com `includeWithdrawals`, soma o dinheiro real que saiu do caixa.
+ */
+export function totals(
+  entries: DisplayEntry[],
+  options?: { includeWithdrawals?: boolean },
+) {
+  const includeWithdrawals = options?.includeWithdrawals ?? false;
   const entrou = entries
     .filter((e) => e.kind === "entrada")
     .reduce((s, e) => s + e.amount, 0);
-  const saiu = entries.filter((e) => e.kind === "saida").reduce((s, e) => s + e.amount, 0);
+  const saiu = entries
+    .filter((e) => e.kind === "saida" && (includeWithdrawals || !e.is_withdrawal))
+    .reduce((s, e) => s + e.amount, 0);
+  const retiradas = entries
+    .filter((e) => e.kind === "saida" && e.is_withdrawal)
+    .reduce((s, e) => s + e.amount, 0);
   const sobrou = entrou - saiu;
   const margem = entrou > 0 ? (sobrou / entrou) * 100 : 0;
-  return { entrou, saiu, sobrou, margem };
+  return { entrou, saiu, sobrou, margem, retiradas };
 }
 
 /** Últimos `count` meses (inclusive o atual) no formato "YYYY-MM". */
@@ -188,7 +207,7 @@ export function monthlySeries(entries: DisplayEntry[], months: string[]) {
     const bucket = base.get(e.entry_date.slice(0, 7));
     if (!bucket) continue;
     if (e.kind === "entrada") bucket.entradas += e.amount;
-    else bucket.saidas += e.amount;
+    else if (!e.is_withdrawal) bucket.saidas += e.amount;
   }
   return months.map((m) => {
     const b = base.get(m)!;
