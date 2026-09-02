@@ -1,9 +1,24 @@
 import { useMemo, useState } from "react";
-import { SelectPill, SelectPillGroup } from "@/components/select-pill";
+import { CalendarIcon } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export type PeriodKey = "7d" | "mes" | "trimestre" | "ano" | "custom";
+export type PeriodKey =
+  | "hoje"
+  | "ontem"
+  | "7d"
+  | "mes"
+  | "3meses"
+  | "trimestre"
+  | "ano"
+  | "custom";
 
 export type Period = { from: string; to: string };
 
@@ -14,6 +29,13 @@ export function toISODate(d: Date) {
 function computeRange(key: PeriodKey, custom: Period): Period {
   const today = new Date();
   const to = toISODate(today);
+  if (key === "hoje") return { from: to, to };
+  if (key === "ontem") {
+    const d = new Date(today);
+    d.setDate(d.getDate() - 1);
+    const iso = toISODate(d);
+    return { from: iso, to: iso };
+  }
   if (key === "7d") {
     const from = new Date(today);
     from.setDate(from.getDate() - 6);
@@ -22,12 +44,12 @@ function computeRange(key: PeriodKey, custom: Period): Period {
   if (key === "mes") {
     return { from: toISODate(new Date(today.getFullYear(), today.getMonth(), 1)), to };
   }
-  if (key === "ano") {
-    return { from: toISODate(new Date(today.getFullYear(), today.getMonth() - 11, 1)), to };
-  }
-  if (key === "trimestre") {
+  if (key === "3meses" || key === "trimestre") {
     const from = new Date(today.getFullYear(), today.getMonth() - 2, 1);
     return { from: toISODate(from), to };
+  }
+  if (key === "ano") {
+    return { from: toISODate(new Date(today.getFullYear(), today.getMonth() - 11, 1)), to };
   }
   return custom;
 }
@@ -44,10 +66,11 @@ export function usePeriodPicker(initial: PeriodKey = "mes", initialCustom?: Part
 }
 
 const OPTIONS: { key: PeriodKey; label: string }[] = [
+  { key: "hoje", label: "Hoje" },
+  { key: "ontem", label: "Ontem" },
   { key: "7d", label: "7 dias" },
-  { key: "mes", label: "Mês" },
-  { key: "trimestre", label: "Trimestre" },
-  { key: "ano", label: "Ano" },
+  { key: "mes", label: "1 mês" },
+  { key: "3meses", label: "3 meses" },
   { key: "custom", label: "Personalizado" },
 ];
 
@@ -62,21 +85,30 @@ export function PeriodPicker({
   onChange: (key: PeriodKey) => void;
   custom: Period;
   onCustomChange: (period: Period) => void;
-  /** Quais atalhos aparecem (padrão: 7 dias, mês, trimestre, personalizado). */
+  /** Quais atalhos aparecem (padrão: hoje, ontem, 7 dias, 1 mês, 3 meses, personalizado). */
   options?: PeriodKey[];
 }) {
   const shown = OPTIONS.filter((o) =>
-    options ? options.includes(o.key) : o.key !== "ano",
+    options ? options.includes(o.key) : true,
   );
+  const currentLabel = shown.find((o) => o.key === value)?.label ?? "Período";
+
   return (
     <div className="space-y-3">
-      <SelectPillGroup>
-        {shown.map((o) => (
-          <SelectPill key={o.key} active={value === o.key} onClick={() => onChange(o.key)}>
-            {o.label}
-          </SelectPill>
-        ))}
-      </SelectPillGroup>
+      <Select value={value} onValueChange={(v) => onChange(v as PeriodKey)}>
+        <SelectTrigger className="h-8 w-auto min-w-[9.5rem] gap-2 text-body">
+          <CalendarIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+          <SelectValue placeholder="Período">{currentLabel}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {shown.map((o) => (
+            <SelectItem key={o.key} value={o.key} className="text-body">
+              {o.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
       {value === "custom" && (
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1">
