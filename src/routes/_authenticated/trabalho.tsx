@@ -1124,7 +1124,7 @@ function Trabalho() {
         </AppCard>
       ) : (
         <>
-          <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-2">
+          <Toolbar>
             {/* Board selector + add */}
             <div className="flex items-center gap-1">
               <DropdownMenu>
