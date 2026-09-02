@@ -1,6 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, ListChecks, MoreVertical, Plus } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  ListChecks,
+  MoreVertical,
+  Plus,
+  Search,
+} from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
 import { AppCard } from "@/components/app-card";
@@ -19,6 +27,14 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,9 +58,12 @@ import {
   PRIORITY_OPTIONS,
   priorityBar,
   dueTone,
+  todayISO,
   type DueFilter,
 } from "@/lib/board";
 import { cn } from "@/lib/utils";
+
+type View = "kanban" | "lista" | "calendario";
 
 type TrabalhoSearch = { cartao?: string };
 
