@@ -16,6 +16,7 @@ import {
   type FieldValue,
 } from "@/components/detail-panel";
 import { RecordList } from "@/components/record-list";
+import { BudgetSection } from "@/components/budget-section";
 import { TotalCard } from "@/components/total-card";
 import {
   PeriodPicker,
