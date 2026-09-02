@@ -854,7 +854,8 @@ function Trabalho() {
           <button
             type="button"
             className={cn(
-              "text-body min-w-0 flex-1 text-left font-medium",
+              "min-w-0 flex-1 text-left font-medium",
+              compact ? "text-label" : "text-body",
               card.done && "line-through text-muted-foreground",
             )}
             onClick={() => openCardPanel(card)}
