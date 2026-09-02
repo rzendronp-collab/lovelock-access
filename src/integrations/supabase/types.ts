@@ -266,6 +266,7 @@ export type Database = {
           label: string
           org_id: string
           position: number
+          priority: string
           title: string
           updated_at: string
         }
@@ -286,6 +287,7 @@ export type Database = {
           label?: string
           org_id: string
           position?: number
+          priority?: string
           title: string
           updated_at?: string
         }
@@ -306,6 +308,7 @@ export type Database = {
           label?: string
           org_id?: string
           position?: number
+          priority?: string
           title?: string
           updated_at?: string
         }
