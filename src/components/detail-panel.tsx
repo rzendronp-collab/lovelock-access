@@ -22,6 +22,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/use-org";
 import { Button } from "@/components/ui/button";
 
@@ -201,7 +209,7 @@ export function RecordPanel({
                 </Label>
                 <Select
                   value={String(raw ?? "")}
-                  onValueChange={(v) => onChange(f.name, v)}
+                  onValueChange={(v) => onChange(f.name, v === "-" ? "" : v)}
                 >
                   <SelectTrigger id={id} className="text-body">
                     <SelectValue placeholder={f.placeholder ?? "Selecione"} />
